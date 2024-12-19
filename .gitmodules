@@ -1,0 +1,3 @@
+[submodule "Google-Map-Api"]
+	path = Google-Map-Api
+	url = https://github.com/HemanthDL/Google-Map-Api.git
