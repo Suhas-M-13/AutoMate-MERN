@@ -1,0 +1,65 @@
+
+  
+  .errors{
+    color: red;
+    font-size : 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-box{
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+  }
+  
+  form input{
+    margin: 5px 5px; 
+    width: 30rem;
+    padding: 5px;
+    border : none;
+    border-radius: 0.25rem;
+    outline: none;
+    color : black;
+  }
+
+  form button{
+    margin: 10px 10px;
+    background-color: rgb(53, 59, 65);
+    /* border: 1px solid black; */
+    padding: 10px;
+    border-radius: 0.25rem;
+  }
+
+    form button:hover{
+    background-color: rgb(92, 98, 100);
+  }
+
+  form a{
+    color: rgb(109, 109, 248);
+  }
+  form a:hover{
+    color : blue
+  }
+
+  .maindivforlogin{
+    height: 80vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .maindivformain{
+    gap: 5px;
+    position: relative;
+    top: 20rem;
+    height: 80vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
