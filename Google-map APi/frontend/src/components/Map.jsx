@@ -87,7 +87,7 @@ const Map = () => {
   };
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyAITMIaeRXhmu3kpBtdiEqhNRf2JLIV8nw",
+    googleMapsApiKey: import.meta.env.API_KEY,
     libraries,
   });
 
