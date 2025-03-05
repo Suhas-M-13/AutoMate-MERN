@@ -5,6 +5,8 @@ import cors from "cors"
 import path from "path"
 
 import authRoutes from "./routes/auth.route.js"
+import consumerRoutes from "./routes/consumer.route.js"
+import mechanicRoutes from "./routes/mechanic.route.js"
 
 
 import {connectDB} from "./db/connection.js"
@@ -38,7 +40,11 @@ else{
 app.get("/",(req,res)=>{
     res.send("Hello World!!")
 })
+
 app.use("/api/auth",authRoutes)
+app.use("/api/consumer",consumerRoutes)
+app.use("/api/mechanic",mechanicRoutes)
+
 
 
 app.listen(PORT,()=>{

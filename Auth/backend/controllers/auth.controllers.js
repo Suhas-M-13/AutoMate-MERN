@@ -1,6 +1,6 @@
 import crypto from "crypto"
 
-import { sendPasswordResetEmail, sendResetSuccessfullEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js"
+import { sendPasswordResetEmail, sendResetSuccessfulEmail, sendVerificationEmail, sendWelcomeEmail } from "../mailtrap/emails.js"
 
 import {User} from "../models/user.model.js"
 
@@ -9,10 +9,10 @@ import { generateVerificationCode } from "../services/verificationCode.js"
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
 
 export const signup = async (req,res)=>{
-    const {email,password,name} = req.body
+    const {email,password,name,role,mobileNumber} = req.body
 
     try {
-        if(!email || !password || !name){
+        if(!email || !password || !name || !role || !mobileNumber){
             throw new Error("All Fields are required")
         }
 
@@ -36,6 +36,8 @@ export const signup = async (req,res)=>{
             password : hashedPassword,
             name,
             verificationToken,
+            role,
+            mobileNumber,
             verificationTokenExpiresAt : Date.now() + 24*60*60*1000
         })
 
@@ -182,9 +184,15 @@ export const forgotPassword = async(req,res) => {
         user.resetPasswordExpiresAt = resetTokenExpiresAt
 
         await user.save()
+        
+        if(process.env.NODE_ENV === "production"){
 
-        await sendPasswordResetEmail(user.email,`${process.env.CLIENT_URL}/reset-password/${resetToken}`)
-
+            await sendPasswordResetEmail(user.email,`${process.env.CLIENT_URL}/reset-password/${resetToken}`)
+            
+        }
+        else{
+            await sendPasswordResetEmail(user.email,`${process.env.Frontend_URL}/reset-password/${resetToken}`)
+        }
         res.status(200).json({
             success : true,
             message : "Reset email sent successfully",
@@ -224,7 +232,7 @@ export const resetPassword = async(req,res) => {
 
         await user.save()
 
-        await sendResetSuccessfullEmail(user.email);
+        await sendResetSuccessfulEmail(user.email);
 
         res.status(200).json({
             success : true,

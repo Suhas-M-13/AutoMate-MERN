@@ -1,8 +1,9 @@
 import { React, useState } from 'react'
 import { motion } from "framer-motion"
-import { User, Mail, Lock, Loader } from "lucide-react"
+import { User, Mail, Lock, Loader,CircleUserRound,TabletSmartphone } from "lucide-react"
 import { Link, useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast"
+
 
 import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
 import Input from '../components/Input';
@@ -14,6 +15,8 @@ const SignUpPage = () => {
   const [name, setname] = useState('')
   const [email, setemail] = useState('')
   const [password, setpassword] = useState('')
+  const [role, setrole] = useState('')
+  const [mobile, setmobile] = useState('')
   const navigate = useNavigate()
 
   const {signup,error,isLoading} = useAuthStore()
@@ -22,7 +25,7 @@ const SignUpPage = () => {
     e.preventDefault();
     console.log("inside handlesignup : "+isLoading);
     try {
-      await signup(email,password,name)
+      await signup(email,password,name,role,mobile)
       navigate("/verify-email")
     } catch (error) {
       // console.log(error);
@@ -79,6 +82,32 @@ const SignUpPage = () => {
               }
             }
             textTypeVal = "false"
+          />
+
+<Input
+            icon={CircleUserRound}
+            type='text'
+            placeholder='Enter Role'
+            value={role}
+            onChange={
+              (e) => {
+                setrole(e.target.value)
+              }
+            }
+            textTypeVal = "true"
+          />
+
+<Input
+            icon={TabletSmartphone}
+            type='text'
+            placeholder='Enter Mobile Number'
+            value={mobile}
+            onChange={
+              (e) => {
+                setmobile(e.target.value)
+              }
+            }
+            textTypeVal = "true"
           />
 
           {error && <p className='text-red-500 font-semibold mt-2'>{error}</p>}

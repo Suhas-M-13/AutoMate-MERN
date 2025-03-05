@@ -9,9 +9,10 @@ import LoginPage from "./pages/LoginPage"
 import EmailVerificationPage from "./pages/EmailVerificationPage"
 import DashBoardPage from "./pages/DashBoardPage"
 import ForgetPasswordPage from "./pages/ForgetPasswordPage"
-import ResetPasswordPage from "./pages/ResetPasswordPage"
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx"
 
 import  {useAuthStore}  from "./store/authStore.js"
+import Homepage from "./pages/Homepage.jsx"
 
 
 
@@ -87,6 +88,9 @@ function App() {
             <ProtectedRoute>
               <DashBoardPage/>
             </ProtectedRoute>
+          } />
+          <Route path="/welcome" element={
+              <Homepage/>
           } />
           <Route path="/signup" element={
             <RedirectAuthenticatedUser>
