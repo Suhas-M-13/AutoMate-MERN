@@ -1,12 +1,12 @@
 import express from "express"
-import { verifyToken } from "../middleware/verifyToken";
+import { verifyToken } from "../middleware/verifyToken.js";
 
 import {
     getAllCustomerRequest,
-    getAllCustomerRequest,
+    updateAcceptRequest,
     getPendingList,
     getCompletedList,
-    completedCustomerRequest,
+    updateCompleteCustomerRequest,
     getBillForm,
     AddBillForm,
     updateBillForm,
@@ -17,11 +17,11 @@ const router = express.Router();
 
 
 router.get('/request',verifyToken,getAllCustomerRequest)
-router.patch('/accept/:id',verifyToken,getAllCustomerRequest)
+router.patch('/accept/:id',verifyToken,updateAcceptRequest)
 router.get('/pending',verifyToken,getPendingList)
 router.get('/completed',verifyToken,getCompletedList)
-router.patch('/completed/:id',verifyToken,completedCustomerRequest)
-router.get('/bill',verifyToken,getBillForm)
+router.patch('/completed/:id',verifyToken,updateCompleteCustomerRequest)
+router.get('/bill/:id',verifyToken,getBillForm)
 router.post('/bill',AddBillForm)
 router.put('/bill/:id',verifyToken,updateBillForm)
 router.get('/comments',verifyToken,getComments)

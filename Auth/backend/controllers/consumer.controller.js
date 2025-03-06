@@ -147,7 +147,8 @@ export const getShopListPendingById = async(req,res)=>{
         if(!customerId){
             throw new Error("Not Authenticated..")
         }
-
+        console.log('id : '+customerId);
+        
         const bookSlot = await book.find({
             customerId,
             isCompleted : false
@@ -161,9 +162,14 @@ export const getShopListPendingById = async(req,res)=>{
             })
         }
 
-        const shopDetail = await Shop.find({
-            ownerId : bookSlot.mechanicId
-        })
+        const shopDetail = []
+
+        for(let i = 0;i<bookSlot.length;i++){   
+            const fetchData = await Shop.find({
+                ownerId : bookSlot[i].mechanicId
+            })
+            shopDetail.push(fetchData)
+        }
 
         if(!shopDetail){
             throw new Error("Couldn't fetch shop details")
@@ -205,9 +211,14 @@ export const getShopListCompletedById = async(req,res)=>{
             })
         }
 
-        const shopDetail = await Shop.find({
-            ownerId : bookSlot.mechanicId
-        })
+        const shopDetail = []
+
+        for(let i = 0;i<bookSlot.length;i++){   
+            const fetchData = await Shop.find({
+                ownerId : bookSlot[i].mechanicId
+            })
+            shopDetail.push(fetchData)
+        }
 
         if(!shopDetail){
             throw new Error("Couldn't fetch shop details")
