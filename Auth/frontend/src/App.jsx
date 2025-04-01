@@ -13,8 +13,12 @@ import ResetPasswordPage from "./pages/ResetPasswordPage.jsx"
 
 import  {useAuthStore}  from "./store/authStore.js"
 import Homepage from "./pages/Homepage.jsx"
-
-
+import Bill from "./pages/Mechanic/Bill.jsx"
+import BookingForm from "./pages/Customer/BookForm.jsx"
+import Dashboard from "./pages/Customer/Dashboard.jsx"
+import MechanicDashboard from "./pages/Mechanic/Dashboard.jsx"
+import Invoice from "./pages/Customer/Invoice.jsx"
+import MechanicRegistration from "./pages/Mechanic/MechanicRegister.jsx"
 
 //protecting routes
 const ProtectedRoute = ({ children }) => {
@@ -91,6 +95,24 @@ function App() {
           } />
           <Route path="/welcome" element={
               <Homepage/>
+          } />
+          <Route path="/billmechanic" element={
+              <Bill/>
+          } />
+          <Route path="/bookform" element={
+              <BookingForm/>
+          } />
+          <Route path="/dashboardcustomer" element={
+              <Dashboard/>
+          } />
+          <Route path="/dashboardmechanic" element={
+              <MechanicDashboard/>
+          } />
+          <Route path="/invoice" element={
+              <Invoice/>
+          } />
+          <Route path="/mechanicregestration" element={
+              <MechanicRegistration/>
           } />
           <Route path="/signup" element={
             <RedirectAuthenticatedUser>
