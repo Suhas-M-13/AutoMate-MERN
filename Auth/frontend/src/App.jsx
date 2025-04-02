@@ -19,6 +19,9 @@ import Dashboard from "./pages/Customer/Dashboard.jsx"
 import MechanicDashboard from "./pages/Mechanic/Dashboard.jsx"
 import Invoice from "./pages/Customer/Invoice.jsx"
 import MechanicRegistration from "./pages/Mechanic/MechanicRegister.jsx"
+import ShopDetails from "./pages/Customer/ShopDetails.jsx"
+import ServiceFeedback from "./pages/Customer/ServiceFeedback.jsx"
+import MechanicFeedback from "./pages/Mechanic/MechanicFeedback.jsx"
 
 //protecting routes
 const ProtectedRoute = ({ children }) => {
@@ -113,6 +116,15 @@ function App() {
           } />
           <Route path="/mechanicregestration" element={
               <MechanicRegistration/>
+          } />
+          <Route path="/shopdetails" element={
+              <ShopDetails/>
+          } />
+          <Route path="/servicefeedback" element={
+              <ServiceFeedback/>
+          } />
+          <Route path="/mechanicfeedback" element={
+              <MechanicFeedback/>
           } />
           <Route path="/signup" element={
             <RedirectAuthenticatedUser>
