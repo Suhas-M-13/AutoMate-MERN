@@ -102,6 +102,7 @@ function App() {
           <Route path="/billmechanic" element={
               <Bill/>
           } />
+          {/* use invoice/:id */}
           <Route path="/bookform" element={
               <BookingForm/>
           } />
@@ -111,6 +112,7 @@ function App() {
           <Route path="/dashboardmechanic" element={
               <MechanicDashboard/>
           } />
+          {/* use invoice/:id */}
           <Route path="/invoice" element={
             <ProtectedRoute>
               <Invoice/>
@@ -119,6 +121,7 @@ function App() {
           <Route path="/mechanicregestration" element={
               <MechanicRegistration/>
           } />
+          {/* use invoice/:id */}
           <Route path="/shopdetails" element={
               <ShopDetails/>
           } />

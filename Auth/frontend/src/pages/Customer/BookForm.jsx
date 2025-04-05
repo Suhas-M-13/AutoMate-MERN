@@ -93,7 +93,7 @@ const BookingForm = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Shop Details Section */}
             <fieldset className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <legend className="text-xl font-bold text-gray-800 px-2 mb-4">Shop Details</legend>
+              <legend className="text-xl font-bold text-gray-800 px-2 mb-4">Slot Booking</legend>
               <div className="space-y-4">
                 <div>
                   <label htmlFor="shopname" className="block text-sm font-medium text-gray-700">Shop Name:</label>

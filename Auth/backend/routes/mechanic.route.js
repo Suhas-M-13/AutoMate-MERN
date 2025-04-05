@@ -10,12 +10,14 @@ import {
     getBillForm,
     AddBillForm,
     updateBillForm,
-    getComments
+    getComments,
+    AddShop
 } from "../controllers/mechanic.controller.js"
 
 const router = express.Router();
 
 
+router.post('/addShop',verifyToken,AddShop)
 router.get('/request',verifyToken,getAllCustomerRequest)
 router.patch('/accept/:id',verifyToken,updateAcceptRequest)
 router.get('/pending',verifyToken,getPendingList)

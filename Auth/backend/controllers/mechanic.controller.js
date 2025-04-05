@@ -7,6 +7,52 @@ import { bill } from "../models/bill.model.js"
 
 
 
+
+export const AddShop = async(req,res)=>{
+    try {
+        const { shopname, ownerName, mobileNumber, ownerId, description, serviceAvailable, address, timings } = req.body;
+    
+        // Validate the request data
+        if (!shopname || !ownerName || !mobileNumber || !ownerId || !serviceAvailable) {
+          return res.status(400).json({ success: false, message: "All fields are required" });
+        }
+    
+        // Check if owner exists (optional, but good practice to check)
+        const owner = await User.findById(ownerId);
+        if (!owner) {
+          return res.status(404).json({ success: false, message: "Owner not found" });
+        }
+    
+        // Create new Shop
+        const newShop = new Shop({
+          shopname,
+          ownerName,
+          mobileNumber,
+          ownerId,
+          description,
+          serviceAvailable,
+          address,
+          timings
+        });
+    
+        // Save the shop to the database
+        await newShop.save();
+    
+        return res.status(201).json({
+          success: true,
+          message: "Shop created successfully",
+          shop: newShop
+        });
+      } catch (error) {
+        console.log('Error creating shop: ', error);
+        return res.status(500).json({
+          success: false,
+          message: error.message || "Server error"
+        });
+      }
+    
+}
+
 export const getAllCustomerRequest = async(req,res)=>{
     try {
         const mechanicId = req.userId

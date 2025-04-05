@@ -51,8 +51,8 @@ const CustomerDashboard = () => {
     }
   };
 
-  const handleBookSlot = (mechanic) => {
-    // Implementation for booking slot
+  const handleBookSlot = (mechanic_id) => {
+    // Implementation for booking slot id na navigate
   };
 
   const handleViewBill = (service) => {
@@ -156,7 +156,7 @@ const CustomerDashboard = () => {
               <div className="flex items-center space-x-4">
                 <FaClipboardList className="text-3xl text-blue-500" />
                 <div>
-                  <span className="text-gray-600">Pending</span>
+                  <span className="text-gray-600">Shop List</span>
                 </div>
               </div>
             </div>
@@ -166,7 +166,7 @@ const CustomerDashboard = () => {
               <div className="flex items-center space-x-4">
                 <FaClock className="text-3xl text-yellow-500" />
                 <div>
-                  <span className="text-gray-600">Working</span>
+                  <span className="text-gray-600">Pending</span>
                 </div>
               </div>
             </div>
@@ -203,10 +203,10 @@ const CustomerDashboard = () => {
                             <div className="flex-shrink-0 h-10 w-10">
                               <FaUserCircle className="h-10 w-10 text-gray-400" />
                             </div>
-                            {/* <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{mechanic.name}</div>
-                              <div className="text-sm text-gray-500">{mechanic.email}</div>
-                            </div> */}
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{mechanic.ownerName}</div>
+                              {/* <div className="text-sm text-gray-500">{mechanic.email}</div> */}
+                            </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -219,12 +219,12 @@ const CustomerDashboard = () => {
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-900 flex items-center">
                             <FaPhone className="mr-1" />
-                            {mechanic.number}
+                            {mechanic.mobileNumber}
                           </div>
-                          <div className="text-sm text-gray-500 flex items-center">
+                          {/* <div className="text-sm text-gray-500 flex items-center">
                             <FaEnvelope className="mr-1" />
                             {mechanic.email}
-                          </div>
+                          </div> */}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
