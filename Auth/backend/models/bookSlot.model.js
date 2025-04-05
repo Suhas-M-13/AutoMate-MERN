@@ -42,6 +42,10 @@ const slotSchema = new mongoose.Schema({
     isCompleted : {
         type : Boolean,
         required : true
+    },
+    isPaid : {
+        type : Boolean,
+        require : true
     }
 },{timestamps:true});
 

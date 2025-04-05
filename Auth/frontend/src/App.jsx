@@ -15,7 +15,7 @@ import  {useAuthStore}  from "./store/authStore.js"
 import Homepage from "./pages/Homepage.jsx"
 import Bill from "./pages/Mechanic/Bill.jsx"
 import BookingForm from "./pages/Customer/BookForm.jsx"
-import Dashboard from "./pages/Customer/Dashboard.jsx"
+import CustomerDashboard from "./pages/Customer/Dashboard.jsx"
 import MechanicDashboard from "./pages/Mechanic/Dashboard.jsx"
 import Invoice from "./pages/Customer/Invoice.jsx"
 import MechanicRegistration from "./pages/Mechanic/MechanicRegister.jsx"
@@ -43,7 +43,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore()
 
   if (isAuthenticated && user.isverified) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/invoice" replace />
   }
 
   return children
@@ -67,7 +67,7 @@ function App() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-neutral-700 to-slate-700 flex items-center justify-center relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-blue-700 to-slate-700 flex items-center justify-center relative overflow-hidden">
         <FloatingShape
           color="bg-zinc-900"
           size="w-64 h-64"
@@ -91,11 +91,11 @@ function App() {
         />
 
         <Routes>
-          <Route path="/" element={
+          {/* <Route path="/" element={
             <ProtectedRoute>
               <DashBoardPage/>
             </ProtectedRoute>
-          } />
+          } /> */}
           <Route path="/welcome" element={
               <Homepage/>
           } />
@@ -106,13 +106,15 @@ function App() {
               <BookingForm/>
           } />
           <Route path="/dashboardcustomer" element={
-              <Dashboard/>
+              <CustomerDashboard/>
           } />
           <Route path="/dashboardmechanic" element={
               <MechanicDashboard/>
           } />
           <Route path="/invoice" element={
+            <ProtectedRoute>
               <Invoice/>
+            </ProtectedRoute>
           } />
           <Route path="/mechanicregestration" element={
               <MechanicRegistration/>

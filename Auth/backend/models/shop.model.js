@@ -6,6 +6,14 @@ const shopSchema = new mongoose.Schema({
         type : String,
         required : true
     },
+    ownerName : {
+        type : String,
+        required : true
+    },
+    mobileNumber : {
+        type: String,
+        required: true,
+    },
     ownerId : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'user.model'

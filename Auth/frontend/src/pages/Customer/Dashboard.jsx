@@ -18,6 +18,8 @@ import {
   FaPhone,
   FaEnvelope
 } from 'react-icons/fa';
+import { useAuthStore } from '../../store/authStore';
+import { toast } from 'react-hot-toast';
 
 const CustomerDashboard = () => {
   const navigate = useNavigate();
@@ -25,53 +27,51 @@ const CustomerDashboard = () => {
   const [profileImage, setProfileImage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  let data, second, third, Name, dashboardname, arr, phno, conmail  = null
+  const { user, logout, shopDetail, shop, isLoading, error } = useAuthStore();
+
+  const fetchShopDetail = async () => {
+    try {
+      await shopDetail();
+    } catch (error) {
+      toast.error(error.message || "Error in fetching shop information");
+    }
+  };
 
   useEffect(() => {
-    // Generate profile image
-    const firstCharacter = name.charAt(0).toUpperCase();
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = 100;
-    canvas.height = 100;
-    context.fillStyle = '#F2AA4CFF';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#101820FF';
-    context.font = 'bold 60px Arial';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.fillText(firstCharacter, canvas.width / 2, canvas.height / 2);
-    setProfileImage(canvas.toDataURL());
-  }, [name]);
+    fetchShopDetail();
+  }, []);
 
-  const handleLogout = () => {
-    // navigate('/');
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await logout();
+      toast.success(response.message);
+    } catch (error) {
+      toast.error("Error in logging out");
+    }
   };
 
   const handleBookSlot = (mechanic) => {
-    // const queryParams = new URLSearchParams({
-    //   mechanicemail: mechanic.email,
-    //   mechanicname: mechanic.name,
-    //   mechanicnumber: mechanic.number,
-    //   shopname: mechanic.shopname,
-    //   shopaddress: mechanic.shopaddress
-    // });
-    // navigate(`/bookslot?${queryParams.toString()}`);
+    // Implementation for booking slot
   };
 
   const handleViewBill = (service) => {
-    // navigate(`/viewbill?registernumber=${service.registernumber}`);
+    // Implementation for viewing bill
   };
 
-  // const filteredData = data.filter(mechanic => 
-  //   mechanic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //   mechanic.shopname.toLowerCase().includes(searchQuery.toLowerCase())
-  // );
+  const filteredData = null;
 
-  const filteredData = null
+  // Move loading and error states after all hooks
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+  }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 w-full">
       {/* Sidebar */}
       <aside className="w-64 bg-blue-800 text-white">
         <div className="p-4">
@@ -120,7 +120,7 @@ const CustomerDashboard = () => {
             </div>
             <div className="relative">
               <div className="flex items-center space-x-2">
-                <span className="text-gray-700">{Name}</span>
+                <span className="text-gray-700">{user.name}</span>
                 <img
                   src={profileImage}
                   alt="Profile"
@@ -145,26 +145,28 @@ const CustomerDashboard = () => {
         {/* Dashboard Content */}
         <div className="p-6">
           <h3 className="text-2xl font-bold text-gray-800 mb-6">
-            {dashboardname} Dashboard
+            {user.role} Dashboard
           </h3>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('pending')}>
+                 onClick={() => setActiveTab('pending')}
+            >
               <div className="flex items-center space-x-4">
                 <FaClipboardList className="text-3xl text-blue-500" />
                 <div>
-                  <span className="text-gray-600">{arr}</span>
+                  <span className="text-gray-600">Pending</span>
                 </div>
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('working')}>
+                 onClick={() => setActiveTab('working')}
+                 >
               <div className="flex items-center space-x-4">
                 <FaClock className="text-3xl text-yellow-500" />
                 <div>
-                  <span className="text-gray-600">{arr}</span>
+                  <span className="text-gray-600">Working</span>
                 </div>
               </div>
             </div>
@@ -173,7 +175,7 @@ const CustomerDashboard = () => {
               <div className="flex items-center space-x-4">
                 <FaCheckCircle className="text-3xl text-green-500" />
                 <div>
-                  <span className="text-gray-600">{arr}</span>
+                  <span className="text-gray-600">Completed</span>
                 </div>
               </div>
             </div>
@@ -182,7 +184,7 @@ const CustomerDashboard = () => {
           {/* Tables */}
           <div className="space-y-6">
             {/* Available Mechanics Table */}
-            {activeTab === 'pending' && (
+            {shop && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
@@ -194,24 +196,24 @@ const CustomerDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredData && filteredData.map((mechanic, index) => (
+                    {shop && shop.map((mechanic, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
                               <FaUserCircle className="h-10 w-10 text-gray-400" />
                             </div>
-                            <div className="ml-4">
+                            {/* <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{mechanic.name}</div>
                               <div className="text-sm text-gray-500">{mechanic.email}</div>
-                            </div>
+                            </div> */}
                           </div>
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-900">{mechanic.shopname}</div>
                           <div className="text-sm text-gray-500 flex items-center">
                             <FaMapMarkerAlt className="mr-1" />
-                            {mechanic.shopaddress}
+                            {mechanic.address}
                           </div>
                         </td>
                         <td className="px-6 py-4">
@@ -230,100 +232,6 @@ const CustomerDashboard = () => {
                             className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                           >
                             Book Slot
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Pending Services Table */}
-            {activeTab === 'working' && (
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <table className="min-w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Details</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Details</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {second && second.map((service, index) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">{service.shopname}</div>
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <FaCalendarAlt className="mr-1" />
-                            {service.bookeddate} at {service.bookedtime}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 flex items-center">
-                            <FaCar className="mr-1" />
-                            {service.vehicletype.join(', ')}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {service.registernumber}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                            In Progress
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-
-            {/* Completed Services Table */}
-            {activeTab === 'completed' && (
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <table className="min-w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Details</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Details</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {third && third.map((service, index) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">{service.shopname}</div>
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <FaCalendarAlt className="mr-1" />
-                            {service.bookeddate} at {service.bookedtime}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 flex items-center">
-                            <FaCar className="mr-1" />
-                            {service.vehicletype.join(', ')}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {service.registernumber}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            <FaCheckCircle className="inline-block mr-1" />
-                            Completed
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleViewBill(service)}
-                            className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                          >
-                            View Bill
                           </button>
                         </td>
                       </tr>
