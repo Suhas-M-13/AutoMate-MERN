@@ -164,6 +164,7 @@ export const verifyEmail = async(req,res)=>{
     }
 }
 
+
 export const forgotPassword = async(req,res) => {
     const {email} = req.body
 
