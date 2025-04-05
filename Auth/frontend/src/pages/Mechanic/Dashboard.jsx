@@ -15,13 +15,15 @@ import {
   FaUserCircle
 } from 'react-icons/fa';
 
-const MechanicDashboard = ({ data, second, third, name, dashboardname, arr, mechanicnumber, complaint }) => {
+const MechanicDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('pending');
   const [profileImage, setProfileImage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState('');
+
+  let data, second, third, Name, dashboardname, arr, mechanicnumber, complaint = null
 
   useEffect(() => {
     // Generate profile image
@@ -41,106 +43,106 @@ const MechanicDashboard = ({ data, second, third, name, dashboardname, arr, mech
   }, [name]);
 
   const handleAccept = async (customerId, mechanicId, registernumber) => {
-    try {
-      const response = await fetch('/update-customer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ customerId, mechanicId, registernumber }),
-      });
+    // try {
+    //   const response = await fetch('/update-customer', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ customerId, mechanicId, registernumber }),
+    //   });
 
-      const result = await response.json();
-      if (result.success) {
-        window.location.reload();
-      } else {
-        alert('Failed to update customer status');
-      }
-    } catch (error) {
-      console.error('Error updating customer status:', error);
-      alert('Failed to update customer status');
-    }
+    //   const result = await response.json();
+    //   if (result.success) {
+    //     window.location.reload();
+    //   } else {
+    //     alert('Failed to update customer status');
+    //   }
+    // } catch (error) {
+    //   console.error('Error updating customer status:', error);
+    //   alert('Failed to update customer status');
+    // }
   };
 
   const handleComplete = async (customerId, mechanicId, registernumber) => {
-    try {
-      const response = await fetch('/iscomplete-customer', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ customerId, mechanicId, registernumber }),
-      });
+    // try {
+    //   const response = await fetch('/iscomplete-customer', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ customerId, mechanicId, registernumber }),
+    //   });
 
-      const result = await response.json();
-      if (result.success) {
-        window.location.reload();
-      } else {
-        alert('Failed to update customer status');
-      }
-    } catch (error) {
-      console.error('Error updating customer status:', error);
-      alert('Failed to update customer status');
-    }
+    //   const result = await response.json();
+    //   if (result.success) {
+    //     window.location.reload();
+    //   } else {
+    //     alert('Failed to update customer status');
+    //   }
+    // } catch (error) {
+    //   console.error('Error updating customer status:', error);
+    //   alert('Failed to update customer status');
+    // }
   };
 
   const handleGenerateBill = (billData) => {
-    const queryParams = new URLSearchParams({
-      customerId: billData.customername,
-      registernumber: billData.registernumber,
-      customernumber: billData.mobile,
-      vehicletype: billData.vehicletype[0],
-      bookeddate: billData.bookeddate,
-      mechanicnumber: mechanicnumber,
-      complaint: billData.complaint,
-      shopname: billData.shopname
-    });
-    navigate(`/generatebill?${queryParams.toString()}`);
+    // const queryParams = new URLSearchParams({
+    //   customerId: billData.customername,
+    //   registernumber: billData.registernumber,
+    //   customernumber: billData.mobile,
+    //   vehicletype: billData.vehicletype[0],
+    //   bookeddate: billData.bookeddate,
+    //   mechanicnumber: mechanicnumber,
+    //   complaint: billData.complaint,
+    //   shopname: billData.shopname
+    // });
+    // navigate(`/generatebill?${queryParams.toString()}`);
   };
 
   const handlePaid = async (customerId, mechanicId, registernumber) => {
-    try {
-      const response = await fetch('/bill-paid', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ customerId, mechanicId, registernumber }),
-      });
+    // try {
+    //   const response = await fetch('/bill-paid', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ customerId, mechanicId, registernumber }),
+    //   });
 
-      const result = await response.json();
-      if (result.success) {
-        window.location.reload();
-      } else {
-        alert('Failed to update payment status');
-      }
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      alert('Failed to update payment status');
-    }
+    //   const result = await response.json();
+    //   if (result.success) {
+    //     window.location.reload();
+    //   } else {
+    //     alert('Failed to update payment status');
+    //   }
+    // } catch (error) {
+    //   console.error('Error updating payment status:', error);
+    //   alert('Failed to update payment status');
+    // }
   };
 
   const handleViewDescription = async (customeremail, mechanicemail, registernumber) => {
-    try {
-      const response = await fetch('/get-complaint', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ customeremail, mechanicemail, registernumber }),
-      });
+    // try {
+    //   const response = await fetch('/get-complaint', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({ customeremail, mechanicemail, registernumber }),
+    //   });
 
-      const result = await response.json();
-      if (result.success) {
-        setSelectedComplaint(result.complaint);
-        setShowDescription(true);
-      } else {
-        alert('Failed to fetch complaint details');
-      }
-    } catch (error) {
-      console.error('Error fetching complaint details:', error);
-      alert('Failed to fetch complaint details');
-    }
+    //   const result = await response.json();
+    //   if (result.success) {
+    //     setSelectedComplaint(result.complaint);
+    //     setShowDescription(true);
+    //   } else {
+    //     alert('Failed to fetch complaint details');
+    //   }
+    // } catch (error) {
+    //   console.error('Error fetching complaint details:', error);
+    //   alert('Failed to fetch complaint details');
+    // }
   };
 
   const handleLogout = () => {
@@ -195,7 +197,7 @@ const MechanicDashboard = ({ data, second, third, name, dashboardname, arr, mech
             </div>
             <div className="relative">
               <div className="flex items-center space-x-2">
-                <span className="text-gray-700">{name}</span>
+                <span className="text-gray-700">{Name}</span>
                 <img
                   src={profileImage}
                   alt="Profile"
@@ -338,7 +340,7 @@ const MechanicDashboard = ({ data, second, third, name, dashboardname, arr, mech
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {second.map((service, index) => (
+                    {second && second.map((service, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -398,7 +400,7 @@ const MechanicDashboard = ({ data, second, third, name, dashboardname, arr, mech
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {third.map((service, index) => (
+                    {third && third.map((service, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">

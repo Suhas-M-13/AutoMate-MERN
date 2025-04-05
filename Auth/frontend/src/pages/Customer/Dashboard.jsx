@@ -19,12 +19,13 @@ import {
   FaEnvelope
 } from 'react-icons/fa';
 
-const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno, conmail }) => {
+const CustomerDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('pending');
   const [profileImage, setProfileImage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  let data, second, third, Name, dashboardname, arr, phno, conmail  = null
 
   useEffect(() => {
     // Generate profile image
@@ -44,28 +45,30 @@ const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno
   }, [name]);
 
   const handleLogout = () => {
-    navigate('/');
+    // navigate('/');
   };
 
   const handleBookSlot = (mechanic) => {
-    const queryParams = new URLSearchParams({
-      mechanicemail: mechanic.email,
-      mechanicname: mechanic.name,
-      mechanicnumber: mechanic.number,
-      shopname: mechanic.shopname,
-      shopaddress: mechanic.shopaddress
-    });
-    navigate(`/bookslot?${queryParams.toString()}`);
+    // const queryParams = new URLSearchParams({
+    //   mechanicemail: mechanic.email,
+    //   mechanicname: mechanic.name,
+    //   mechanicnumber: mechanic.number,
+    //   shopname: mechanic.shopname,
+    //   shopaddress: mechanic.shopaddress
+    // });
+    // navigate(`/bookslot?${queryParams.toString()}`);
   };
 
   const handleViewBill = (service) => {
-    navigate(`/viewbill?registernumber=${service.registernumber}`);
+    // navigate(`/viewbill?registernumber=${service.registernumber}`);
   };
 
-  const filteredData = data.filter(mechanic => 
-    mechanic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    mechanic.shopname.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // const filteredData = data.filter(mechanic => 
+  //   mechanic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //   mechanic.shopname.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
+
+  const filteredData = null
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -117,7 +120,7 @@ const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno
             </div>
             <div className="relative">
               <div className="flex items-center space-x-2">
-                <span className="text-gray-700">{name}</span>
+                <span className="text-gray-700">{Name}</span>
                 <img
                   src={profileImage}
                   alt="Profile"
@@ -152,7 +155,7 @@ const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno
               <div className="flex items-center space-x-4">
                 <FaClipboardList className="text-3xl text-blue-500" />
                 <div>
-                  <span className="text-gray-600">{arr[0]}</span>
+                  <span className="text-gray-600">{arr}</span>
                 </div>
               </div>
             </div>
@@ -161,7 +164,7 @@ const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno
               <div className="flex items-center space-x-4">
                 <FaClock className="text-3xl text-yellow-500" />
                 <div>
-                  <span className="text-gray-600">{arr[1]}</span>
+                  <span className="text-gray-600">{arr}</span>
                 </div>
               </div>
             </div>
@@ -170,7 +173,7 @@ const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno
               <div className="flex items-center space-x-4">
                 <FaCheckCircle className="text-3xl text-green-500" />
                 <div>
-                  <span className="text-gray-600">{arr[2]}</span>
+                  <span className="text-gray-600">{arr}</span>
                 </div>
               </div>
             </div>
@@ -191,7 +194,7 @@ const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredData.map((mechanic, index) => (
+                    {filteredData && filteredData.map((mechanic, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
@@ -248,7 +251,7 @@ const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {second.map((service, index) => (
+                    {second && second.map((service, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-900">{service.shopname}</div>
@@ -291,7 +294,7 @@ const CustomerDashboard = ({ data, second, third, name, dashboardname, arr, phno
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {third.map((service, index) => (
+                    {third && third.map((service, index) => (
                       <tr key={index}>
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-900">{service.shopname}</div>

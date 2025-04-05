@@ -6,11 +6,14 @@ import toast from "react-hot-toast"
 
 import Input from '../components/Input';
 
+import { useNavigate } from 'react-router-dom';
+
 import { useAuthStore } from '../store/authStore.js';
 
 const LoginPage = () => {
   const [email, setemail] = useState('')
   const [password, setpassword] = useState('')
+  const navigate = useNavigate()
 
   const {isLoading,error,login} = useAuthStore()
 
@@ -18,7 +21,9 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      await login(email,password)
+      await login(email, password)
+      
+      navigate('/invoice')
       
     } catch (error) {
       // console.log(error);
