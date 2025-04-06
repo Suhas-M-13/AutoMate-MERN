@@ -43,7 +43,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore()
 
   if (isAuthenticated && user.isverified) {
-    return <Navigate to="/invoice" replace />
+    return <Navigate to="/invoice/67f11278deb1682b138d518d" replace />
   }
 
   return children
@@ -102,6 +102,7 @@ function App() {
           <Route path="/billmechanic" element={
               <Bill/>
           } />
+          {/* use invoice/:id */}
           <Route path="/bookform" element={
               <BookingForm/>
           } />
@@ -111,7 +112,8 @@ function App() {
           <Route path="/dashboardmechanic" element={
               <MechanicDashboard/>
           } />
-          <Route path="/invoice" element={
+          {/* use invoice/:id */}
+          <Route path="/invoice/:invoiceId" element={
             <ProtectedRoute>
               <Invoice/>
             </ProtectedRoute>
@@ -119,6 +121,7 @@ function App() {
           <Route path="/mechanicregestration" element={
               <MechanicRegistration/>
           } />
+          {/* use invoice/:id */}
           <Route path="/shopdetails" element={
               <ShopDetails/>
           } />

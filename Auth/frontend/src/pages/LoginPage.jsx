@@ -23,7 +23,7 @@ const LoginPage = () => {
     try {
       await login(email, password)
       
-      navigate('/invoice')
+      navigate('/invoice/67f11278deb1682b138d518d')
       
     } catch (error) {
       // console.log(error);

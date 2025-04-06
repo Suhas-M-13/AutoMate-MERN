@@ -122,7 +122,8 @@ export const addBookSlot = async(req,res)=>{
             bookDate,
             bookTime,
             isAccepted : false,
-            isCompleted : false
+            isCompleted : false,
+            isPaid : false
         })
 
         await newBookSlot.save()
