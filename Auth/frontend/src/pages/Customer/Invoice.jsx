@@ -3,15 +3,18 @@ import { useLocation } from 'react-router-dom';
 import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaCar, FaCalendarAlt } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
 import toast from "react-hot-toast"
+import {useParams} from "react-router-dom"
 
 const Invoice = () => {
   const location = useLocation();
   const { invoice, user, mechanic, bill, shop, book, error, isLoading } = useAuthStore();
+  const {invoiceId} = useParams()
 
 
   const fetchInvoiceInformation = async () => {
     try {
-      const invoiceId = "67c870a7e1fde404e70e4323" // from invoice/id -> get the id part
+
+      // const invoiceId = "67c870a7e1fde404e70e4323" // from invoice/id -> get the id part
       
       if (!invoiceId) {
         toast.error("No invoice ID provided");

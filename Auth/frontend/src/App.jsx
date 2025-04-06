@@ -43,7 +43,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore()
 
   if (isAuthenticated && user.isverified) {
-    return <Navigate to="/invoice" replace />
+    return <Navigate to="/invoice/67f11278deb1682b138d518d" replace />
   }
 
   return children
@@ -113,7 +113,7 @@ function App() {
               <MechanicDashboard/>
           } />
           {/* use invoice/:id */}
-          <Route path="/invoice" element={
+          <Route path="/invoice/:invoiceId" element={
             <ProtectedRoute>
               <Invoice/>
             </ProtectedRoute>
