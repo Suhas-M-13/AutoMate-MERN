@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { motion } from "framer-motion";
+import { FaCalendarAlt, FaCar, FaBiking, FaClipboardList, FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaStore, FaClock } from "react-icons/fa";
+import Input from '../../components/Input';
 import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_blue.css';
+import { toast } from 'react-hot-toast';
+import { useAuthStore } from '../../store/authStore';
 
 const BookingForm = () => {
   const location = useLocation();
+  const { mechanicId } = useParams()
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    shopname: '',
-    ownername: '',
-    address: '',
-    email: '',
-    name: '',
-    phno: '',
-    custemail: '',
     vehicle: '',
     regno: '',
     complaint: '',
@@ -21,19 +20,22 @@ const BookingForm = () => {
     regtime: ''
   });
 
+
+  const { bookFormDetail, addBookFormDetail, user, shop, mechanic, isLoading, error, message } = useAuthStore()
+
+
+  const fetchBookingDetail = async () => {
+    try {
+      await bookFormDetail(mechanicId);
+    } catch (error) {
+      toast.error("Couldn't fetch detail");
+      navigate('/dashboardcustomer');
+    }
+  };
+
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setFormData(prev => ({
-      ...prev,
-      shopname: params.get('shopname') || '',
-      ownername: params.get('ownername') || '',
-      address: params.get('address') || '',
-      email: params.get('email') || '',
-      name: params.get('customername') || '',
-      phno: params.get('mobile') || '',
-      custemail: params.get('custemail') || ''
-    }));
-  }, [location]);
+    fetchBookingDetail();
+  }, [mechanicId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -44,17 +46,43 @@ const BookingForm = () => {
   };
 
   const validateForm = () => {
+    if (!formData.regdate || !formData.regtime) {
+      toast.error("Please select both date and time");
+      return false;
+    }
+
+
+    
     const selectedDate = new Date(formData.regdate);
-    const selectedTime = formData.regtime;
-    const selectedDateTime = new Date(`${formData.regdate}T${selectedTime}`);
-
-    const today = new Date();
-    const todayThreePM = new Date(today);
+    const selectedTime = new Date(formData.regtime);
+    
+    const selectedHours = selectedTime.getHours();
+    const selectedMinutes = selectedTime.getMinutes();
+  
+    const selectedDateTime = new Date(selectedDate);
+    selectedDateTime.setHours(selectedHours, selectedMinutes, 0, 0);
+    
+    console.log(selectedDateTime)
+    const now = new Date();
+    const todayThreePM = new Date(selectedDateTime);
     todayThreePM.setHours(15, 0, 0, 0);
+    
+    const shopOpeningTime = new Date(selectedDate);
+    shopOpeningTime.setHours(9, 0, 0, 0);
+    
+    console.log(todayThreePM)
+    if (selectedDateTime > todayThreePM) {
+      toast.error("Booking time must be before 3 PM");
+      return false;
+    }
 
-    if (selectedDate.toISOString().split('T')[0] === today.toISOString().split('T')[0] && 
-        selectedDateTime > todayThreePM) {
-      alert("Booking time must be before 3 PM on the selected date.");
+    if (selectedDateTime < shopOpeningTime) {
+      toast.error("Booking time must be after 9 AM");
+      return false;
+    }
+
+    if (selectedDate.toDateString() === now.toDateString() && selectedDateTime < now) {
+      toast.error("Cannot book a slot in the past");
       return false;
     }
 
@@ -66,222 +94,193 @@ const BookingForm = () => {
     if (!validateForm()) return;
 
     try {
-      const response = await fetch('/bookslot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Success:', data);
-        navigate('/booking-confirmation');
-      } else {
-        console.error('Error:', response.statusText);
-      }
+      await addBookFormDetail(mechanicId,user.name,formData);
+      toast.success("Slot booked successfully!");
+      navigate('/dashboardcustomer');
     } catch (error) {
-      console.error('Error:', error);
+      toast.error("Error in booking slot");
+      navigate('/dashboardcustomer')
     }
   };
 
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8 w-full">
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white shadow-lg rounded-lg p-6 md:p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Shop Details Section */}
-            <fieldset className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <legend className="text-xl font-bold text-gray-800 px-2 mb-4">Slot Booking</legend>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="shopname" className="block text-sm font-medium text-gray-700">Shop Name:</label>
-                  <input
-                    type="text"
-                    id="shopname"
-                    name="shopname"
-                    value={formData.shopname}
-                    readOnly
-                    required
-                    className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="ownername" className="block text-sm font-medium text-gray-700">Owner Name:</label>
-                  <input
-                    type="text"
-                    id="ownername"
-                    name="ownername"
-                    value={formData.ownername}
-                    readOnly
-                    required
-                    className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">Shop Address:</label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    readOnly
-                    required
-                    className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email:</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    readOnly
-                    required
-                    className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-              </div>
-            </fieldset>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-full flex items-center justify-center bg-white bg-opacity-50 w-full"
+    >
+      <div className="max-w-4xl w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden p-8">
+        <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
+          Book Your Service Slot
+        </h2>
 
-            {/* Vehicle Details Section */}
-            <fieldset className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <legend className="text-xl font-bold text-gray-800 px-2 mb-4">Vehicle Details</legend>
-              <div className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">Customer Name:</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    readOnly
-                    required
-                    className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="phno" className="block text-sm font-medium text-gray-700">Phone Number:</label>
-                  <input
-                    type="tel"
-                    id="phno"
-                    name="phno"
-                    value={formData.phno}
-                    readOnly
-                    required
-                    className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="custemail" className="block text-sm font-medium text-gray-700">Email:</label>
-                  <input
-                    type="email"
-                    id="custemail"
-                    name="custemail"
-                    value={formData.custemail}
-                    readOnly
-                    required
-                    className="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm text-gray-500 cursor-not-allowed"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Type:</label>
-                  <div className="flex space-x-6">
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="vehicle"
-                        value="Bike"
-                        checked={formData.vehicle === 'Bike'}
-                        onChange={handleInputChange}
-                        required
-                        className="form-radio h-4 w-4 text-blue-600"
-                      />
-                      <span className="ml-2 text-gray-700">Bike</span>
-                    </label>
-                    <label className="inline-flex items-center">
-                      <input
-                        type="radio"
-                        name="vehicle"
-                        value="Car"
-                        checked={formData.vehicle === 'Car'}
-                        onChange={handleInputChange}
-                        required
-                        className="form-radio h-4 w-4 text-blue-600"
-                      />
-                      <span className="ml-2 text-gray-700">Car</span>
-                    </label>
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="regno" className="block text-sm font-medium text-gray-700">Register Number:</label>
-                  <input
-                    type="text"
-                    id="regno"
-                    name="regno"
-                    value={formData.regno}
-                    onChange={handleInputChange}
-                    placeholder="Vehicle Number Plate"
-                    required
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="complaint" className="block text-sm font-medium text-gray-700">Complaints:</label>
-                  <textarea
-                    id="complaint"
-                    name="complaint"
-                    value={formData.complaint}
-                    onChange={handleInputChange}
-                    rows="5"
-                    placeholder="Mention please..."
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="regdate" className="block text-sm font-medium text-gray-700">Select Date:</label>
-                  <Flatpickr
-                    id="regdate"
-                    name="regdate"
-                    value={formData.regdate}
-                    onChange={(date) => setFormData(prev => ({ ...prev, regdate: date[0] }))}
-                    options={{
-                      minDate: 'today',
-                      dateFormat: 'Y-m-d',
-                      disableMobile: true
-                    }}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="regtime" className="block text-sm font-medium text-gray-700">Select Time:</label>
-                  <input
-                    type="time"
-                    id="regtime"
-                    name="regtime"
-                    value={formData.regtime}
-                    onChange={handleInputChange}
-                    required
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-            </fieldset>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Shop Details Section */}
+          <div className="space-y-4">
+            <h2 className="font-bold mb-8 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">Shop Detail</h2>
+            <Input
+              icon={FaStore}
+              type="text"
+              placeholder="Shop Name"
+              value={shop[0].shopname}
+              readOnly
+              className="bg-gray-700"
+            />
+            <Input
+              icon={FaUser}
+              type="text"
+              placeholder="Owner Name"
+              value={shop[0].ownerName}
+              readOnly
+              className="bg-gray-700"
+            />
+            <Input
+              icon={FaMapMarkerAlt}
+              type="text"
+              placeholder="Shop Address"
+              value={shop[0].address}
+              readOnly
+              className="bg-gray-700"
+            />
+            <Input
+              icon={FaEnvelope}
+              type="email"
+              placeholder="Shop Email"
+              value={mechanic.email}
+              readOnly
+              className="bg-gray-700"
+            />
+          </div>
 
-            <div className="flex justify-center">
-              <button
-                type="submit"
-                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-              >
-                Book Slot
-              </button>
+          <h2 className="font-bold mb-8 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">Customer Detail</h2>
+          <Input
+              icon={FaUser}
+              type="text"
+              placeholder="Customer Name"
+              value={user.name}
+              readOnly
+              className="bg-gray-700"
+            />
+
+          {/* Vehicle Details Section */}
+          <h2 className="font-bold mb-8 bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">Vehicle Detail</h2>
+          <div className="space-y-4">
+            <div className="flex space-x-4">
+              {shop[0].serviceAvailable.includes('Bike') && (
+                <label className="flex items-center space-x-2 text-gray-300">
+                  <input
+                    type="radio"
+                    name="vehicle"
+                    value="Bike"
+                    checked={formData.vehicle === 'Bike'}
+                    onChange={handleInputChange}
+                    className="form-radio h-4 w-4 text-green-500"
+                  />
+                  <FaBiking className="text-green-500" />
+                  <span>Bike</span>
+                </label>
+              )}
+
+              {shop[0].serviceAvailable.includes('Car') && (
+                <label className="flex items-center space-x-2 text-gray-300">
+                  <input
+                    type="radio"
+                    name="vehicle"
+                    value="Car"
+                    checked={formData.vehicle === 'Car'}
+                    onChange={handleInputChange}
+                    className="form-radio h-4 w-4 text-green-500"
+                  />
+                  <FaCar className="text-green-500" />
+                  <span>Car</span>
+                </label>
+              )}
             </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          </div>
+
+          <Input
+            icon={FaClipboardList}
+            type="text"
+            name="regno"
+            placeholder="Vehicle Registration Number"
+            value={formData.regno}
+            onChange={handleInputChange}
+            required
+          />
+
+          <div className="relative">
+            <FaClipboardList className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500" />
+            <textarea
+              name="complaint"
+              value={formData.complaint}
+              onChange={handleInputChange}
+              placeholder="Describe your vehicle issues"
+              rows="4"
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500" />
+            <Flatpickr
+              name="regdate"
+              value={formData.regdate}
+              onChange={(date) => setFormData(prev => ({ ...prev, regdate: date[0] }))}
+              options={{
+                minDate: 'today',
+                dateFormat: 'Y-m-d',
+                disableMobile: true
+              }}
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Select Date"
+              required
+            />
+          </div>
+
+          <div className="relative">
+            <FaClock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500" />
+            <Flatpickr
+              name="regtime"
+              value={formData.regtime}
+              onChange={(time) => setFormData(prev => ({ ...prev, regtime: time[0] }))}
+              options={{
+                enableTime: true,
+                noCalendar: true,
+                dateFormat: "h:i K",
+                minTime: "9:00 AM",
+                maxTime: "3:00 PM",
+                minuteIncrement: 30,
+                time_24hr: false
+              }}
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              placeholder="Select Time"
+              required
+            />
+          </div>
+      <motion.button
+        className="mt-6 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
+            font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 
+            focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+            focus:ring-offset-gray-900 transition duration-200"
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        type="submit"
+      >
+        Book Slot
+      </motion.button>
+    </form>
+      </div >
+    </motion.div >
   );
 };
 

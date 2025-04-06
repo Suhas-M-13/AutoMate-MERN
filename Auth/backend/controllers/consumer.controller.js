@@ -31,14 +31,23 @@ export const getShopById = async(req,res)=>{
     const {id} = req.params
 
     try {
-        const reqShop = await Shop.findById(id)
+        const reqShop = await Shop.find({
+            ownerId : id
+        })
+        const comments = await comment.find({
+            mechanicId : id
+        })
 
         if(!reqShop){
             throw new Error("Error in fetching...")
         }
+        if(!comments){
+            throw new Error("Error in fetching comments...")
+        }
 
         return res.status(200).json({
             shopList : reqShop,
+            reviews : comments,
             success : true,
             message : "fetched required shop details"
         })
@@ -91,7 +100,6 @@ export const addBookSlot = async(req,res)=>{
         
         const {
             mechanicId,
-            customerId,
             customerName,
             vehicleType,
             registerNumber,
@@ -100,8 +108,14 @@ export const addBookSlot = async(req,res)=>{
             bookTime,
         } = req.body
 
-        if(!mechanicId || !customerId || !customerName || !vehicleType || !registerNumber || !complaintDescription || !bookDate || !bookTime){
+        const customerId = req.userId
+
+        if(!mechanicId || !customerName || !vehicleType || !registerNumber || !complaintDescription || !bookDate || !bookTime){
             throw new Error("All fields are required!!!")
+        }
+
+        if(!customerId){
+            throw new Error("customer id not found")
         }
 
         const checkSlot = await book.find({
@@ -133,7 +147,7 @@ export const addBookSlot = async(req,res)=>{
             message : "Slot details added successfully"
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        console.log('Error in book'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -169,7 +183,7 @@ export const getShopListPendingById = async(req,res)=>{
             const fetchData = await Shop.find({
                 ownerId : bookSlot[i].mechanicId
             })
-            shopDetail.push(fetchData)
+            shopDetail.push(...fetchData)
         }
 
         if(!shopDetail){
@@ -218,7 +232,7 @@ export const getShopListCompletedById = async(req,res)=>{
             const fetchData = await Shop.find({
                 ownerId : bookSlot[i].mechanicId
             })
-            shopDetail.push(fetchData)
+            shopDetail.push(...fetchData)
         }
 
         if(!shopDetail){
@@ -249,12 +263,18 @@ export const getGeneratedBill = async(req,res)=>{
             throw new Error("no mechanic id or customer id")
         }
 
-        const billDeatil = await bill.find({
+        console.log("mechanic ; ",mechanicId);
+        console.log("customer ; ",customerId);
+        
+
+        const billDetail = await bill.find({
             mechanicId,
             customerId
         })
 
-        if(!billDeatil){
+        console.log("bill found", billDetail)
+
+        if(!billDetail){
             throw new Error("No bill found")
         }
 
@@ -271,7 +291,7 @@ export const getGeneratedBill = async(req,res)=>{
         return res.status(200).json({
             success : true,
             message : "Successfully fetched the information",
-            billDeatil,
+            billDetail,
             shopDetail,
             bookSlot,
             customerDetail,

@@ -43,7 +43,7 @@ const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore()
 
   if (isAuthenticated && user.isverified) {
-    return <Navigate to="/invoice/67f11278deb1682b138d518d" replace />
+    return <Navigate to="/dashboardcustomer" replace />
   }
 
   return children
@@ -99,34 +99,38 @@ function App() {
           <Route path="/welcome" element={
               <Homepage/>
           } />
-          <Route path="/billmechanic" element={
-              <Bill/>
-          } />
-          {/* use invoice/:id */}
-          <Route path="/bookform" element={
+          <Route path="/bookform/:mechanicId" element={
+            <ProtectedRoute>
               <BookingForm/>
+            </ProtectedRoute>
           } />
           <Route path="/dashboardcustomer" element={
-              <CustomerDashboard/>
+            <ProtectedRoute>
+                <CustomerDashboard/>
+            </ProtectedRoute>
           } />
-          <Route path="/dashboardmechanic" element={
-              <MechanicDashboard/>
-          } />
-          {/* use invoice/:id */}
           <Route path="/invoice/:invoiceId" element={
             <ProtectedRoute>
               <Invoice/>
             </ProtectedRoute>
           } />
+          <Route path="/shopdetails/:mechanicId" element={
+            <ProtectedRoute>
+              <ShopDetails/>
+            </ProtectedRoute>
+          } />
+          <Route path="/servicefeedback/:mechanicId" element={
+              <ServiceFeedback/>
+          } />
+
+          <Route path="/billmechanic" element={
+              <Bill/>
+          } />
+          <Route path="/dashboardmechanic" element={
+              <MechanicDashboard/>
+          } />          
           <Route path="/mechanicregestration" element={
               <MechanicRegistration/>
-          } />
-          {/* use invoice/:id */}
-          <Route path="/shopdetails" element={
-              <ShopDetails/>
-          } />
-          <Route path="/servicefeedback" element={
-              <ServiceFeedback/>
           } />
           <Route path="/mechanicfeedback" element={
               <MechanicFeedback/>

@@ -8,6 +8,7 @@ global state management solution
 
 import { create } from "zustand"
 import axios from "axios"
+import { comment } from "../../../backend/models/comments.model"
 
 
 const API_URL = import.meta.env.MODE === "development" ? "http://localhost:1972/api" : "/api/auth"
@@ -27,6 +28,7 @@ export const useAuthStore = create((set) => ({
     bill : [],
     shop : [],
     book : [],
+    comments : [],
 
 
     shopDetail : async()=>{
@@ -51,6 +53,118 @@ export const useAuthStore = create((set) => ({
         }
 
     },
+    shopDetailById : async(id)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/consumer/shoplist/${id}`)
+
+            set({
+                shop : response.data.shopList,
+                comments : response.data.reviews,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching invoice data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+    pendingShopList : async()=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/consumer/pending`)
+            set({
+                shop : response.data.shopDetail,
+                book : response.data.bookSlot,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching invoice data",
+                isLoading: false
+            })
+            throw error
+        }
+    },
+    completedShopList : async()=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/consumer/completed`)
+            set({
+                shop : response.data.shopDetail,
+                book : response.data.bookSlot,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching invoice data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+    bookFormDetail : async(id)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/consumer/book-slot/${id}`)
+
+            set({
+                shop : response.data.shopDetail,
+                user : response.data.customerDetail,
+                mechanic : response.data.mechanicDetail,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching invoice data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+    addBookFormDetail: async (mechanicId,customerName,formData) => {
+        set({ isLoading: true, error: null })
+
+        try {
+            const vehicleType = formData.vehicle
+            const registerNumber = formData.regno
+            const complaintDescription = formData.complaint
+            const bookDate = formData.regdate
+            const bookTime = formData.regtime
+
+            const response = await axios.post(`${API_URL}/consumer/book-slot`, {mechanicId,customerName,vehicleType,registerNumber,complaintDescription,bookDate,bookTime})
+
+            set({
+                message : response.data.message,
+                isAuthenticated: true,
+                isLoading: false
+            })
+
+        } catch (error) {
+            set({
+                error: "Error in booking",
+                isLoading: false
+            })
+            throw error
+        }
+    },
 
     invoice : async(id)=>{
         set({ isLoading: true, error: null })
@@ -64,7 +178,7 @@ export const useAuthStore = create((set) => ({
                 mechanic : response.data.mechanicDetail,
                 book : response.data.bookSlot,
                 shop : response.data.shopDetail,
-                bill : response.data.billDeatil,
+                bill : response.data.billDetail,
                 isAuthenticated: true,
                 isLoading: false
             })

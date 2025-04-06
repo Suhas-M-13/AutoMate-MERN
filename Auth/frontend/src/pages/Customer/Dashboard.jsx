@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FaHome, 
-  FaWrench, 
-  FaUsers, 
-  FaBars, 
-  FaSearch, 
+import {
+  FaHome,
+  FaWrench,
+  FaUsers,
+  FaBars,
+  FaSearch,
   FaClipboardList,
   FaClock,
   FaCheckCircle,
@@ -16,18 +16,22 @@ import {
   FaTools,
   FaMapMarkerAlt,
   FaPhone,
-  FaEnvelope
+  FaEnvelope,
+  FaBook,
+  FaFileInvoiceDollar,
+  FaCog
 } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
 
 const CustomerDashboard = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('pending');
+  // const [activeTab, setActiveTab] = useState('pending');
   const [profileImage, setProfileImage] = useState('');
+  const [cardStatus, setcardStatus] = useState('shoplist')
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { user, logout, shopDetail, shop, isLoading, error } = useAuthStore();
+  const { user, logout, shopDetail, shop, isLoading, error, pendingShopList , book , completedShopList} = useAuthStore();
 
   const fetchShopDetail = async () => {
     try {
@@ -43,21 +47,57 @@ const CustomerDashboard = () => {
 
   const handleLogout = async (e) => {
     e.preventDefault();
+
     try {
       const response = await logout();
       toast.success(response.message);
+      navigate('/login')
     } catch (error) {
       toast.error("Error in logging out");
     }
   };
 
-  const handleBookSlot = (mechanic_id) => {
-    // Implementation for booking slot id na navigate
+  const handleBookSlot = (mechanicId) => {
+    // console.log(mechanicId)
+
+    try {
+      navigate(`/bookform/${mechanicId}`)
+    } catch (error) {
+      toast.error("Error in loading bookform ");
+    }
   };
 
-  const handleViewBill = (service) => {
-    // Implementation for viewing bill
+  const handleViewShopDetails = (mechanicId) => {
+    console.log("Viewing shop details for mechanic:", mechanicId);
+    try {
+      navigate(`/shopdetails/${mechanicId}`)
+    } catch (error) {
+      toast.error("No mechanic id found");
+    }
   };
+
+  const handleViewBill = (mechanicId) => {
+    try {
+      navigate(`/invoice/${mechanicId}`)
+    } catch (error) {
+      toast.error("No mechanic id found");
+    }
+  };
+
+  const handleCards = async (cardName) => {
+    if (cardName === "shoplist") {
+      setcardStatus('shoplist')
+      await fetchShopDetail();
+    }
+    else if (cardName === "pending") {
+      setcardStatus('pending')
+      await pendingShopList()
+    }
+    else if (cardName === "completed") {
+      setcardStatus('completed')
+      await completedShopList()
+    }
+  }
 
   const filteredData = null;
 
@@ -151,7 +191,7 @@ const CustomerDashboard = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('pending')}
+              onClick={() => handleCards("shoplist")}
             >
               <div className="flex items-center space-x-4">
                 <FaClipboardList className="text-3xl text-blue-500" />
@@ -161,8 +201,8 @@ const CustomerDashboard = () => {
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('working')}
-                 >
+              onClick={() => handleCards("pending")}
+            >
               <div className="flex items-center space-x-4">
                 <FaClock className="text-3xl text-yellow-500" />
                 <div>
@@ -171,7 +211,8 @@ const CustomerDashboard = () => {
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('completed')}>
+              onClick={() => handleCards("completed")}
+            >
               <div className="flex items-center space-x-4">
                 <FaCheckCircle className="text-3xl text-green-500" />
                 <div>
@@ -192,12 +233,16 @@ const CustomerDashboard = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mechanic Details</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Details</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Info</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {shop && shop.map((mechanic, index) => (
-                      <tr key={index}>
+                    {shop.map((mechanic, index) =>{
+                      const foundbook = book.find(item => item.mechanicId === mechanic.ownerId)
+                      const status = foundbook ? (foundbook.isAccepted ? "Working" : "Request Pending") : "Not Booked";
+                     return (
+                      <tr key={index} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
@@ -205,7 +250,6 @@ const CustomerDashboard = () => {
                             </div>
                             <div className="ml-4">
                               <div className="text-sm font-medium text-gray-900">{mechanic.ownerName}</div>
-                              {/* <div className="text-sm text-gray-500">{mechanic.email}</div> */}
                             </div>
                           </div>
                         </td>
@@ -221,21 +265,45 @@ const CustomerDashboard = () => {
                             <FaPhone className="mr-1" />
                             {mechanic.mobileNumber}
                           </div>
-                          {/* <div className="text-sm text-gray-500 flex items-center">
-                            <FaEnvelope className="mr-1" />
-                            {mechanic.email}
-                          </div> */}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4">
                           <button
-                            onClick={() => handleBookSlot(mechanic)}
-                            className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            onClick={() => handleViewShopDetails(mechanic.ownerId)}
+                            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group"
                           >
-                            Book Slot
+                            <FaTools className="mr-2 group-hover:rotate-12 transition-transform duration-200" />
+                            Explore Shop
                           </button>
                         </td>
+                        <td className="px-6 py-4">
+                          {cardStatus === 'shoplist' ? (
+                            <button
+                              onClick={() => handleBookSlot(mechanic.ownerId)}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+                            >
+                              <FaBook className="mr-2" />
+                              Book Slot
+                            </button>
+                          ) : cardStatus === 'pending' ? (
+                            <button
+                              disabled
+                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center opacity-75"
+                            >
+                              <FaCog className="mr-2 animate-spin" />
+                              {status}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleViewBill(mechanic.ownerId)}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+                            >
+                              <FaFileInvoiceDollar className="mr-2" />
+                              View Bill
+                            </button>
+                          )}
+                        </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               </div>

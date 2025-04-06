@@ -20,6 +20,8 @@ const Invoice = () => {
         toast.error("No invoice ID provided");
         return;
       }
+
+      console.log(invoiceId)
       
       await invoice(invoiceId);
     } catch (error) {
@@ -28,8 +30,11 @@ const Invoice = () => {
   };
 
   useEffect(() => {
+    console.log("inside fetch",invoiceId);
+    console.log("bill : ",bill)
+    
     fetchInvoiceInformation();
-  }, [invoice, location]);
+  }, [invoiceId]);
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -39,9 +44,9 @@ const Invoice = () => {
     return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
   }
 
-  if (!user || !mechanic || !bill?.length || !shop?.length || !book?.length) {
-    return <div className="min-h-screen flex items-center justify-center">No invoice data available</div>;
-  }
+  // if (!user || !mechanic || !bill?.length || !shop?.length || !book?.length) {
+  //   return <div className="min-h-screen flex items-center justify-center">No invoice data available</div>;
+  // }
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 w-full">
@@ -101,7 +106,7 @@ const Invoice = () => {
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Bill Details</h2>
           <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-gray-700 whitespace-pre-line">{bill[0].Decription}</p>
+            <p className="text-gray-700 whitespace-pre-line"></p>
           </div>
         </div>
 
@@ -128,7 +133,7 @@ const Invoice = () => {
               <div className="space-y-2">
                 <div>
                   <p className="text-sm text-gray-600">Amount In INR</p>
-                  <p className="text-2xl font-bold text-blue-600">₹{bill[0].totalAmount}</p>
+                  <p className="text-2xl font-bold text-blue-600">₹</p>
                 </div>
               </div>
             </div>
