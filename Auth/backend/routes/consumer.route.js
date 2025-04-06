@@ -19,11 +19,11 @@ const router = express.Router();
 
 router.get('/shoplist',getAllShopList)
 router.get('/shoplist/:id',getShopById)
+router.get('/view-bill/:id',verifyToken,getGeneratedBill)
 router.get('/book-slot/:id',verifyToken,getBookFormDetails)
 router.post('/book-slot',addBookSlot)
 router.get('/pending',verifyToken,getShopListPendingById)
 router.get('/completed',verifyToken,getShopListCompletedById)
-router.get('/view-bill/:id',verifyToken,getGeneratedBill)
 router.get('/feedback/:id',verifyToken,getDeatilsForFeedBackForm)
 router.post('/feedback',addComment)
 

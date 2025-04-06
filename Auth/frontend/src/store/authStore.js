@@ -51,29 +51,6 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    shopDetailById : async(id)=>{
-        set({ isLoading: true, error: null })
-
-        try {
-            // const response = await axios.get(`http://localhost:1972/api/consumer/view-bill/${id}`)
-            const response = await axios.get(`${API_URL}/consumer/shoplist/${id}`)
-
-            set({
-                shop : response.data.shopDetail,
-                book : response.data.bookSlot,
-                isAuthenticated: true,
-                isLoading: false
-            })
-            
-        } catch (error) {
-            set({
-                error: error.response?.data?.message || "Error in fetching invoice data",
-                isLoading: false
-            })
-            throw error
-        }
-
-    },
 
     invoice : async(id)=>{
         set({ isLoading: true, error: null })
