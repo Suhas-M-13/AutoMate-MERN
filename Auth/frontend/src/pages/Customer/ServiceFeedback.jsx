@@ -87,7 +87,7 @@ const ServiceFeedback = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 w-full">
       <div className="max-w-3xl mx-auto">
         {/* Service Details Card */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
@@ -139,27 +139,6 @@ const ServiceFeedback = () => {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Service Feedback</h2>
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Overall Rating */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Overall Service Rating
-              </label>
-              <div className="flex space-x-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => handleRatingChange('overallRating', star)}
-                    className={`text-2xl ${
-                      star <= feedback.overallRating ? 'text-yellow-400' : 'text-gray-300'
-                    }`}
-                  >
-                    ★
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Comment Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
