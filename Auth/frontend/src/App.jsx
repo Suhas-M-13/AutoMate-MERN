@@ -42,8 +42,11 @@ const ProtectedRoute = ({ children }) => {
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore()
 
-  if (isAuthenticated && user.isverified) {
+  if (isAuthenticated && user.isverified && user.role === "customer") {
     return <Navigate to="/dashboardcustomer" replace />
+  }
+  else if (isAuthenticated && user.isverified && user.role === "mechanic") {
+    return <Navigate to="/dashboardmechanic" replace />
   }
 
   return children
@@ -127,7 +130,9 @@ function App() {
               <Bill/>
           } />
           <Route path="/dashboardmechanic" element={
+            <ProtectedRoute>
               <MechanicDashboard/>
+            </ProtectedRoute>
           } />          
           <Route path="/mechanicregestration" element={
               <MechanicRegistration/>

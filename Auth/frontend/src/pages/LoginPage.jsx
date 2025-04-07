@@ -15,7 +15,7 @@ const LoginPage = () => {
   const [password, setpassword] = useState('')
   const navigate = useNavigate()
 
-  const {isLoading,error,login} = useAuthStore()
+  const {isLoading,error,login,user} = useAuthStore()
 
   const handleLogin = async(e) => {
     e.preventDefault();
@@ -23,7 +23,10 @@ const LoginPage = () => {
     try {
       await login(email, password)
       
-      navigate('/dashboardcustomer')
+      if(user.role === "customer")
+        navigate('/dashboardcustomer')
+      else if(user.role === "mechanic")
+        navigate('/dashboardmechanic')
       
     } catch (error) {
       // console.log(error);

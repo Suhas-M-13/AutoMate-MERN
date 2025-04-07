@@ -5,6 +5,8 @@ import {Shop} from "../models/shop.model.js"
 import {comment} from "../models/comments.model.js"
 import { bill } from "../models/bill.model.js"
 
+import mongoose from "mongoose"
+
 
 
 
@@ -58,8 +60,10 @@ export const getAllCustomerRequest = async(req,res)=>{
         const mechanicId = req.userId
 
         const customerRequest = await book.find({
-            mechanicId
+            mechanicId : new mongoose.Types.ObjectId(mechanicId)
         })
+
+        console.log(customerRequest)
 
         const customerDetail = []
         

@@ -29,8 +29,32 @@ export const useAuthStore = create((set) => ({
     shop : [],
     book : [],
     comments : [],
+    customerDetail : [],
 
 
+
+    customerRequests : async()=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/mechanic/request`)
+
+            set({
+                book : response.data.customerRequest,
+                customerDetail : response.data.customerDetail,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching customer data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
     shopDetail : async()=>{
         set({ isLoading: true, error: null })
 

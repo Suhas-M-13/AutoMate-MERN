@@ -12,8 +12,10 @@ import {
   FaTimes,
   FaRupeeSign,
   FaCheckCircle,
-  FaUserCircle
+  FaUserCircle,
+  FaComment
 } from 'react-icons/fa';
+import { useAuthStore } from '../../store/authStore';
 
 const MechanicDashboard = () => {
   const navigate = useNavigate();
@@ -22,6 +24,8 @@ const MechanicDashboard = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState('');
+
+  const {book , customerDetail , customerRequests , isLoading , error} = useAuthStore()
 
   let data, second, third, Name, dashboardname, arr, mechanicnumber, complaint = null
 
@@ -41,6 +45,22 @@ const MechanicDashboard = () => {
     context.fillText(firstCharacter, canvas.width / 2, canvas.height / 2);
     setProfileImage(canvas.toDataURL());
   }, [name]);
+
+
+  const fetchCustomerRequest = async()=>{
+    try {
+      await customerRequests()
+      console.log(book)
+      console.log(customerDetail)
+    } catch (error) {
+      toast.error(error.message || "Error in fetching shop information");
+    }
+  }
+
+  useEffect(() => {
+    fetchCustomerRequest()
+  }, [])
+  
 
   const handleAccept = async (customerId, mechanicId, registernumber) => {
     // try {
@@ -122,7 +142,15 @@ const MechanicDashboard = () => {
     // }
   };
 
-  const handleViewDescription = async (customeremail, mechanicemail, registernumber) => {
+  const handleViewDescription = async (complaintDescription) => {
+    //create desc box with cancel button
+    const html = `
+      <div>
+        ${complaintDescription}
+      </div>
+    `;
+
+
     // try {
     //   const response = await fetch('/get-complaint', {
     //     method: 'POST',
@@ -149,8 +177,16 @@ const MechanicDashboard = () => {
     navigate('/');
   };
 
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+  }
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 w-full">
       {/* Sidebar */}
       <aside className="w-64 bg-blue-800 text-white">
         <div className="p-4">
@@ -222,19 +258,19 @@ const MechanicDashboard = () => {
         {/* Dashboard Content */}
         <div className="p-6">
           <h3 className="text-2xl font-bold text-gray-800 mb-6">
-            {dashboardname} Dashboard
+            Mechanic Dashboard
           </h3>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
                  onClick={() => setActiveTab('pending')}>
               <div className="flex items-center space-x-4">
                 <FaClipboardList className="text-3xl text-blue-500" />
                 <div>
-                                  <span className="text-gray-600">
-                                      {/* {arr[0]} */} Hi
-                                  </span>
+                      <span className="text-gray-600">
+                          Requests
+                      </span>
                 </div>
               </div>
             </div>
@@ -244,8 +280,7 @@ const MechanicDashboard = () => {
                 <FaClock className="text-3xl text-yellow-500" />
                 <div>
                   <span className="text-gray-600">
-                    {/* {arr[1]} */} Hi
-
+                    Working
                   </span>
                 </div>
               </div>
@@ -256,8 +291,18 @@ const MechanicDashboard = () => {
                 <FaHandHolding className="text-3xl text-green-500" />
                 <div>
                   <span className="text-gray-600">
-                    {/* {arr[2]} */} Hi
-
+                      Completed
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+                 onClick={() => setActiveTab('completed')}>
+              <div className="flex items-center space-x-4">
+                <FaComment className="text-3xl text-green-500" />
+                <div>
+                  <span className="text-gray-600">
+                      View Comments
                   </span>
                 </div>
               </div>
@@ -280,7 +325,13 @@ const MechanicDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {data && data.map((request, index) => (
+                    {book && book.map((request, index) => {
+                      
+                      const customerData = customerDetail.find(item => item._id === request.customerId)
+
+                      const phNumber = customerData ? customerData.mobileNumber : ""
+                      
+                      return (
                       <tr key={index}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
@@ -288,24 +339,23 @@ const MechanicDashboard = () => {
                               <FaUserCircle className="h-10 w-10 text-gray-400" />
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{request.customername}</div>
-                              <div className="text-sm text-gray-500">{request.mobile}</div>
+                              <div className="text-sm font-medium text-gray-900">{request.customerName}</div>
+                              <div className="text-sm text-gray-500">{phNumber}</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{request.bookeddate}</div>
-                          <div className="text-sm text-gray-500">{request.bookedtime}</div>
+                          <div className="text-sm text-gray-900">{request.bookDate.split("T")[0]}</div>
+                          <div className="text-sm text-gray-500">{request.bookTime.split("T")[1].split(".")[0]}</div>
                         </td>
                         <td className="px-6 py-4">
-                          {request.vehicletype.map((type, idx) => (
-                            <div key={idx} className="text-sm text-gray-900 text-center">{type}</div>
-                          ))}
-                          <div className="text-sm text-gray-500 text-center">{request.registernumber}</div>
+                          
+                            <div className="text-sm text-gray-900 text-center">{request.vehicleType[0]}</div>
+                          <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
                         </td>
                         <td className="px-6 py-4 text-center">
                           <button
-                            onClick={() => handleViewDescription(request.customeremail, request.mechanicemail, request.registernumber)}
+                            onClick={() => handleViewDescription(request.complaintDescription)}
                             className="text-blue-600 hover:text-blue-800"
                           >
                             View Description
@@ -320,14 +370,14 @@ const MechanicDashboard = () => {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               </div>
             )}
 
             {/* Working Services Table */}
-            {activeTab === 'working' && (
+            {/* {activeTab === 'working' && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
@@ -384,10 +434,10 @@ const MechanicDashboard = () => {
                   </tbody>
                 </table>
               </div>
-            )}
+            )} */}
 
             {/* Completed Services Table */}
-            {activeTab === 'completed' && (
+            {/* {activeTab === 'completed' && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
@@ -449,7 +499,7 @@ const MechanicDashboard = () => {
                   </tbody>
                 </table>
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </main>
