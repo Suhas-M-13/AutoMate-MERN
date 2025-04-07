@@ -160,67 +160,6 @@ const ServiceFeedback = () => {
               </div>
             </div>
 
-            {/* Detailed Ratings */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[
-                { label: 'Service Quality', key: 'serviceQuality' },
-                { label: 'Mechanic Rating', key: 'mechanicRating' },
-                { label: 'Cleanliness', key: 'cleanliness' },
-                { label: 'Communication', key: 'communication' },
-                { label: 'Value for Money', key: 'valueForMoney' }
-              ].map(({ label, key }) => (
-                <div key={key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {label}
-                  </label>
-                  <div className="flex space-x-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => handleRatingChange(key, star)}
-                        className={`text-xl ${
-                          star <= feedback[key] ? 'text-yellow-400' : 'text-gray-300'
-                        }`}
-                      >
-                        ★
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Issues Section */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Did you experience any issues?
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {[
-                  'Long waiting time',
-                  'Poor communication',
-                  'Incomplete service',
-                  'High cost',
-                  'Unprofessional behavior',
-                  'Dirty workspace'
-                ].map((issue) => (
-                  <button
-                    key={issue}
-                    type="button"
-                    onClick={() => handleIssueToggle(issue)}
-                    className={`flex items-center justify-center p-3 rounded-lg border ${
-                      feedback.issues.includes(issue)
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-300 hover:border-blue-500'
-                    }`}
-                  >
-                    {issue}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Comment Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">

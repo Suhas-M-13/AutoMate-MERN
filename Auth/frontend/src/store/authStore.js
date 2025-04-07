@@ -46,7 +46,7 @@ export const useAuthStore = create((set) => ({
             
         } catch (error) {
             set({
-                error: error.response?.data?.message || "Error in fetching invoice data",
+                error: error.response?.data?.message || "Error in fetching invoice data", // shop data?
                 isLoading: false
             })
             throw error
@@ -77,7 +77,7 @@ export const useAuthStore = create((set) => ({
     },
     pendingShopList : async()=>{
         set({ isLoading: true, error: null })
-
+        
         try {
             const response = await axios.get(`${API_URL}/consumer/pending`)
             set({
