@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js"
 import { book } from "../models/bookSlot.model.js"
 import { bill } from "../models/bill.model.js"
 import { comment } from "../models/comments.model.js"
+import mongoose from "mongoose"
 
 
 export const getAllShopList = async(req,res)=>{
@@ -266,15 +267,15 @@ export const getGeneratedBill = async(req,res)=>{
         console.log("mechanic ; ",mechanicId);
         console.log("customer ; ",customerId);
         
-
+        // Convert string IDs to ObjectId using new syntax
         const billDetail = await bill.find({
-            mechanicId,
-            customerId
+            mechanicId: new mongoose.Types.ObjectId(mechanicId),
+            customerId: new mongoose.Types.ObjectId(customerId)
         })
 
         console.log("bill found", billDetail)
 
-        if(!billDetail){
+        if(!billDetail || billDetail.length === 0){
             throw new Error("No bill found")
         }
 
@@ -301,7 +302,7 @@ export const getGeneratedBill = async(req,res)=>{
         console.log('Error in fetching shop details...'+error);
         return res.status(400).json({
             success : false,
-            message : error
+            message : error.message
         }) 
     }
 }
