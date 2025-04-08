@@ -18,7 +18,10 @@ import {
   FaEnvelope,
   FaBook,
   FaFileInvoiceDollar,
-  FaCog
+  FaCog,
+  FaMotorcycle,
+  FaHourglassHalf,
+  FaMoneyBillWave
 } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
@@ -31,7 +34,7 @@ const CustomerDashboard = () => {
   const [cardStatus, setcardStatus] = useState('shoplist')
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { user, logout, shopDetail, shop, isLoading, error, pendingShopList , book , completedShopList} = useAuthStore();
+  const { user, logout, shopDetail, shop, isLoading, error, pendingShopList, book, completedShopList , updatePay } = useAuthStore();
 
   const fetchShopDetail = async () => {
     try {
@@ -84,6 +87,15 @@ const CustomerDashboard = () => {
     }
   };
 
+  const handlePayBill = async(mechanicId,registerNumber) => {
+    try {
+      await updatePay(mechanicId,registerNumber)
+      navigate(`/servicefeedback/${mechanicId}`)
+    } catch (error) {
+      toast.error("No mechanic id found");
+    }
+  };
+
   const handleCards = async (cardName) => {
     if (cardName === "shoplist") {
       setcardStatus('shoplist')
@@ -113,7 +125,7 @@ const CustomerDashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100 w-full">
       {/* Sidebar */}
-      <aside className="hidden md:block w-64 bg-blue-800 text-white">
+      {/* <aside className="hidden md:block w-64 bg-blue-800 text-white">
         <div className="p-4">
           <div className="flex items-center space-x-2">
             <img src="/images/Banner.png" alt="AutoMate" className="h-8 w-8" />
@@ -136,7 +148,7 @@ const CustomerDashboard = () => {
             </li>
           </ul>
         </nav>
-      </aside>
+      </aside> */}
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
@@ -247,78 +259,134 @@ const CustomerDashboard = () => {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mechanic Details</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Details</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Info</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'pending' || cardStatus === 'completed') ? "Vehicle Type" : "Contact"}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'pending' || cardStatus === 'completed') ? "Vehicle Register Number" : "Shop Info"}</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {shop.map((mechanic, index) =>{
-                      const foundbook = book.find(item => item.mechanicId === mechanic.ownerId)
-                      const status = foundbook ? (foundbook.isAccepted ? "Working" : "Request Pending") : "Not Booked";
-                     return (
-                      <tr key={index} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <FaUserCircle className="h-10 w-10 text-gray-400" />
+                    {shop.map((mechanic, index) => {
+                      return (
+                        <tr key={index} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <FaUserCircle className="h-10 w-10 text-gray-400" />
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">{mechanic.ownerName}</div>
+                              </div>
                             </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{mechanic.ownerName}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900">{mechanic.shopname}</div>
+                            <div className="text-sm text-gray-500 flex items-center">
+                              <FaMapMarkerAlt className="mr-1" />
+                              {mechanic.address}
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">{mechanic.shopname}</div>
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <FaMapMarkerAlt className="mr-1" />
-                            {mechanic.address}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 flex items-center">
-                            <FaPhone className="mr-1" />
-                            {mechanic.mobileNumber}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <button
-                            onClick={() => handleViewShopDetails(mechanic.ownerId)}
-                            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group"
-                          >
-                            <FaTools className="mr-2 group-hover:rotate-12 transition-transform duration-200" />
-                            Explore Shop
-                          </button>
-                        </td>
-                        <td className="px-6 py-4">
-                          {cardStatus === 'shoplist' ? (
-                            <button
-                              onClick={() => handleBookSlot(mechanic.ownerId)}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
-                            >
-                              <FaBook className="mr-2" />
-                              Book Slot
-                            </button>
-                          ) : cardStatus === 'pending' ? (
-                            <button
-                              disabled
-                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center opacity-75"
-                            >
-                              <FaCog className="mr-2 animate-spin" />
-                              {status}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleViewBill(mechanic.ownerId)}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
-                            >
-                              <FaFileInvoiceDollar className="mr-2" />
-                              View Bill
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    )})}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900 flex items-center">
+                              {
+                                (cardStatus === 'pending' || cardStatus === 'completed') ? (
+                                  <>
+                                    {
+                                      mechanic.vehicleType[0] === 'Bike' ? (
+                                        <>
+                                          <FaMotorcycle className="mr-1" />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <FaCar className="mr-1" />
+                                        </>
+                                      )
+                                    }
+                                    {mechanic.vehicleType}
+                                  </>
+                                ) : (
+                                  <>
+                                    <FaPhone className="mr-1" />
+                                    {mechanic.mobileNumber}
+                                  </>
+                                )
+                              }
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            {
+                              (cardStatus === 'pending' || cardStatus === 'completed') ? (
+                                <>
+                                  {mechanic.registerNumber}
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => handleViewShopDetails(mechanic.ownerId)}
+                                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group"
+                                  >
+                                    <FaTools className="mr-2 group-hover:rotate-12 transition-transform duration-200" />
+                                    Explore Shop
+                                  </button>
+                                </>
+                              )
+                            }
+
+                          </td>
+                          <td className="px-6 py-4">
+                            {cardStatus === 'shoplist' ? (
+                              <button
+                                onClick={() => handleBookSlot(mechanic.ownerId)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+                              >
+                                <FaBook className="mr-2" />
+                                Book Slot
+                              </button>
+                            ) : cardStatus === 'pending' ? (
+                              <button
+                                disabled
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center opacity-75"
+                              >
+                                {
+                                  mechanic.isAccepted === true ? (
+                                    <>
+                                        <FaHourglassHalf  className="mr-2 animate-spin"/>
+                                        Pending
+                                    </>
+                                  ) : (
+                                    <>
+                                      <FaCog className="mr-2 animate-spin" />
+                                      Working
+                                    </>
+                                  )
+                                }
+                              </button>
+                            ) : (
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleViewBill(mechanic.ownerId)}
+                                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
+                                >
+                                  <FaFileInvoiceDollar className="mr-2" />
+                                  View Bill
+                                </button>
+                                <button
+                                  onClick={() => handlePayBill(mechanic.ownerId,mechanic.registerNumber)}
+                                  disabled={mechanic.isPaid}
+                                  className={`px-4 py-2 rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center ${
+                                    mechanic.isPaid
+                                      ? 'bg-gray-400 text-white cursor-not-allowed opacity-75'
+                                      : 'bg-green-600 text-white hover:bg-green-700'
+                                  }`}
+                                >
+                                  <FaMoneyBillWave className="mr-2" />
+                                  {mechanic.isPaid ? 'Paid' : 'Pay'}
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>

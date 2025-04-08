@@ -25,6 +25,10 @@ const commentSchema = new mongoose.Schema({
     Rating : {
         type : String,
         require : true
+    },
+    sentiment : {
+        type : String,
+        require : true
     }
 },{timestamps:true})
 

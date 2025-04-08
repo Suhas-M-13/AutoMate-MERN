@@ -163,6 +163,76 @@ export const useAuthStore = create((set) => ({
         }
 
     },
+    serviceFeedback : async(id)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/consumer/feedback/${id}`)
+
+            set({
+                shop : response.data.shopDetail,
+                user : response.data.customerDetail,
+                book : response.data.bookFormDetail,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching invoice data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+
+    updatePay : async(mechanicId,registerNumber)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.patch(`${API_URL}/consumer/updatePay`,{mechanicId,registerNumber})
+
+            set({
+                message : response.data.message,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching invoice data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+
+
+    addServiceFeedback : async(mechanicId,customerName,feedback)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const title = feedback.title
+            const description = feedback.description
+            const response = await axios.post(`${API_URL}/consumer/feedback`,{mechanicId,customerName,title,description})
+
+            set({
+                message : response.data.message,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching invoice data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
     addBookFormDetail: async (mechanicId,customerName,formData) => {
         set({ isLoading: true, error: null })
 

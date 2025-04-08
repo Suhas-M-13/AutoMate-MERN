@@ -22,6 +22,7 @@ const ShopDetails = () => {
   const fetchShopDetail = async () => {
     try {
       await shopDetailById(mechanicId);
+      console.log(comments)
     } catch (error) {
       toast.error("Couldn't fetch shop detail");
       navigate('/dashboardcustomer');
@@ -183,7 +184,7 @@ const ShopDetails = () => {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <h4 className="font-semibold text-gray-900">{review.customerName}</h4>
-                        <div className="flex items-center text-yellow-400">
+                        <div className="flex items-center text-black">
                           {/* {[...Array(5)].map((_, i) => (
                             <FaStar
                               key={i}
@@ -191,14 +192,14 @@ const ShopDetails = () => {
                             />
                           ))} */}
                           {
-                            comments.Rating
+                            review.Rating
                           }
                         </div>
                       </div>
                         <span className="text-sm text-gray-500">
-                          {comments.createdAt.split(":")[0].split("-")[2].split("T")[0]}
+                          {/* {comments.createdAt.split(":")[0].split("-")[2].split("T")[0]}
                           {comments.createdAt.split(":")[0].split("-")[1]}
-                          {comments.createdAt.split(":")[0].split("-")[0]}
+                          {comments.createdAt.split(":")[0].split("-")[0]} */}
                         </span>
                       </div>
                     <p className="text-gray-600 mb-4">{review.description}</p>
