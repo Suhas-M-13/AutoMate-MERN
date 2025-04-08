@@ -4,7 +4,6 @@ import {
   FaHome, 
   FaWrench, 
   FaUsers, 
-  FaBars, 
   FaSearch, 
   FaClipboardList,
   FaClock,
@@ -16,6 +15,7 @@ import {
   FaComment
 } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
+import HamburgerMenu from '../../components/HamburgerMenu';
 
 const MechanicDashboard = () => {
   const navigate = useNavigate();
@@ -188,7 +188,7 @@ const MechanicDashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100 w-full">
       {/* Sidebar */}
-      <aside className="w-64 bg-blue-800 text-white">
+      <aside className="hidden md:block w-64 bg-blue-800 text-white">
         <div className="p-4">
           <div className="flex items-center space-x-2">
             <img src="/images/Banner.png" alt="AutoMate" className="h-8 w-8" />
@@ -219,9 +219,24 @@ const MechanicDashboard = () => {
         <div className="bg-white shadow-md p-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
-              <button className="text-gray-500 hover:text-gray-700">
-                <FaBars className="text-xl" />
-              </button>
+              <HamburgerMenu>
+                <nav className="mt-8">
+                  <ul className="space-y-2">
+                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
+                      <FaHome className="inline-block mr-2" />
+                      <a href="/">Home</a>
+                    </li>
+                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer border-l-4 border-white">
+                      <FaWrench className="inline-block mr-2" />
+                      <a href="#">Contact Us</a>
+                    </li>
+                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
+                      <FaUsers className="inline-block mr-2" />
+                      <a href="#">About Us</a>
+                    </li>
+                  </ul>
+                </nav>
+              </HamburgerMenu>
               <div className="relative">
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input

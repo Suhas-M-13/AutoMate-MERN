@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import './Homepage.css'; // Import your custom CSS file
+import HamburgerMenu from '../components/HamburgerMenu';
 
 const Homepage = () => {
   return (
@@ -15,13 +16,33 @@ const Homepage = () => {
           <img src="../images/Banner.png" alt="AutoMate Logo" />
           <h2>AUTOMATE</h2>
         </div>
-        <div className="navigation">
+        <div className="navigation hidden md:block">
           <ul>
             <li><a href="/">Home</a></li>
             <li><a href="/mech">Mechanic</a></li>
             <li><a href="/con">Customer</a></li>
             <li><a href="#"><span className="aboutbtn">About US</span></a></li>
           </ul>
+        </div>
+        <div className="md:hidden">
+          <HamburgerMenu>
+            <nav className="mt-8">
+              <ul className="space-y-2">
+                <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
+                  <a href="/">Home</a>
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
+                  <a href="/mech">Mechanic</a>
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
+                  <a href="/con">Customer</a>
+                </li>
+                <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
+                  <a href="#"><span className="aboutbtn">About US</span></a>
+                </li>
+              </ul>
+            </nav>
+          </HamburgerMenu>
         </div>
       </div>
 
