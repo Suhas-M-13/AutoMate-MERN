@@ -13,7 +13,7 @@ const HamburgerMenu = ({ children }) => {
       {/* Hamburger Button */}
       <button
         onClick={toggleMenu}
-        className="text-gray-500 hover:text-gray-700 focus:outline-none"
+        className="text-indigo-600 hover:text-indigo-800 focus:outline-none transition-all duration-300 p-2 rounded-full hover:bg-indigo-50"
       >
         {isOpen ? (
           <FaTimes className="text-xl" />
@@ -24,31 +24,33 @@ const HamburgerMenu = ({ children }) => {
 
       {/* Menu Content */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out z-50 ${
+        className={`fixed top-0 left-0 h-full w-72 bg-gradient-to-br from-indigo-900 via-indigo-800 to-purple-900 shadow-2xl transform transition-transform duration-500 ease-in-out z-50 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <img src="/images/Banner.png" alt="AutoMate" className="h-8 w-8" />
-              <h2 className="text-xl font-bold">AutoMate</h2>
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-3">
+              <img src="/images/Banner.png" alt="AutoMate" className="h-10 w-10" />
+              <h2 className="text-2xl font-bold text-white">AutoMate</h2>
             </div>
             <button
               onClick={toggleMenu}
-              className="text-gray-500 hover:text-gray-700"
+              className="text-white hover:text-indigo-200 transition-all duration-300 p-2 rounded-full hover:bg-indigo-800"
             >
               <FaTimes className="text-xl" />
             </button>
           </div>
-          {children}
+          <div className="space-y-1">
+            {children}
+          </div>
         </div>
       </div>
 
       {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm z-40"
           onClick={toggleMenu}
         />
       )}

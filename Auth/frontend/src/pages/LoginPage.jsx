@@ -1,21 +1,27 @@
-import { React, useState } from 'react'
+import { React, useState, useEffect } from 'react'
 import { motion } from "framer-motion"
 import { Mail, Lock, Loader } from "lucide-react"
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import toast from "react-hot-toast"
 
 import Input from '../components/Input';
-
-import { useNavigate } from 'react-router-dom';
-
 import { useAuthStore } from '../store/authStore.js';
 
 const LoginPage = () => {
   const [email, setemail] = useState('')
   const [password, setpassword] = useState('')
+  const [userType, setUserType] = useState('')
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
-  const {isLoading,error,login,user} = useAuthStore()
+  const {isLoading, error, login, user} = useAuthStore()
+
+  useEffect(() => {
+    const type = searchParams.get('type')
+    if (type) {
+      setUserType(type)
+    }
+  }, [searchParams])
 
   const handleLogin = async(e) => {
     e.preventDefault();
@@ -23,16 +29,20 @@ const LoginPage = () => {
     try {
       await login(email, password)
       
+      // Validate user type
+      if (userType && user.role !== userType) {
+        toast.error(`Please login as a ${userType}`)
+        return
+      }
+      
       if(user.role === "customer")
         navigate('/dashboardcustomer')
       else if(user.role === "mechanic")
         navigate('/dashboardmechanic')
       
     } catch (error) {
-      // console.log(error);
       toast.error("Error in logging in...")
     }
-
   }
 
   return (
@@ -42,11 +52,15 @@ const LoginPage = () => {
       transition={{ duration: 0.5 }}
       className='max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden'
     >
-
       <div className='p-8'>
-        <h2 className='text-3xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
+        <h2 className='text-3xl font-bold mb-2 text-center bg-gradient-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text'>
           Welcome Back
         </h2>
+        {userType && (
+          <p className='text-center text-gray-300 mb-6'>
+            Logging in as {userType.charAt(0).toUpperCase() + userType.slice(1)}
+          </p>
+        )}
 
         <form onSubmit={handleLogin}>
           <Input
@@ -54,11 +68,7 @@ const LoginPage = () => {
             type='email'
             placeholder='Enter Email Address'
             value={email}
-            onChange={
-              (e) => {
-                setemail(e.target.value)
-              }
-            }
+            onChange={(e) => setemail(e.target.value)}
             textTypeVal="true"
           />
           <Input
@@ -66,14 +76,9 @@ const LoginPage = () => {
             type='password'
             placeholder='Enter Password'
             value={password}
-            onChange={
-              (e) => {
-                setpassword(e.target.value)
-              }
-            }
-            textTypeVal= "false"
+            onChange={(e) => setpassword(e.target.value)}
+            textTypeVal="false"
           />
-
 
           <div className='flex items-center mb-6'>
             <Link to='/forgot-password' className='text-sm text-green-400 hover:underline'>
@@ -84,24 +89,22 @@ const LoginPage = () => {
 
           <motion.button
             className='mt-5 w-full py-3 px-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white 
-						font-bold rounded-lg shadow-lg hover:from-green-600
-						hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
-						focus:ring-offset-gray-900 transition duration-200'
+            font-bold rounded-lg shadow-lg hover:from-green-600
+            hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+            focus:ring-offset-gray-900 transition duration-200'
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type='submit'
-            disabled = {isLoading}
+            disabled={isLoading}
           >
-            {isLoading ? <Loader className='w-6 h-6 animate-spin  mx-auto'/> : "Login"}
-
+            {isLoading ? <Loader className='w-6 h-6 animate-spin mx-auto'/> : "Login"}
           </motion.button>
-
         </form>
       </div>
       <div className='px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center'>
         <p className='text-sm text-gray-400'>
           Don't have an account?{" "}
-          <Link to={"/signup"} className='text-green-400 hover:underline'>
+          <Link to={`/signup${userType ? `?type=${userType}` : ''}`} className='text-green-400 hover:underline'>
             Sign up
           </Link>
         </p>

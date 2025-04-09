@@ -16,6 +16,7 @@ import {
 } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
 import HamburgerMenu from '../../components/HamburgerMenu';
+import { toast } from 'react-hot-toast';
 
 const MechanicDashboard = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const MechanicDashboard = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState('');
+  const [workingRequests, setWorkingRequests] = useState([]);
 
   const {book , customerDetail , customerRequests , isLoading , error} = useAuthStore()
 
@@ -50,6 +52,9 @@ const MechanicDashboard = () => {
   const fetchCustomerRequest = async()=>{
     try {
       await customerRequests()
+      // Filter working requests
+      const working = book.filter(request => request.isAccepted && !request.isCompleted);
+      setWorkingRequests(working);
       console.log(book)
       console.log(customerDetail)
     } catch (error) {
@@ -62,26 +67,42 @@ const MechanicDashboard = () => {
   }, [])
   
 
-  const handleAccept = async (customerId, mechanicId, registernumber) => {
-    // try {
-    //   const response = await fetch('/update-customer', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ customerId, mechanicId, registernumber }),
-    //   });
+  const handleAccept = async (customerId) => {
+    try {
+      const response = await fetch(`http://localhost:1972/api/mechanic/accept/${customerId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include'
+      });
 
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     window.location.reload();
-    //   } else {
-    //     alert('Failed to update customer status');
-    //   }
-    // } catch (error) {
-    //   console.error('Error updating customer status:', error);
-    //   alert('Failed to update customer status');
-    // }
+      const result = await response.json();
+      if (result.success) {
+        toast.success('Request accepted successfully');
+        
+        // Find the accepted request
+        const acceptedRequest = book.find(request => request.customerId === customerId);
+        
+        if (acceptedRequest) {
+          // Add to working requests
+          setWorkingRequests(prev => [...prev, { ...acceptedRequest, isAccepted: true }]);
+          
+          // Remove from book array
+          const updatedBook = book.filter(request => request.customerId !== customerId);
+          // Update the book state through the store
+          await customerRequests();
+        }
+        
+        // Switch to working tab
+        setActiveTab('working');
+      } else {
+        toast.error(result.message || 'Failed to accept request');
+      }
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      toast.error('Failed to accept request');
+    }
   };
 
   const handleComplete = async (customerId, mechanicId, registernumber) => {
@@ -142,35 +163,9 @@ const MechanicDashboard = () => {
     // }
   };
 
-  const handleViewDescription = async (complaintDescription) => {
-    //create desc box with cancel button
-    const html = `
-      <div>
-        ${complaintDescription}
-      </div>
-    `;
-
-
-    // try {
-    //   const response = await fetch('/get-complaint', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ customeremail, mechanicemail, registernumber }),
-    //   });
-
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     setSelectedComplaint(result.complaint);
-    //     setShowDescription(true);
-    //   } else {
-    //     alert('Failed to fetch complaint details');
-    //   }
-    // } catch (error) {
-    //   console.error('Error fetching complaint details:', error);
-    //   alert('Failed to fetch complaint details');
-    // }
+  const handleViewDescription = (complaintDescription) => {
+    setSelectedComplaint(complaintDescription);
+    setShowDescription(true);
   };
 
   const handleLogout = () => {
@@ -187,31 +182,6 @@ const MechanicDashboard = () => {
 
   return (
     <div className="flex h-screen bg-gray-100 w-full">
-      {/* Sidebar */}
-      <aside className="hidden md:block w-64 bg-blue-800 text-white">
-        <div className="p-4">
-          <div className="flex items-center space-x-2">
-            <img src="/images/Banner.png" alt="AutoMate" className="h-8 w-8" />
-            <h2 className="text-xl font-bold">AutoMate</h2>
-          </div>
-        </div>
-        <nav className="mt-8">
-          <ul className="space-y-2">
-            <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
-              <FaHome className="inline-block mr-2" />
-              <a href="/">Home</a>
-            </li>
-            <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer border-l-4 border-white">
-              <FaWrench className="inline-block mr-2" />
-              <a href="#">Contact Us</a>
-            </li>
-            <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
-              <FaUsers className="inline-block mr-2" />
-              <a href="#">About Us</a>
-            </li>
-          </ul>
-        </nav>
-      </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
@@ -378,7 +348,7 @@ const MechanicDashboard = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button
-                            onClick={() => handleAccept(request.customeremail, request.mechanicemail, request.registernumber)}
+                            onClick={() => handleAccept(request.customerId)}
                             className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                           >
                             Accept
@@ -392,7 +362,7 @@ const MechanicDashboard = () => {
             )}
 
             {/* Working Services Table */}
-            {/* {activeTab === 'working' && (
+            {activeTab === 'working' && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
@@ -405,51 +375,54 @@ const MechanicDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {second && second.map((service, index) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <FaUserCircle className="h-10 w-10 text-gray-400" />
+                    {workingRequests.map((request, index) => {
+                      const customerData = customerDetail.find(item => item._id === request.customerId);
+                      const phNumber = customerData ? customerData.mobileNumber : "";
+                      
+                      return (
+                        <tr key={index}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <FaUserCircle className="h-10 w-10 text-gray-400" />
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">{request.customerName}</div>
+                                <div className="text-sm text-gray-500">{phNumber}</div>
+                              </div>
                             </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{service.customername}</div>
-                              <div className="text-sm text-gray-500">{service.mobile}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{service.bookeddate}</div>
-                          <div className="text-sm text-gray-500">{service.bookedtime}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          {service.vehicletype.map((type, idx) => (
-                            <div key={idx} className="text-sm text-gray-900 text-center">{type}</div>
-                          ))}
-                          <div className="text-sm text-gray-500 text-center">{service.registernumber}</div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <button
-                            onClick={() => handleViewDescription(service.customeremail, service.mechanicemail, service.registernumber)}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            View Description
-                          </button>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleComplete(service.customeremail, service.mechanicemail, service.registernumber)}
-                            className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700"
-                          >
-                            Complete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{request.bookDate.split("T")[0]}</div>
+                            <div className="text-sm text-gray-500">{request.bookTime.split("T")[1].split(".")[0]}</div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900 text-center">{request.vehicleType[0]}</div>
+                            <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <button
+                              onClick={() => handleViewDescription(request.complaintDescription)}
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              View Description
+                            </button>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button
+                              onClick={() => handleComplete(request.customerId)}
+                              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700"
+                            >
+                              Complete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
-            )} */}
+            )}
 
             {/* Completed Services Table */}
             {/* {activeTab === 'completed' && (
@@ -529,9 +502,9 @@ const MechanicDashboard = () => {
             >
               <FaTimes className="text-xl" />
             </button>
-            <h2 className="text-2xl font-bold text-center mb-4">Customer Complaints</h2>
+            <h2 className="text-2xl font-bold text-center mb-4">Problem Description</h2>
             <div className="mt-4">
-              <p className="border border-gray-300 rounded-lg p-4 font-serif">
+              <p className="border border-gray-300 rounded-lg p-4 font-serif whitespace-pre-wrap">
                 {selectedComplaint}
               </p>
             </div>

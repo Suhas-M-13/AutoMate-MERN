@@ -111,27 +111,27 @@ const CustomerDashboard = () => {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 w-full">
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-indigo-50 to-gray-100 w-full">
       {/* Sidebar */}
-      <aside className="hidden md:block w-64 bg-blue-800 text-white">
-        <div className="p-4">
-          <div className="flex items-center space-x-2">
-            <img src="/images/Banner.png" alt="AutoMate" className="h-8 w-8" />
-            <h2 className="text-xl font-bold">AutoMate</h2>
+      <aside className="hidden md:block w-72 bg-gradient-to-b from-indigo-900 via-indigo-800 to-purple-900 text-white shadow-2xl">
+        <div className="p-6">
+          <div className="flex items-center space-x-3">
+            <img src="../../images/banner.png" alt="AutoMate" className="h-10 w-10" />
+            <h2 className="text-2xl font-bold">AutoMate</h2>
           </div>
         </div>
-        <nav className="mt-8">
+        <nav className="mt-8 px-4">
           <ul className="space-y-2">
-            <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
-              <FaHome className="inline-block mr-2" />
-              <a href="/">Home</a>
+            <li className="px-4 py-3 hover:bg-indigo-700 cursor-pointer transition-all duration-300 rounded-lg group">
+              <FaHome className="inline-block mr-3 text-lg group-hover:scale-110 transition-transform duration-300" />
+              <a href="/" className="text-lg">Home</a>
             </li>
-            <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer border-l-4 border-white">
-              <FaWrench className="inline-block mr-2" />
+            <li className="px-4 py-3 hover:bg-indigo-700 cursor-pointer border-l-4 border-indigo-400 transition-all duration-300 rounded-lg group">
+              <FaWrench className="inline-block mr-3 text-lg group-hover:scale-110 transition-transform duration-300" />
               <a href="#">Contact Us</a>
             </li>
-            <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
-              <FaUsers className="inline-block mr-2" />
+            <li className="px-4 py-3 hover:bg-indigo-700 cursor-pointer transition-all duration-300 rounded-lg group">
+              <FaUsers className="inline-block mr-3 text-lg group-hover:scale-110 transition-transform duration-300" />
               <a href="#">About Us</a>
             </li>
           </ul>
@@ -141,53 +141,53 @@ const CustomerDashboard = () => {
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         {/* Top Navigation */}
-        <div className="bg-white shadow-md p-4">
+        <div className="bg-white/80 backdrop-blur-sm shadow-lg p-4 sticky top-0 z-10">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-4">
               <HamburgerMenu>
                 <nav className="mt-8">
                   <ul className="space-y-2">
-                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
-                      <FaHome className="inline-block mr-2" />
-                      <a href="/">Home</a>
+                    <li className="px-4 py-3 hover:bg-indigo-700 cursor-pointer transition-all duration-300 rounded-lg group">
+                      <FaHome className="inline-block mr-3 text-lg group-hover:scale-110 transition-transform duration-300" />
+                      <a href="/" className="text-white text-lg">Home</a>
                     </li>
-                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer border-l-4 border-white">
-                      <FaWrench className="inline-block mr-2" />
-                      <a href="#">Contact Us</a>
+                    <li className="px-4 py-3 hover:bg-indigo-700 cursor-pointer border-l-4 border-indigo-400 transition-all duration-300 rounded-lg group">
+                      <FaWrench className="inline-block mr-3 text-lg group-hover:scale-110 transition-transform duration-300" />
+                      <a href="#" className="text-white">Contact Us</a>
                     </li>
-                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
-                      <FaUsers className="inline-block mr-2" />
-                      <a href="#">About Us</a>
+                    <li className="px-4 py-3 hover:bg-indigo-700 cursor-pointer transition-all duration-300 rounded-lg group">
+                      <FaUsers className="inline-block mr-3 text-lg group-hover:scale-110 transition-transform duration-300" />
+                      <a href="#" className="text-white">About Us</a>
                     </li>
                   </ul>
                 </nav>
               </HamburgerMenu>
               <div className="relative">
-                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-indigo-400" />
                 <input
                   type="text"
                   placeholder="Search mechanics..."
-                  className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="pl-10 pr-4 py-2 border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white/50 backdrop-blur-sm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
             <div className="relative">
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-700">{user.name}</span>
+              <div className="flex items-center space-x-3">
+                <span className="text-indigo-900 font-medium">{user.name}</span>
                 <img
                   src={profileImage}
                   alt="Profile"
-                  className="w-10 h-10 rounded-full cursor-pointer"
+                  className="w-12 h-12 rounded-full cursor-pointer ring-2 ring-indigo-500 hover:ring-indigo-600 transition-all duration-300 hover:scale-105"
                   onClick={() => setShowPopup(!showPopup)}
                 />
               </div>
               {showPopup && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-sm rounded-lg shadow-xl py-1 border border-indigo-100">
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="block w-full text-left px-4 py-2 text-sm text-indigo-900 hover:bg-indigo-50 transition-all duration-300"
                   >
                     Logout
                   </button>
@@ -198,40 +198,46 @@ const CustomerDashboard = () => {
         </div>
 
         {/* Dashboard Content */}
-        <div className="p-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">
+        <div className="p-8">
+          <h3 className="text-3xl font-bold text-indigo-900 mb-8">
             Customer Dashboard
           </h3>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 border border-indigo-100 hover:border-indigo-200 group"
               onClick={() => handleCards("shoplist")}
             >
               <div className="flex items-center space-x-4">
-                <FaClipboardList className="text-3xl text-blue-500" />
+                <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors duration-300">
+                  <FaClipboardList className="text-3xl text-indigo-600" />
+                </div>
                 <div>
-                  <span className="text-gray-600">Shop List</span>
+                  <span className="text-indigo-900 font-medium text-lg">Shop List</span>
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 border border-indigo-100 hover:border-indigo-200 group"
               onClick={() => handleCards("pending")}
             >
               <div className="flex items-center space-x-4">
-                <FaClock className="text-3xl text-yellow-500" />
+                <div className="p-3 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors duration-300">
+                  <FaClock className="text-3xl text-amber-600" />
+                </div>
                 <div>
-                  <span className="text-gray-600">Pending</span>
+                  <span className="text-indigo-900 font-medium text-lg">Pending</span>
                 </div>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+            <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 border border-indigo-100 hover:border-indigo-200 group"
               onClick={() => handleCards("completed")}
             >
               <div className="flex items-center space-x-4">
-                <FaCheckCircle className="text-3xl text-green-500" />
+                <div className="p-3 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors duration-300">
+                  <FaCheckCircle className="text-3xl text-emerald-600" />
+                </div>
                 <div>
-                  <span className="text-gray-600">Completed</span>
+                  <span className="text-indigo-900 font-medium text-lg">Completed</span>
                 </div>
               </div>
             </div>
