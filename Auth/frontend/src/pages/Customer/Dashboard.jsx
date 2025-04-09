@@ -125,19 +125,11 @@ const CustomerDashboard = () => {
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 via-indigo-50 to-gray-100 w-full">
       {/* Sidebar */}
-<<<<<<< HEAD
-      <aside className="hidden md:block w-72 bg-gradient-to-b from-indigo-900 via-indigo-800 to-purple-900 text-white shadow-2xl">
-        <div className="p-6">
-          <div className="flex items-center space-x-3">
-            <img src="../../images/banner.png" alt="AutoMate" className="h-10 w-10" />
-            <h2 className="text-2xl font-bold">AutoMate</h2>
-=======
-      {/* <aside className="hidden md:block w-64 bg-blue-800 text-white">
+      <aside className="hidden md:block w-64 bg-blue-800 text-white">
         <div className="p-4">
           <div className="flex items-center space-x-2">
             <img src="/images/Banner.png" alt="AutoMate" className="h-8 w-8" />
             <h2 className="text-xl font-bold">AutoMate</h2>
->>>>>>> 5a0c80209c7d0421827ae17a8fad6039867573b3
           </div>
         </div>
         <nav className="mt-8 px-4">
@@ -156,7 +148,7 @@ const CustomerDashboard = () => {
             </li>
           </ul>
         </nav>
-      </aside> */}
+      </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
