@@ -9,7 +9,8 @@ import  {
     getShopListCompletedById,
     getGeneratedBill,
     getDeatilsForFeedBackForm,
-    addComment
+    addComment,
+    updatePayment
 } from "../controllers/consumer.controller.js"
 import {verifyToken} from "../middleware/verifyToken.js"
 
@@ -25,6 +26,7 @@ router.post('/book-slot',verifyToken,addBookSlot)
 router.get('/pending',verifyToken,getShopListPendingById)
 router.get('/completed',verifyToken,getShopListCompletedById)
 router.get('/feedback/:id',verifyToken,getDeatilsForFeedBackForm)
-router.post('/feedback',addComment)
+router.post('/feedback',verifyToken,addComment)
+router.patch('/updatePay',verifyToken,updatePayment)
 
 export default router

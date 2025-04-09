@@ -1,90 +1,56 @@
-import React, { useState } from 'react';
-import { FaStar, FaTools, FaUser, FaCalendarAlt, FaClock, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaUser, FaTools, FaCalendarAlt, FaCar, FaTimesCircle, FaCheckCircle, FaStore } from 'react-icons/fa';
+import { useAuthStore } from '../../store/authStore';
+import { useNavigate, useParams } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import Input from '../../components/Input';
 
 const ServiceFeedback = () => {
-  // This would come from your API/database
-  const [service] = useState({
-    id: 1,
-    shopName: "AutoCare Plus",
-    mechanicName: "John Doe",
-    serviceType: "Car Repair",
-    serviceDate: "2024-03-15",
-    completionTime: "2 hours",
-    vehicleDetails: {
-      make: "Toyota",
-      model: "Camry",
-      year: "2020",
-      registrationNumber: "ABC123"
-    },
-    serviceDetails: {
-      description: "Oil change and brake pad replacement",
-      cost: 250,
-      status: "completed"
-    }
-  });
-
+  const { serviceFeedback, addServiceFeedback, user, shop, book, isLoading, error } = useAuthStore();
+  const { mechanicId } = useParams();
   const [feedback, setFeedback] = useState({
-    overallRating: 5,
-    serviceQuality: 5,
-    mechanicRating: 5,
-    cleanliness: 5,
-    communication: 5,
-    valueForMoney: 5,
-    comment: "",
-    wouldRecommend: true,
-    issues: []
+    title: '',
+    description: ''
   });
+  const navigate = useNavigate()
 
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleRatingChange = (category, value) => {
-    setFeedback(prev => ({
-      ...prev,
-      [category]: value
-    }));
+  const fetchServiceDetails = async () => {
+    try {
+      await serviceFeedback(mechanicId);
+    } catch (error) {
+      toast.error("Error fetching service details");
+    }
   };
 
-  const handleIssueToggle = (issue) => {
-    setFeedback(prev => ({
-      ...prev,
-      issues: prev.issues.includes(issue)
-        ? prev.issues.filter(i => i !== issue)
-        : [...prev.issues, issue]
-    }));
-  };
+  useEffect(() => {
+    fetchServiceDetails();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Handle feedback submission to your backend
-      console.log("Feedback submitted:", feedback);
-      setSubmitted(true);
+      await addServiceFeedback(mechanicId, user.name, feedback)
+      toast.success("Feedback submitted successfully");
+      navigate("/dashboardCustomer")
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      toast.error("Error submitting feedback");
     }
   };
 
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-            <FaCheckCircle className="mx-auto h-16 w-16 text-green-500 mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Thank You!</h2>
-            <p className="text-gray-600 mb-8">
-              Your feedback has been submitted successfully. We appreciate your time and input.
-            </p>
-            <button
-              onClick={() => setSubmitted(false)}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Submit Another Feedback
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  if (!shop || !book) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
+
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+  }
+
+  const currentShop = shop[0];
+  const currentBook = book[0];
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 w-full">
@@ -95,41 +61,41 @@ const ServiceFeedback = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="flex items-center">
+                <FaUser className="text-gray-400 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Mechanic Name</p>
+                  <p className="font-medium">{currentShop?.ownerName}</p>
+                </div>
+              </div>
+              <div className="flex items-center">
                 <FaTools className="text-gray-400 mr-3" />
                 <div>
-                  <p className="text-sm text-gray-500">Service Type</p>
-                  <p className="font-medium">{service.serviceType}</p>
+                  <p className="text-sm text-gray-500">Shop Name</p>
+                  <p className="font-medium">{currentShop?.shopname}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <FaUser className="text-gray-400 mr-3" />
                 <div>
-                  <p className="text-sm text-gray-500">Mechanic</p>
-                  <p className="font-medium">{service.mechanicName}</p>
+                  <p className="text-sm text-gray-500">Customer Name</p>
+                  <p className="font-medium">{user?.name}</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <FaCar className="text-gray-400 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Vehicle Registration Number</p>
+                  <p className="font-medium">{currentBook?.registerNumber}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <FaCalendarAlt className="text-gray-400 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Service Date</p>
-                  <p className="font-medium">{service.serviceDate}</p>
+                  <p className="font-medium">{currentBook?.bookDate.split("T")[0]}</p>
                 </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <FaClock className="text-gray-400 mr-3" />
-                <div>
-                  <p className="text-sm text-gray-500">Completion Time</p>
-                  <p className="font-medium">{service.completionTime}</p>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500">Vehicle Details</p>
-                <p className="font-medium">
-                  {service.vehicleDetails.year} {service.vehicleDetails.make} {service.vehicleDetails.model}
-                </p>
-                <p className="text-sm text-gray-500">Reg: {service.vehicleDetails.registrationNumber}</p>
               </div>
             </div>
           </div>
@@ -138,22 +104,37 @@ const ServiceFeedback = () => {
         {/* Feedback Form */}
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Service Feedback</h2>
-          <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Comment Section */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Additional Comments
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+                Title
               </label>
-              <textarea
-                value={feedback.comment}
-                onChange={(e) => setFeedback(prev => ({ ...prev, comment: e.target.value }))}
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                rows="4"
-                placeholder="Share your experience in detail..."
+              <input
+                type="text"
+                id="title"
+                value={feedback.title}
+                onChange={(e) => setFeedback({ ...feedback, title: e.target.value })}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                placeholder="Enter feedback title"
+                required
               />
             </div>
 
-            {/* Recommendation */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+                Description
+              </label>
+              <textarea
+                id="description"
+                value={feedback.description}
+                onChange={(e) => setFeedback({ ...feedback, description: e.target.value })}
+                className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2"
+                rows="4"
+                placeholder="Share your experience in detail..."
+                required
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Would you recommend this service to others?
@@ -162,11 +143,10 @@ const ServiceFeedback = () => {
                 <button
                   type="button"
                   onClick={() => setFeedback(prev => ({ ...prev, wouldRecommend: true }))}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
-                    feedback.wouldRecommend
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${feedback.wouldRecommend
                       ? 'bg-green-100 text-green-700'
                       : 'bg-gray-100 text-gray-700'
-                  }`}
+                    }`}
                 >
                   <FaCheckCircle />
                   <span>Yes</span>
@@ -174,11 +154,10 @@ const ServiceFeedback = () => {
                 <button
                   type="button"
                   onClick={() => setFeedback(prev => ({ ...prev, wouldRecommend: false }))}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
-                    !feedback.wouldRecommend
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${!feedback.wouldRecommend
                       ? 'bg-red-100 text-red-700'
                       : 'bg-gray-100 text-gray-700'
-                  }`}
+                    }`}
                 >
                   <FaTimesCircle />
                   <span>No</span>
@@ -186,7 +165,7 @@ const ServiceFeedback = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
+
             <div className="flex justify-end">
               <button
                 type="submit"

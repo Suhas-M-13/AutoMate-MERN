@@ -4,6 +4,7 @@ import { book } from "../models/bookSlot.model.js"
 import { bill } from "../models/bill.model.js"
 import { comment } from "../models/comments.model.js"
 import mongoose from "mongoose"
+import { analyzeReviewWithHuggingFace } from "../services/analyzeReviewWithHuggingFace.js"
 
 
 export const getAllShopList = async(req,res)=>{
@@ -184,7 +185,15 @@ export const getShopListPendingById = async(req,res)=>{
             const fetchData = await Shop.find({
                 ownerId : bookSlot[i].mechanicId
             })
-            shopDetail.push(...fetchData)
+            
+            const shopWithBooking = {
+                ...fetchData[0].toObject(), 
+                isAccepted: bookSlot[i].isAccepted,
+                registerNumber: bookSlot[i].registerNumber,
+                vehicleType: bookSlot[i].vehicleType
+            }
+            
+            shopDetail.push(shopWithBooking)
         }
 
         if(!shopDetail){
@@ -201,7 +210,7 @@ export const getShopListPendingById = async(req,res)=>{
         console.log('Error in fetching shop details...'+error);
         return res.status(400).json({
             success : false,
-            message : error
+            message : error.message
         }) 
     }
 }
@@ -233,7 +242,14 @@ export const getShopListCompletedById = async(req,res)=>{
             const fetchData = await Shop.find({
                 ownerId : bookSlot[i].mechanicId
             })
-            shopDetail.push(...fetchData)
+            const shopWithBooking = {
+                ...fetchData[0].toObject(), 
+                isPaid: bookSlot[i].isPaid,
+                registerNumber: bookSlot[i].registerNumber,
+                vehicleType: bookSlot[i].vehicleType
+            }
+            
+            shopDetail.push(shopWithBooking)
         }
 
         if(!shopDetail){
@@ -320,12 +336,17 @@ export const getDeatilsForFeedBackForm = async(req,res)=>{
             ownerId : mechanicId
         })
         const customerDetail = await User.findById(customerId).select("-password")
+        const bookFormDetail = await book.find({
+            mechanicId: new mongoose.Types.ObjectId(mechanicId),
+            customerId: new mongoose.Types.ObjectId(customerId)
+        })
 
         return res.status(200).json({
             success : true,
             message : "Successfully fetched the information",
             shopDetail,
-            customerDetail
+            customerDetail,
+            bookFormDetail,
         })
     } catch (error) {
         console.log('Error in fetching shop details...'+error);
@@ -335,41 +356,116 @@ export const getDeatilsForFeedBackForm = async(req,res)=>{
         }) 
     }
 }
+
+export const updatePayment = async(req,res)=>{
+    try {
+        const customerId = req.userId;
+        const { mechanicId,registerNumber } = req.body;
+
+        if(!mechanicId || !customerId){
+            throw new Error("Mechanic ID and Customer ID are required!");
+        }
+
+        const updatedBooking = await book.findOneAndUpdate(
+            {
+                mechanicId: new mongoose.Types.ObjectId(mechanicId),
+                customerId: new mongoose.Types.ObjectId(customerId),
+                isCompleted: true,
+                registerNumber : registerNumber
+            },
+            { $set: { isPaid: true } },
+            { new: true } 
+        );
+
+        if (!updatedBooking) {
+            // Handle case where the booking wasn't found or wasn't completed
+            return res.status(404).json({
+                success: false,
+                message: "Booking not found or not completed for the given IDs."
+            });
+        }
+
+        console.log("Updated Booking:", updatedBooking); // Log the updated booking
+
+        return res.status(200).json({ // Use 200 OK for successful update
+            success : true,
+            message : "Payment status updated successfully.",
+            booking: updatedBooking
+        });
+
+    } catch (error) {
+        console.log('Error updating payment status: '+error);
+        return res.status(400).json({
+            success : false,
+            // Send a clearer error message
+            message : error.message || "Failed to update payment status."
+        });
+    }
+};
 
 export const addComment = async(req,res)=>{
     try {
         const {
             mechanicId,
-            customerId,
             title,
             description,
-            Rating
-        } = req.body
+            customerName
+        } = req.body;
 
-        if(!mechanicId || !customerId || !title || !description || !Rating){
-            throw new Error("All fields are required!!")
+        const customerId = req.userId;
+
+        if(!mechanicId || !customerId || !title || !description){
+            throw new Error("All fields are required!!");
         }
+
+        let inputText = `Title: ${title}\nDescription: ${description}`;
+
+        // Await the analysis result
+        const ratingResponse = await analyzeReviewWithHuggingFace(inputText);
+
+        // Check if analysis failed
+        if (ratingResponse.moderation === "error" || ratingResponse.rating === "error") {
+            console.error("Sentiment analysis failed:", ratingResponse.details);
+            // Decide how to handle: throw error, use default rating, etc.
+            // Option 1: Throw an error
+            throw new Error("Failed to analyze comment sentiment.");
+            // Option 2: Use a default rating (e.g., 3 or null)
+            // ratingResponse.rating = 3; // Example default
+        }
+
+        // Remove the unnecessary setTimeout
+        // setTimeout(function() {
+        //     console.log("This message will be logged after 10 seconds.");
+        // }, 10000);
+
+        // Ensure Rating type matches the schema (assuming String here)
+        const Rating = String(ratingResponse.rating);
+        const sentiment = ratingResponse.sentiment;
 
         const newComment = new comment({
             mechanicId,
             customerId,
+            customerName,
             title,
             description,
-            Rating
-        })
+            Rating, // Use the analyzed (and potentially defaulted) rating
+            sentiment
+        });
 
-        await newComment.save()
+        await newComment.save();
 
         return res.status(201).json({
             success : true,
             message : "Comment added successfully"
-        })
+        });
 
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        // Log the specific error
+        console.error('Error adding comment: '+error);
         return res.status(400).json({
             success : false,
-            message : error
-        }) 
+            // Send a more specific error message if possible
+            message : error.message || "Failed to add comment."
+        });
     }
-}
+};
