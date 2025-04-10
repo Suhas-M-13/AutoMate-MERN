@@ -85,7 +85,9 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/servicefeedback/:mechanicId" element={
+            <ProtectedRoute>
               <ServiceFeedback/>
+            </ProtectedRoute>
           } />
 
           <Route path="/billmechanic" element={

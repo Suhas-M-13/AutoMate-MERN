@@ -188,25 +188,8 @@ const MechanicDashboard = () => {
         {/* Top Navigation */}
         <div className="bg-white shadow-md p-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <HamburgerMenu>
-                <nav className="mt-8">
-                  <ul className="space-y-2">
-                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
-                      <FaHome className="inline-block mr-2" />
-                      <a href="/">Home</a>
-                    </li>
-                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer border-l-4 border-white">
-                      <FaWrench className="inline-block mr-2" />
-                      <a href="#">Contact Us</a>
-                    </li>
-                    <li className="px-4 py-2 hover:bg-blue-700 cursor-pointer">
-                      <FaUsers className="inline-block mr-2" />
-                      <a href="#">About Us</a>
-                    </li>
-                  </ul>
-                </nav>
-              </HamburgerMenu>
+            <div className="flex items-center space-x-12">
+              <HamburgerMenu/>
               <div className="relative">
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
@@ -242,7 +225,7 @@ const MechanicDashboard = () => {
 
         {/* Dashboard Content */}
         <div className="p-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-6">
+        <h3 className="text-3xl font-bold text-indigo-900 mb-8">
             Mechanic Dashboard
           </h3>
 
