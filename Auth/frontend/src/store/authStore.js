@@ -8,8 +8,6 @@ global state management solution
 
 import { create } from "zustand"
 import axios from "axios"
-import { comment } from "../../../backend/models/comments.model"
-
 
 const API_URL = import.meta.env.MODE === "development" ? "http://localhost:1972/api" : "/api/auth"
 const Customer_URL = "http://localhost:1972/api/consumer"
@@ -71,6 +69,62 @@ export const useAuthStore = create((set) => ({
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+
+    shopRegistration : async()=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            // const response = await axios.get(`http://localhost:1972/api/consumer/view-bill/${id}`)
+            const response = await axios.get(`${API_URL}/mechanic/getMechanicDeatil`)
+
+            set({
+                mechanic : response.data.mechanic,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+    addshopRegistration : async(ownerName,mobileNumber,formData)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            console.log("inside addshopresister : ",formData)
+            const shopname = formData.shopname
+            const description = formData.descaboutshop
+            const serviceAvailable = []
+            if(formData.bike){
+                serviceAvailable.push('Bike')
+            }
+            if(formData.car){
+                serviceAvailable.push('Car')
+            }
+            const address = formData.addr
+            const timings = formData.workingHours
+            const response = await axios.post(`${API_URL}/mechanic/addShop`,{shopname,ownerName,mobileNumber,description,serviceAvailable,address,timings})
+
+            set({
+                message : response.data.message,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
                 isLoading: false
             })
             throw error
@@ -361,7 +415,7 @@ export const useAuthStore = create((set) => ({
                 isLoading: false
             })
 
-            return response.data
+            // return response.data
         } catch (error) {
             set({
                 error: error.response.data.message || "Error in signing up",

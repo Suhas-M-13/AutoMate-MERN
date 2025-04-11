@@ -13,7 +13,7 @@ const EmailVerificationPage = () => {
     const navigate = useNavigate()
     
 
-    const {verifyEmail,error,isLoading} = useAuthStore()
+    const {verifyEmail,error,isLoading,user} = useAuthStore()
 
     const handleChange = (index, value) => {
         const newcode = [...code]
@@ -53,9 +53,12 @@ const EmailVerificationPage = () => {
         // console.log(`verification code : ${vefi}`);
 
         try {
-            const response = await verifyEmail(vefi)
+            await verifyEmail(vefi)
             // console.log(response);
-            navigate("/");
+            if(user.role === "customer")
+                navigate('/dashboardcustomer')
+              else if(user.role === "mechanic")
+                navigate('/mechanicregestration')
             toast.success("Email verified Successfully")
         } catch (error) {
             // console.log(error);
@@ -65,9 +68,9 @@ const EmailVerificationPage = () => {
     }
 
     useEffect(() => {
-     if(code.every(digit => digit !== '')){
-        handleSubmit(new Event('submit'))
-     }
+    if(code.every(digit => digit !== '')){
+    handleSubmit(new Event('submit'))
+    }
     }, [code])
     
 

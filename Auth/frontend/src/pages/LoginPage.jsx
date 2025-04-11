@@ -27,17 +27,15 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
+      console.log("inside login");
+      
       await login(email, password)
+
+      console.log("after login",user.role)
       
-      // Validate user type
-      if (userType && user.role !== userType) {
-        toast.error(`Please login as a ${userType}`)
-        return
-      }
-      
-      if(user.role === "customer")
+      if(user.role.toLowerCase() === "customer")
         navigate('/dashboardcustomer')
-      else if(user.role === "mechanic")
+      else if(user.role.toLowerCase() === "mechanic")
         navigate('/dashboardmechanic')
       
     } catch (error) {

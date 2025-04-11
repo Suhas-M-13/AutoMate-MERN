@@ -200,7 +200,7 @@ const CustomerDashboard = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setActiveTab('pending')}>
+              onClick={() => handleCards("shoplist")}>
               <div className="flex items-center space-x-4">
                 <FaClipboardList className="text-3xl text-blue-500" />
                 <div>
@@ -211,7 +211,7 @@ const CustomerDashboard = () => {
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setActiveTab('working')}>
+              onClick={() => handleCards("pending")}>
               <div className="flex items-center space-x-4">
                 <FaClock className="text-3xl text-yellow-500" />
                 <div>
@@ -222,7 +222,7 @@ const CustomerDashboard = () => {
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => setActiveTab('completed')}>
+              onClick={() => handleCards("completed")}>
               <div className="flex items-center space-x-4">
                 <FaHandHolding className="text-3xl text-green-500" />
                 <div>

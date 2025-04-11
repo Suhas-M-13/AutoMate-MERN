@@ -12,8 +12,8 @@ const HamburgerMenu = ({ children }) => {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async() => {
+    await logout();
     navigate('/login');
   };
 

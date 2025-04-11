@@ -10,14 +10,80 @@ import mongoose from "mongoose"
 
 
 
+export const mechanicDeatil = async(req,res)=>{
+    
+    try {
+        const mechanicId = req.userId
+
+        if(!mechanicId){
+            throw new Error("No mechanic found")
+        }
+
+        const mechanic = await User.findById(mechanicId).select("-password")
+
+        if(!mechanic){
+            throw new Error("mechanic not found")
+        }
+
+        return res.status(200).json({
+            success : true,
+            message: "Details fetched successfully",
+            mechanic
+        })
+        
+    } catch (error) {
+        console.log('Error creating shop: ', error);
+        return res.status(500).json({
+          success: false,
+          message: error.message || "Server error"
+        });
+    }
+}
 export const AddShop = async(req,res)=>{
     try {
-        const { shopname, ownerName, mobileNumber, ownerId, description, serviceAvailable, address, timings } = req.body;
+        const ownerId = req.userId
+        const { shopname, ownerName, mobileNumber, description, serviceAvailable, address, timings } = req.body;
     
         // Validate the request data
-        if (!shopname || !ownerName || !mobileNumber || !ownerId || !serviceAvailable) {
-          return res.status(400).json({ success: false, message: "All fields are required" });
-        }
+        // if (!shopname || !ownerName || !mobileNumber || !ownerId || !serviceAvailable) {
+        //   return res.status(400).json({ success: false, message: "All fields are required" });
+        // }
+
+        if (!shopname) {
+            return res.status(400).json({
+              success: false,
+              message: "Shop name is required"
+            });
+          }
+          
+          if (!ownerName) {
+            return res.status(400).json({
+              success: false,
+              message: "Owner name is required"
+            });
+          }
+          
+          if (!mobileNumber) {
+            return res.status(400).json({
+              success: false,
+              message: "Mobile number is required"
+            });
+          }
+          
+          if (!ownerId) {
+            return res.status(400).json({
+              success: false,
+              message: "Owner ID is required"
+            });
+          }
+          
+          if (!serviceAvailable) {
+            return res.status(400).json({
+              success: false,
+              message: "Service availability is required"
+            });
+          }
+          
     
         // Check if owner exists (optional, but good practice to check)
         const owner = await User.findById(ownerId);

@@ -99,7 +99,9 @@ function App() {
             </ProtectedRoute>
           } />          
           <Route path="/mechanicregestration" element={
+            <ProtectedRoute>
               <MechanicRegistration/>
+            </ProtectedRoute>
           } />
           <Route path="/mechanicfeedback" element={
               <MechanicFeedback/>

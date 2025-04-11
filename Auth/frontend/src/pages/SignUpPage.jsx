@@ -27,6 +27,8 @@ const SignUpPage = () => {
     console.log("inside handlesignup : "+isLoading);
     try {
       await signup(email,password,name,role,mobile)
+      navigate('/mechanicregestration')
+
       navigate("/verify-email")
     } catch (error) {
       // console.log(error);
