@@ -29,7 +29,7 @@ const MechanicDashboard = () => {
   const [selectedComplaint, setSelectedComplaint] = useState('');
   const [workingRequests, setWorkingRequests] = useState([]);
 
-  const { getCompletedList , updateCompleteButton , book, user, customerDetail, getPendingList, customerRequests, updateAcceptButton, isLoading, error } = useAuthStore()
+  const { getCompletedList, updateCompleteButton, book, user, customerDetail, getPendingList, customerRequests, updateAcceptButton, isLoading, error } = useAuthStore()
 
   let data, second, third, Name, dashboardname, arr, mechanicnumber, complaint = null
 
@@ -263,108 +263,124 @@ const MechanicDashboard = () => {
           {/* Tables */}
           <div className="space-y-6">
             {/* Pending Requests Table */}
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <table className="min-w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Information</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Problem Description</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {book && book.map((request, index) => {
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <table className="min-w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Information</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Problem Description</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {book && book.map((request, index) => {
 
-                      const customerData = customerDetail.find(item => item._id === request.customerId)
+                    const customerData = customerDetail.find(item => item._id === request.customerId)
 
-                      const phNumber = customerData ? customerData.mobileNumber : ""
+                    const phNumber = customerData ? customerData.mobileNumber : ""
 
-                      return (
-                        <tr key={index}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                <FaUserCircle className="h-10 w-10 text-gray-400" />
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{request.customerName}</div>
-                                <div className="text-sm text-gray-500">{phNumber}</div>
-                              </div>
+                    return (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <FaUserCircle className="h-10 w-10 text-gray-400" />
                             </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{request.bookDate.split("T")[0]}</div>
-                            <div className="text-sm text-gray-500">{request.bookTime.split("T")[1].split(".")[0]}</div>
-                          </td>
-                          <td className="px-6 py-4">
-
-                            <div className="text-sm text-gray-900 text-center">{
-                              request.vehicleType[0] === 'Bike' ? (
-                                <>
-                                  <FaMotorcycle className="mr-12" />
-                                </>
-                              ) : (
-                                <>
-                                  <FaCar className="ml-12" />
-                                </>
-                              )
-                            }
-                              {request.vehicleType}
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">{request.customerName}</div>
+                              <div className="text-sm text-gray-500">{phNumber}</div>
                             </div>
-                            <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <button
-                              onClick={() => handleViewDescription(request.complaintDescription)}
-                              className="text-blue-600 hover:text-blue-800"
-                            >
-                              View Description
-                            </button>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{request.bookDate.split("T")[0]}</div>
+                          <div className="text-sm text-gray-500">{request.bookTime.split("T")[1].split(".")[0]}</div>
+                        </td>
+                        <td className="px-6 py-4">
 
-                            {
-                              (!request.isAccepted) ?
+                          <div className="text-sm text-gray-900 text-center">{
+                            request.vehicleType[0] === 'Bike' ? (
+                              <>
+                                <FaMotorcycle className="mr-12" />
+                              </>
+                            ) : (
+                              <>
+                                <FaCar className="ml-12" />
+                              </>
+                            )
+                          }
+                            {request.vehicleType}
+                          </div>
+                          <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => handleViewDescription(request.complaintDescription)}
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            View Description
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+
+                          {
+                            (!request.isAccepted) ?
+                              <>
+                                <button
+                                  onClick={() => handleAccept(request.customerId)}
+                                  className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+
+                                  Accept
+                                </button>
+                              </>
+                              :
+                              (request.isAccepted && !request.isCompleted) ?
                                 <>
                                   <button
-                                    onClick={() => handleAccept(request.customerId)}
+                                    onClick={() => handleComplete(request.customerId)}
                                     className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                   >
 
-                                    Accept
+                                    Completed
                                   </button>
                                 </>
                                 :
-                                (request.isAccepted && !request.isCompleted) ?
-                                  <>
-                                    <button
-                                      onClick={() => handleComplete(request.customerId)}
-                                      className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                    >
+                                <>
+                                  {
 
-                                      Completed
-                                    </button>
-                                  </>
-                                  :
-                                  <>
-                                    <button
-                                      onClick={() => handleGenerateBill(request.customerId)}
-                                      className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                    >
+                                    request.isPaid ?
+                                      <>
+                                        <button
+                                        disabled
+                                          className="px-3 py-1 bg-blue-200 text-white rounded-md hover:bg-blue-300"
+                                        >
+                                          Bill Paid
+                                        </button>
+                                      </>
+                                      :
+                                      <>
+                                        <button
+                                          onClick={() => handleGenerateBill(request.customerId)}
+                                          className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                        >
 
-                                      Generate Bill
-                                    </button>
-                                  </>
-                            }
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                                          Generate Bill
+                                        </button>
+
+                                      </>
+                                  }
+                                </>
+                          }
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
 
             {/* Completed Services Table */}
             {/* {activeTab === 'completed' && (

@@ -409,7 +409,8 @@ export const addComment = async(req,res)=>{
             mechanicId,
             title,
             description,
-            customerName
+            customerName,
+            registerNumber
         } = req.body;
 
         const customerId = req.userId;
@@ -448,6 +449,7 @@ export const addComment = async(req,res)=>{
             customerName,
             title,
             description,
+            registerNumber,
             Rating, // Use the analyzed (and potentially defaulted) rating
             sentiment
         });
