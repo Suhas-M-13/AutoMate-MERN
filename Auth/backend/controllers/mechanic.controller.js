@@ -126,7 +126,8 @@ export const getAllCustomerRequest = async(req,res)=>{
         const mechanicId = req.userId
 
         const customerRequest = await book.find({
-            mechanicId : new mongoose.Types.ObjectId(mechanicId)
+            mechanicId : new mongoose.Types.ObjectId(mechanicId),
+            isAccepted : false
         })
 
         console.log(customerRequest)
@@ -336,6 +337,10 @@ export const getBillForm = async(req,res)=>{
         const mechanicId = req.userId
         const customerId = req.params.id
 
+        console.log("customer id : ",customerId);
+        console.log("mechanicId id : ",mechanicId);
+        
+
         if(!customerId || !mechanicId){
             throw new Error("no mechanic id or customer id")
         }
@@ -376,11 +381,22 @@ export const getBillForm = async(req,res)=>{
 export const AddBillForm = async(req,res)=>{
     try {
         const {
-            mechanicId,
             customerId,
             Decription,
-            totalAmount
+            totalAmount,
+            registerNumber
         } = req.body
+
+
+        const mechanicId = req.userId
+
+
+        console.log(customerId,
+            Decription,
+            totalAmount,
+            registerNumber,mechanicId);
+        
+
 
         if(!mechanicId || !customerId || !Decription || !totalAmount){
             throw new Error("All fields are required!!")
@@ -389,6 +405,7 @@ export const AddBillForm = async(req,res)=>{
         const newBill = new bill({
             mechanicId,
             customerId,
+            registerNumber,
             Decription,
             totalAmount
         })

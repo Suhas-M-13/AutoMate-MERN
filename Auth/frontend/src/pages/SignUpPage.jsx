@@ -28,8 +28,6 @@ const SignUpPage = () => {
     try {
       await signup(email,password,name,role,mobile)
       navigate('/mechanicregestration')
-
-      navigate("/verify-email")
     } catch (error) {
       // console.log(error);
       toast.error(error.message || "Error in signing up..")
@@ -110,8 +108,8 @@ const SignUpPage = () => {
               className="w-full pl-10 pr-3 py-2 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-500 text-white placeholder-gray-400 transition duration-200"
             >
               <option value="" disabled>Select Role</option>
-              <option value="Mechanic">Mechanic</option>
-              <option value="Customer">Customer</option>
+              <option value="mechanic">Mechanic</option>
+              <option value="customer">Customer</option>
             </select>
           </div>
 

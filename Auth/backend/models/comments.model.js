@@ -1,4 +1,4 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
 
 
 const commentSchema = new mongoose.Schema({
@@ -9,6 +9,12 @@ const commentSchema = new mongoose.Schema({
     customerId : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'user.model'
+    },
+    registerNumber : {
+        type : String,
+        required : true,
+        unique : true,
+        ref : 'bookSlot.model'
     },
     customerName : {
         type : String,

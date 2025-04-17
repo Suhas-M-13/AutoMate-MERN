@@ -98,6 +98,142 @@ export const useAuthStore = create((set) => ({
         }
 
     },
+    updateAcceptButton : async(id)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.patch(`${API_URL}/mechanic/accept/${id}`)
+
+            set({
+                message : response.data.message,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+    getPendingList : async()=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/mechanic/pending`)
+
+            set({
+                book : response.data.bookSlot,
+                customerDetail : response.data.customerDetail,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+    getCompletedList : async()=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/mechanic/completed `)
+
+            set({
+                book : response.data.bookSlot,
+                customerDetail : response.data.customerDetail,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+    getBillData : async(id)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/mechanic/bill/${id} `)
+
+            set({
+                shop : response.data.shopDetail,
+                book : response.data.bookSlot,
+                user : response.data.customerDetail,
+                mechanic : response.data.mechanicDetail,
+                bill : response.data.billForm,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+
+    addBillData : async(customerId,registerNumber,formData)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            console.log("inside addshopresister : ",formData)
+            const Decription = formData.description
+            const totalAmount = formData.totalDue
+            const response = await axios.post(`${API_URL}/mechanic/bill `,{customerId,Decription,totalAmount,registerNumber})
+
+            set({
+                message: response.data.message || "Bill created successfully",
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in creating bill",
+                isLoading: false
+            })
+            throw error
+        }
+    },
+    updateCompleteButton : async(id)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.patch(`${API_URL}/mechanic/completed/${id}`)
+
+            set({
+                message : response.data.message,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+
     addshopRegistration : async(ownerName,mobileNumber,formData)=>{
         set({ isLoading: true, error: null })
 

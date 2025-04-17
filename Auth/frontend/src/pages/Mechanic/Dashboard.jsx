@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FaHome, 
-  FaWrench, 
-  FaUsers, 
-  FaSearch, 
+import {
+  FaHome,
+  FaWrench,
+  FaUsers,
+  FaSearch,
   FaClipboardList,
   FaClock,
   FaHandHolding,
@@ -12,7 +12,9 @@ import {
   FaRupeeSign,
   FaCheckCircle,
   FaUserCircle,
-  FaComment
+  FaComment,
+  FaMotorcycle,
+  FaCar
 } from 'react-icons/fa';
 import { useAuthStore } from '../../store/authStore';
 import HamburgerMenu from '../../components/HamburgerMenu';
@@ -27,13 +29,13 @@ const MechanicDashboard = () => {
   const [selectedComplaint, setSelectedComplaint] = useState('');
   const [workingRequests, setWorkingRequests] = useState([]);
 
-  const {book , customerDetail , customerRequests , isLoading , error} = useAuthStore()
+  const { getCompletedList , updateCompleteButton , book, user, customerDetail, getPendingList, customerRequests, updateAcceptButton, isLoading, error } = useAuthStore()
 
   let data, second, third, Name, dashboardname, arr, mechanicnumber, complaint = null
 
   useEffect(() => {
     // Generate profile image
-    const firstCharacter = name.charAt(0).toUpperCase();
+    const firstCharacter = user.name.charAt(0).toUpperCase();
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     canvas.width = 100;
@@ -46,17 +48,17 @@ const MechanicDashboard = () => {
     context.textBaseline = 'middle';
     context.fillText(firstCharacter, canvas.width / 2, canvas.height / 2);
     setProfileImage(canvas.toDataURL());
-  }, [name]);
+  }, [user.name]);
 
 
-  const fetchCustomerRequest = async()=>{
+  const fetchCustomerRequest = async () => {
     try {
       await customerRequests()
       // Filter working requests
-      const working = book.filter(request => request.isAccepted && !request.isCompleted);
-      setWorkingRequests(working);
-      console.log(book)
-      console.log(customerDetail)
+      // const working = book.filter(request => request.isAccepted && !request.isCompleted);
+      // setWorkingRequests(working);
+      // console.log(book)
+      // console.log(customerDetail)
     } catch (error) {
       toast.error(error.message || "Error in fetching shop information");
     }
@@ -65,80 +67,61 @@ const MechanicDashboard = () => {
   useEffect(() => {
     fetchCustomerRequest()
   }, [])
-  
+
+
+
+  const handleCards = async (cardName) => {
+    try {
+      if (cardName === "pending") {
+        // setcardStatus('shoplist')
+        await fetchCustomerRequest();
+      }
+      else if (cardName === "working") {
+        // setcardStatus('pending')
+        await getPendingList()
+      }
+      else if (cardName === "completed") {
+        // setcardStatus('completed')
+        await getCompletedList()
+      }
+      else if (cardName === "comments") {
+        // setcardStatus('completed')
+        // await completedShopList()
+      }
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      toast.error('Failed to fetch information');
+    }
+  }
+
 
   const handleAccept = async (customerId) => {
     try {
-      const response = await fetch(`http://localhost:1972/api/mechanic/accept/${customerId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include'
-      });
+      await updateAcceptButton(customerId)
+      toast.success("Request Accepted...")
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      toast.error('Failed to accept request');
+    }
+  };
+  const handleComplete = async (customerId) => {
+    try {
+      await updateCompleteButton(customerId)
+      toast.success("Service Completed...")
 
-      const result = await response.json();
-      if (result.success) {
-        toast.success('Request accepted successfully');
-        
-        // Find the accepted request
-        const acceptedRequest = book.find(request => request.customerId === customerId);
-        
-        if (acceptedRequest) {
-          // Add to working requests
-          setWorkingRequests(prev => [...prev, { ...acceptedRequest, isAccepted: true }]);
-          
-          // Remove from book array
-          const updatedBook = book.filter(request => request.customerId !== customerId);
-          // Update the book state through the store
-          await customerRequests();
-        }
-        
-        // Switch to working tab
-        setActiveTab('working');
-      } else {
-        toast.error(result.message || 'Failed to accept request');
-      }
     } catch (error) {
       console.error('Error accepting request:', error);
       toast.error('Failed to accept request');
     }
   };
 
-  const handleComplete = async (customerId, mechanicId, registernumber) => {
-    // try {
-    //   const response = await fetch('/iscomplete-customer', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({ customerId, mechanicId, registernumber }),
-    //   });
-
-    //   const result = await response.json();
-    //   if (result.success) {
-    //     window.location.reload();
-    //   } else {
-    //     alert('Failed to update customer status');
-    //   }
-    // } catch (error) {
-    //   console.error('Error updating customer status:', error);
-    //   alert('Failed to update customer status');
-    // }
-  };
-
-  const handleGenerateBill = (billData) => {
-    // const queryParams = new URLSearchParams({
-    //   customerId: billData.customername,
-    //   registernumber: billData.registernumber,
-    //   customernumber: billData.mobile,
-    //   vehicletype: billData.vehicletype[0],
-    //   bookeddate: billData.bookeddate,
-    //   mechanicnumber: mechanicnumber,
-    //   complaint: billData.complaint,
-    //   shopname: billData.shopname
-    // });
-    // navigate(`/generatebill?${queryParams.toString()}`);
+  const handleGenerateBill = (customerId) => {
+    try {
+      navigate(`/billmechanic/${customerId}`)
+    } catch (error) {
+      console.error('Error accepting request:', error);
+      toast.error('Failed to open bill section');
+    }
   };
 
   const handlePaid = async (customerId, mechanicId, registernumber) => {
@@ -189,7 +172,7 @@ const MechanicDashboard = () => {
         <div className="bg-white shadow-md p-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-12">
-              <HamburgerMenu/>
+              <HamburgerMenu />
               <div className="relative">
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
@@ -201,7 +184,7 @@ const MechanicDashboard = () => {
             </div>
             <div className="relative">
               <div className="flex items-center space-x-2">
-                <span className="text-gray-700">{Name}</span>
+                <span className="text-gray-700">{user.name}</span>
                 <img
                   src={profileImage}
                   alt="Profile"
@@ -225,25 +208,25 @@ const MechanicDashboard = () => {
 
         {/* Dashboard Content */}
         <div className="p-6">
-        <h3 className="text-3xl font-bold text-indigo-900 mb-8">
+          <h3 className="text-3xl font-bold text-indigo-900 mb-8">
             Mechanic Dashboard
           </h3>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('pending')}>
+              onClick={() => handleCards('pending')}>
               <div className="flex items-center space-x-4">
                 <FaClipboardList className="text-3xl text-blue-500" />
                 <div>
-                      <span className="text-gray-600">
-                          Requests
-                      </span>
+                  <span className="text-gray-600">
+                    Requests
+                  </span>
                 </div>
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('working')}>
+              onClick={() => handleCards('working')}>
               <div className="flex items-center space-x-4">
                 <FaClock className="text-3xl text-yellow-500" />
                 <div>
@@ -254,23 +237,23 @@ const MechanicDashboard = () => {
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('completed')}>
+              onClick={() => handleCards('completed')}>
               <div className="flex items-center space-x-4">
                 <FaHandHolding className="text-3xl text-green-500" />
                 <div>
                   <span className="text-gray-600">
-                      Completed
+                    Completed
                   </span>
                 </div>
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-                 onClick={() => setActiveTab('completed')}>
+              onClick={() => handleCards('comments')}>
               <div className="flex items-center space-x-4">
                 <FaComment className="text-3xl text-green-500" />
                 <div>
                   <span className="text-gray-600">
-                      View Comments
+                    View Comments
                   </span>
                 </div>
               </div>
@@ -280,88 +263,24 @@ const MechanicDashboard = () => {
           {/* Tables */}
           <div className="space-y-6">
             {/* Pending Requests Table */}
-            {activeTab === 'pending' && (
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Type</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Information</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Problem Description</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {book && book.map((request, index) => {
-                      
+
                       const customerData = customerDetail.find(item => item._id === request.customerId)
 
                       const phNumber = customerData ? customerData.mobileNumber : ""
-                      
-                      return (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <FaUserCircle className="h-10 w-10 text-gray-400" />
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{request.customerName}</div>
-                              <div className="text-sm text-gray-500">{phNumber}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{request.bookDate.split("T")[0]}</div>
-                          <div className="text-sm text-gray-500">{request.bookTime.split("T")[1].split(".")[0]}</div>
-                        </td>
-                        <td className="px-6 py-4">
-                          
-                            <div className="text-sm text-gray-900 text-center">{request.vehicleType[0]}</div>
-                          <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <button
-                            onClick={() => handleViewDescription(request.complaintDescription)}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            View Description
-                          </button>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => handleAccept(request.customerId)}
-                            className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                          >
-                            Accept
-                          </button>
-                        </td>
-                      </tr>
-                    )})}
-                  </tbody>
-                </table>
-              </div>
-            )}
 
-            {/* Working Services Table */}
-            {activeTab === 'working' && (
-              <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                <table className="min-w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Type</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Problem Description</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {workingRequests.map((request, index) => {
-                      const customerData = customerDetail.find(item => item._id === request.customerId);
-                      const phNumber = customerData ? customerData.mobileNumber : "";
-                      
                       return (
                         <tr key={index}>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -380,7 +299,20 @@ const MechanicDashboard = () => {
                             <div className="text-sm text-gray-500">{request.bookTime.split("T")[1].split(".")[0]}</div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900 text-center">{request.vehicleType[0]}</div>
+
+                            <div className="text-sm text-gray-900 text-center">{
+                              request.vehicleType[0] === 'Bike' ? (
+                                <>
+                                  <FaMotorcycle className="mr-12" />
+                                </>
+                              ) : (
+                                <>
+                                  <FaCar className="ml-12" />
+                                </>
+                              )
+                            }
+                              {request.vehicleType}
+                            </div>
                             <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
                           </td>
                           <td className="px-6 py-4 text-center">
@@ -392,20 +324,47 @@ const MechanicDashboard = () => {
                             </button>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <button
-                              onClick={() => handleComplete(request.customerId)}
-                              className="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700"
-                            >
-                              Complete
-                            </button>
+
+                            {
+                              (!request.isAccepted) ?
+                                <>
+                                  <button
+                                    onClick={() => handleAccept(request.customerId)}
+                                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                  >
+
+                                    Accept
+                                  </button>
+                                </>
+                                :
+                                (request.isAccepted && !request.isCompleted) ?
+                                  <>
+                                    <button
+                                      onClick={() => handleComplete(request.customerId)}
+                                      className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                    >
+
+                                      Completed
+                                    </button>
+                                  </>
+                                  :
+                                  <>
+                                    <button
+                                      onClick={() => handleGenerateBill(request.customerId)}
+                                      className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                    >
+
+                                      Generate Bill
+                                    </button>
+                                  </>
+                            }
                           </td>
                         </tr>
-                      );
+                      )
                     })}
                   </tbody>
                 </table>
               </div>
-            )}
 
             {/* Completed Services Table */}
             {/* {activeTab === 'completed' && (
@@ -473,28 +432,30 @@ const MechanicDashboard = () => {
             )} */}
           </div>
         </div>
-      </main>
+      </main >
 
       {/* Complaint Description Modal */}
-      {showDescription && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 relative">
-            <button
-              onClick={() => setShowDescription(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
-              <FaTimes className="text-xl" />
-            </button>
-            <h2 className="text-2xl font-bold text-center mb-4">Problem Description</h2>
-            <div className="mt-4">
-              <p className="border border-gray-300 rounded-lg p-4 font-serif whitespace-pre-wrap">
-                {selectedComplaint}
-              </p>
+      {
+        showDescription && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4 relative">
+              <button
+                onClick={() => setShowDescription(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              >
+                <FaTimes className="text-xl" />
+              </button>
+              <h2 className="text-2xl font-bold text-center mb-4">Problem Description</h2>
+              <div className="mt-4">
+                <p className="border border-gray-300 rounded-lg p-4 font-serif whitespace-pre-wrap">
+                  {selectedComplaint}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 

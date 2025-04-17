@@ -332,7 +332,7 @@ const CustomerDashboard = () => {
                                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center opacity-75"
                               >
                                 {
-                                  mechanic.isAccepted === true ? (
+                                  mechanic.isAccepted === false ? (
                                     <>
                                       <FaHourglassHalf className="mr-2 animate-spin" />
                                       Pending

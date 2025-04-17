@@ -9,7 +9,7 @@ import DashBoardPage from "./pages/DashBoardPage"
 import ForgetPasswordPage from "./pages/ForgetPasswordPage"
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx"
 
-import  {useAuthStore}  from "./store/authStore.js"
+import { useAuthStore } from "./store/authStore.js"
 import Homepage from "./pages/Homepage.jsx"
 import Bill from "./pages/Mechanic/Bill.jsx"
 import BookingForm from "./pages/Customer/BookForm.jsx"
@@ -40,10 +40,10 @@ const ProtectedRoute = ({ children }) => {
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore()
 
-  if (isAuthenticated && user.isverified && user.role === "customer") {
+  if (isAuthenticated && user.isverified && user.role.toLowerCase() === "customer") {
     return <Navigate to="/dashboardcustomer" replace />
   }
-  else if (isAuthenticated && user.isverified && user.role === "mechanic") {
+  else if (isAuthenticated && user.isverified && user.role.toLowerCase() === "mechanic") {
     return <Navigate to="/dashboardmechanic" replace />
   }
 
@@ -52,59 +52,62 @@ const RedirectAuthenticatedUser = ({ children }) => {
 
 
 function App() {
-  const { checkAuth} = useAuthStore()
+  const { checkAuth } = useAuthStore()
 
   useEffect(() => {
     checkAuth()
-  }, [checkAuth])
+  }, [])
 
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-blue-700 to-slate-700 flex items-center justify-center relative overflow-hidden">
         <Routes>
-          <Route path="/" element={<Homepage/>} />
-          <Route path="/welcome" element={<Homepage/>} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Homepage />
+            </ProtectedRoute>
+          } />
           <Route path="/bookform/:mechanicId" element={
             <ProtectedRoute>
-              <BookingForm/>
+              <BookingForm />
             </ProtectedRoute>
           } />
           <Route path="/dashboardcustomer" element={
             <ProtectedRoute>
-                <CustomerDashboard/>
+              <CustomerDashboard />
             </ProtectedRoute>
           } />
           <Route path="/invoice/:invoiceId" element={
             <ProtectedRoute>
-              <Invoice/>
+              <Invoice />
             </ProtectedRoute>
           } />
           <Route path="/shopdetails/:mechanicId" element={
             <ProtectedRoute>
-              <ShopDetails/>
+              <ShopDetails />
             </ProtectedRoute>
           } />
           <Route path="/servicefeedback/:mechanicId" element={
             <ProtectedRoute>
-              <ServiceFeedback/>
+              <ServiceFeedback />
             </ProtectedRoute>
           } />
 
-          <Route path="/billmechanic" element={
-              <Bill/>
+          <Route path="/billmechanic/:customerId" element={
+            <ProtectedRoute>
+              <Bill />
+            </ProtectedRoute>
           } />
           <Route path="/dashboardmechanic" element={
             <ProtectedRoute>
-              <MechanicDashboard/>
-            </ProtectedRoute>
-          } />          
-          <Route path="/mechanicregestration" element={
-            <ProtectedRoute>
-              <MechanicRegistration/>
+              <MechanicDashboard />
             </ProtectedRoute>
           } />
+          <Route path="/mechanicregestration" element={
+            <MechanicRegistration />
+          } />
           <Route path="/mechanicfeedback" element={
-              <MechanicFeedback/>
+            <MechanicFeedback />
           } />
           <Route path="/signup" element={
             <RedirectAuthenticatedUser>
@@ -131,7 +134,7 @@ function App() {
               <ResetPasswordPage />
             </RedirectAuthenticatedUser>
           } />
-          <Route path = "*" element={<Navigate to ='/' replace />} />
+          <Route path="*" element={<Navigate to='/' replace />} />
         </Routes>
         <Toaster />
       </div>

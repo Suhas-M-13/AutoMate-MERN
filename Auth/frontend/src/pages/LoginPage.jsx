@@ -31,7 +31,7 @@ const LoginPage = () => {
       
       await login(email, password)
 
-      console.log("after login",user.role)
+      // console.log("after login",user.role)
       
       if(user.role.toLowerCase() === "customer")
         navigate('/dashboardcustomer')
@@ -39,7 +39,7 @@ const LoginPage = () => {
         navigate('/dashboardmechanic')
       
     } catch (error) {
-      toast.error("Error in logging in...")
+      // toast.error("Error in logging in...")
     }
   }
 

@@ -26,7 +26,7 @@ router.get('/pending',verifyToken,getPendingList)
 router.get('/completed',verifyToken,getCompletedList)
 router.patch('/completed/:id',verifyToken,updateCompleteCustomerRequest)
 router.get('/bill/:id',verifyToken,getBillForm)
-router.post('/bill',AddBillForm)
+router.post('/bill',verifyToken,AddBillForm)
 router.put('/bill/:id',verifyToken,updateBillForm)
 router.get('/comments',verifyToken,getComments)
 

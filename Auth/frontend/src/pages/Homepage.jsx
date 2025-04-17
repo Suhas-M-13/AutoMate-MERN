@@ -32,10 +32,10 @@ const Homepage = () => {
               <Link to="/" className="text-indigo-900 hover:text-indigo-600 transition-all duration-300 font-medium">
                 Home
               </Link>
-              <Link to="/dashboardmechanic" className="text-indigo-900 hover:text-indigo-600 transition-all duration-300 font-medium">
+              <Link to="/login" className="text-indigo-900 hover:text-indigo-600 transition-all duration-300 font-medium">
                 Mechanic
               </Link>
-              <Link to="/dashboardcustomer" className="text-indigo-900 hover:text-indigo-600 transition-all duration-300 font-medium">
+              <Link to="/login" className="text-indigo-900 hover:text-indigo-600 transition-all duration-300 font-medium">
                 Customer
               </Link>
               <Link to="#" className="text-indigo-900 hover:text-indigo-600 transition-all duration-300">

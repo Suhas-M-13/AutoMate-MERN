@@ -1,34 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
+import toast from 'react-hot-toast';
 
 const Bill = () => {
-  const location = useLocation();
+  const {customerId} = useParams()
+  const {addBillData , getBillData , user , mechanic , shop , bill , book , error , isLoading} = useAuthStore()
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    customerName: '',
-    customerRole: '',
-    vehicletype: '',
-    registerNumber: '',
-    bookeddate: '',
     description: '',
-    shopname: '',
-    mechanicphno: '',
-    totalDue: ''
+    totalDue: '',
   });
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    setFormData(prev => ({
-      ...prev,
-      customerName: params.get('customerId') || '',
-      registerNumber: params.get('registernumber') || '',
-      customerRole: params.get('customernumber') || '',
-      vehicletype: params.get('vehicletype') || '',
-      bookeddate: params.get('bookeddate') || '',
-      mechanicphno: params.get('mechanicnumber') || '',
-      shopname: params.get('shopname') || ''
-    }));
-  }, [location]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -38,32 +20,49 @@ const Bill = () => {
     }));
   };
 
+  useEffect(() => {
+    fetchData()
+  }, []);
+
+  const fetchData = async()=>{
+    try {
+      await getBillData(customerId)
+    } catch (error) {
+      toast.error(error.message || "Error in fetching shop information");
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('/storebill', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Success:', data);
-        navigate('/invoice-confirmation');
-      } else {
-        console.error('Error:', response.statusText);
+      if (!book || book.length === 0) {
+        toast.error("No booking information available");
+        return;
       }
+      
+      await addBillData(customerId, book[0].registerNumber,formData);
+      toast.success("Bill created successfully");
+      navigate('/dashboardmechanic');
     } catch (error) {
-      console.error('Error:', error);
+      toast.error(error.message || "Error in creating bill");
     }
   };
 
+  if (isLoading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+  }
+
+  if (!book || book.length === 0) {
+    return <div className="min-h-screen flex items-center justify-center text-red-500">No booking information available</div>;
+  }
+
   return (
-    <div className="max-w-3xl mx-auto my-8 p-8 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Invoice Input Form</h1>
+    <div className="mx-auto p-8 bg-white rounded-lg shadow-md w-full">
+      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Invoice Form</h1>
       <form onSubmit={handleSubmit}>
         <fieldset className="border border-gray-200 rounded-lg p-6 mb-6 bg-gray-50">
           <legend className="text-xl font-semibold text-gray-700 px-2 mb-4">Invoice To</legend>
@@ -74,7 +73,7 @@ const Bill = () => {
                 type="text"
                 id="customerName"
                 name="customerName"
-                value={formData.customerName}
+                value={user?.name || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -87,7 +86,7 @@ const Bill = () => {
                 type="text"
                 id="customerRole"
                 name="customerRole"
-                value={formData.customerRole}
+                value={user?.mobileNumber || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -100,7 +99,7 @@ const Bill = () => {
                 type="text"
                 id="vehicletype"
                 name="vehicletype"
-                value={formData.vehicletype}
+                value={book[0]?.vehicleType || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -118,7 +117,7 @@ const Bill = () => {
                 type="text"
                 id="registerNumber"
                 name="registerNumber"
-                value={formData.registerNumber}
+                value={book[0]?.registerNumber || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -131,7 +130,7 @@ const Bill = () => {
                 type="text"
                 id="bookeddate"
                 name="bookeddate"
-                value={formData.bookeddate}
+                value={book[0]?.bookDate || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -164,10 +163,10 @@ const Bill = () => {
             <div>
               <label htmlFor="shopname" className="block text-sm font-medium text-gray-700 mb-1">Mechanic Shop:</label>
               <input
-                type="email"
+                type="text"
                 id="shopname"
                 name="shopname"
-                value={formData.shopname}
+                value={shop[0]?.shopname || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -177,10 +176,10 @@ const Bill = () => {
             <div>
               <label htmlFor="mechanicphno" className="block text-sm font-medium text-gray-700 mb-1">Mechanic Number:</label>
               <input
-                type="email"
+                type="text"
                 id="mechanicphno"
                 name="mechanicphno"
-                value={formData.mechanicphno}
+                value={mechanic?.mobileNumber || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -213,4 +212,4 @@ const Bill = () => {
   );
 };
 
-export default Bill; 
+export default Bill;

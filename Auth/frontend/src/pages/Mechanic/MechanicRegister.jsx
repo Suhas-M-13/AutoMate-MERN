@@ -96,8 +96,9 @@ const MechanicRegistration = () => {
     try {
       await addshopRegistration(mechanic.name,mechanic.mobileNumber,formData)
       toast.success("Shop registered successfully")
-      navigate('/dashboardmechanic')
-    } catch (error) {
+      navigate("/verify-email")
+    } 
+    catch (error) {
       console.error('Error submitting form:', error);
       toast.error("Shop registered successfully")
     }

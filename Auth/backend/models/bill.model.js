@@ -11,6 +11,12 @@ const billSchema = new mongoose.Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'user.model'
     },
+    registerNumber : {
+        type : String,
+        required : true,
+        unique : true,
+        ref : 'bookSlot.model'
+    },
     Decription : {
         type : String,
         required : true
