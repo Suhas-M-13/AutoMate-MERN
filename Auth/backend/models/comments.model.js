@@ -16,6 +16,10 @@ const commentSchema = new mongoose.Schema({
         unique : true,
         ref : 'bookSlot.model'
     },
+    vehicleType : [{
+        type : String,
+        enum : ['Bike','Car']
+    }],
     customerName : {
         type : String,
         require : true

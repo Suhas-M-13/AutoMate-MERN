@@ -5,9 +5,13 @@ import { useAuthStore } from '../../store/authStore';
 import toast from "react-hot-toast"
 import {useParams} from "react-router-dom"
 import { usePDF } from 'react-to-pdf';
+import CryptoJS from 'crypto-js';
 
 const Invoice = () => {
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const encryptedVeh = searchParams.get('veh');
+
   const { invoice, user, mechanic, bill, shop, book, error, isLoading } = useAuthStore();
   const {invoiceId} = useParams()
   const invoiceRef = useRef();
@@ -19,8 +23,13 @@ const Invoice = () => {
         toast.error("No invoice ID provided");
         return;
       }
+
+      const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.SECRETKEY);
+      const vehicleRegNumber = bytes.toString(CryptoJS.enc.Utf8);
+
+      console.log(vehicleRegNumber)
       
-      await invoice(invoiceId);
+      await invoice(invoiceId,vehicleRegNumber);
     } catch (error) {
       toast.error(error.message || "Error in fetching invoice information");
     }

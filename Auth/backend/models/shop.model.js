@@ -35,8 +35,25 @@ const shopSchema = new mongoose.Schema({
             to: String,
             notavailable: Boolean
         }
+    },
+    location: {
+        type: {
+          type: String,
+          enum: ["Point"],
+          default: "Point",
+          required: true
+        },
+        coordinates: {
+          type: [Number], // [longitude, latitude]
+          required: true
+        }
     }
 },{timestamps:true})
+
+
+shopSchema.index({
+    location : "2dsphere"
+})
 
 export const Shop = mongoose.model('shop',shopSchema)
 

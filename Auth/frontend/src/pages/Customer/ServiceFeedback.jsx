@@ -4,8 +4,15 @@ import { useAuthStore } from '../../store/authStore';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Input from '../../components/Input';
+import CryptoJS from 'crypto-js';
+import { useLocation } from 'react-router-dom';
+
 
 const ServiceFeedback = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const encryptedVeh = searchParams.get('veh');
+
   const { serviceFeedback, addServiceFeedback, user, shop, book, isLoading, error } = useAuthStore();
   const { mechanicId } = useParams();
   const [feedback, setFeedback] = useState({
@@ -16,7 +23,12 @@ const ServiceFeedback = () => {
 
   const fetchServiceDetails = async () => {
     try {
-      await serviceFeedback(mechanicId);
+      const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.SECRETKEY);
+      const vehicleRegNumber = bytes.toString(CryptoJS.enc.Utf8);
+
+      console.log(vehicleRegNumber)
+
+      await serviceFeedback(mechanicId,vehicleRegNumber);
     } catch (error) {
       toast.error("Error fetching service details");
     }

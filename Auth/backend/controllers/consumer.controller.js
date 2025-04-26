@@ -1,105 +1,105 @@
-import {Shop} from "../models/shop.model.js"
+import { Shop } from "../models/shop.model.js"
 import { User } from "../models/user.model.js"
 import { book } from "../models/bookSlot.model.js"
 import { bill } from "../models/bill.model.js"
 import { comment } from "../models/comments.model.js"
 import mongoose from "mongoose"
 import { analyzeReviewWithHuggingFace } from "../services/analyzeReviewWithHuggingFace.js"
+import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
 
 
-export const getAllShopList = async(req,res)=>{
+export const getAllShopList = async (req, res) => {
     try {
         const allShop = await Shop.find({})
 
-        if(!allShop){
+        if (!allShop) {
             throw new Error("Error in fetching...")
         }
 
         return res.status(200).json({
-            shopList : allShop,
-            success : true,
-            message : "fetched All shop details"
+            shopList: allShop,
+            success: true,
+            message: "fetched All shop details"
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
-            success : false,
-            message : "Failed to fetched shop details"
-        })     
+            success: false,
+            message: "Failed to fetched shop details"
+        })
     }
 }
 
-export const getShopById = async(req,res)=>{
-    const {id} = req.params
+export const getShopById = async (req, res) => {
+    const { id } = req.params
 
     try {
         const reqShop = await Shop.find({
-            ownerId : id
+            ownerId: id
         })
         const comments = await comment.find({
-            mechanicId : id
+            mechanicId: id
         })
 
-        if(!reqShop){
+        if (!reqShop) {
             throw new Error("Error in fetching...")
         }
-        if(!comments){
+        if (!comments) {
             throw new Error("Error in fetching comments...")
         }
 
         return res.status(200).json({
-            shopList : reqShop,
-            reviews : comments,
-            success : true,
-            message : "fetched required shop details"
+            shopList: reqShop,
+            reviews: comments,
+            success: true,
+            message: "fetched required shop details"
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
-            success : false,
-            message : "Failed to fetched shop details"
-        })     
+            success: false,
+            message: "Failed to fetched shop details"
+        })
     }
 
 
 }
 
-export const getBookFormDetails = async(req,res)=>{
-    
-    
+export const getBookFormDetails = async (req, res) => {
+
+
     try {
         const mechanicId = req.params.id
         const customerId = req.userId;
 
         const shopDetail = await Shop.find({
-            ownerId : mechanicId
+            ownerId: mechanicId
         })
         const customerDetail = await User.findById(customerId).select("-password");
         const mechanicDetail = await User.findById(mechanicId).select("-password");
 
-        if(!shopDetail || !customerDetail || !mechanicDetail){
+        if (!shopDetail || !customerDetail || !mechanicDetail) {
             throw new Error("Error in fetching shop , customer , mechanic detail")
         }
 
         return res.status(200).json({
-            success : true,
-            message : "All details fetched",
+            success: true,
+            message: "All details fetched",
             shopDetail,
             customerDetail,
             mechanicDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
-            success : false,
-            message : error
-        }) 
+            success: false,
+            message: error
+        })
     }
 }
 
-export const addBookSlot = async(req,res)=>{
+export const addBookSlot = async (req, res) => {
     try {
-        
         const {
             mechanicId,
             customerName,
@@ -112,11 +112,11 @@ export const addBookSlot = async(req,res)=>{
 
         const customerId = req.userId
 
-        if(!mechanicId || !customerName || !vehicleType || !registerNumber || !complaintDescription || !bookDate || !bookTime){
+        if (!mechanicId || !customerName || !vehicleType || !registerNumber || !complaintDescription || !bookDate || !bookTime) {
             throw new Error("All fields are required!!!")
         }
 
-        if(!customerId){
+        if (!customerId) {
             throw new Error("customer id not found")
         }
 
@@ -124,7 +124,7 @@ export const addBookSlot = async(req,res)=>{
             registerNumber
         })
 
-        if(checkSlot && checkSlot.isAccepted){
+        if (checkSlot && checkSlot.isAccepted) {
             throw new Error("For one vehicle only one booking can be done until the current status of the vehicle service is completed")
         }
 
@@ -137,166 +137,220 @@ export const addBookSlot = async(req,res)=>{
             complaintDescription,
             bookDate,
             bookTime,
-            isAccepted : false,
-            isCompleted : false,
-            isPaid : false
+            isAccepted: false,
+            isCompleted: false,
+            isPaid: false
         })
 
         await newBookSlot.save()
 
+        const token = generateTokenAndSetCookie(res, customerId, registerNumber)
+
         return res.status(201).json({
-            success : true,
-            message : "Slot details added successfully"
+            success: true,
+            message: "Slot details added successfully",
+            data: {
+                registerNumber,
+                bookingId: newBookSlot._id,
+                token // Send the new token in response
+            }
         })
     } catch (error) {
-        console.log('Error in book'+error);
+        console.log('Error in book' + error);
         return res.status(400).json({
-            success : false,
-            message : error
-        }) 
+            success: false,
+            message: error.message || "Failed to add booking slot"
+        })
     }
 }
 
-export const getShopListPendingById = async(req,res)=>{
+export const getShopListPendingById = async (req, res) => {
     try {
         const customerId = req.userId
 
-        if(!customerId){
+        if (!customerId) {
             throw new Error("Not Authenticated..")
         }
-        console.log('id : '+customerId);
-        
+        // console.log('id : ' + customerId);
+
         const bookSlot = await book.find({
             customerId,
-            isCompleted : false
+            isCompleted: false
         })
 
-        if(!bookSlot){
+        if (!bookSlot) {
             return res.status(200).json({
-                success : true,
-                message : "No list of shops",
+                success: true,
+                message: "No list of shops",
                 bookSlot
             })
         }
 
         const shopDetail = []
 
-        for(let i = 0;i<bookSlot.length;i++){   
+        for (let i = 0; i < bookSlot.length; i++) {
             const fetchData = await Shop.find({
-                ownerId : bookSlot[i].mechanicId
+                ownerId: bookSlot[i].mechanicId
             })
-            
+
             const shopWithBooking = {
-                ...fetchData[0].toObject(), 
+                ...fetchData[0].toObject(),
                 isAccepted: bookSlot[i].isAccepted,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType
             }
-            
+
             shopDetail.push(shopWithBooking)
         }
 
-        if(!shopDetail){
+        if (!shopDetail) {
             throw new Error("Couldn't fetch shop details")
         }
 
         return res.status(200).json({
-            success : true,
-            message : "Data fetched successfully",
+            success: true,
+            message: "Data fetched successfully",
             bookSlot,
             shopDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
-            success : false,
-            message : error.message
-        }) 
+            success: false,
+            message: error.message
+        })
     }
 }
 
-export const getShopListCompletedById = async(req,res)=>{
+
+
+export const getShopListCompletedById = async (req, res) => {
     try {
         const customerId = req.userId
 
-        if(!customerId){
+        if (!customerId) {
             throw new Error("Not Authenticated..")
         }
 
         const bookSlot = await book.find({
             customerId,
-            isCompleted : true
+            isCompleted: true,
+            isPaid: false
         })
 
-        if(!bookSlot){
+        if (!bookSlot) {
             return res.status(200).json({
-                success : true,
-                message : "No list of shops",
+                success: true,
+                message: "No list of shops",
                 bookSlot
             })
         }
 
         const shopDetail = []
 
-        for(let i = 0;i<bookSlot.length;i++){   
+        for (let i = 0; i < bookSlot.length; i++) {
             const fetchData = await Shop.find({
-                ownerId : bookSlot[i].mechanicId
+                ownerId: bookSlot[i].mechanicId
             })
             const shopWithBooking = {
-                ...fetchData[0].toObject(), 
+                ...fetchData[0].toObject(),
                 isPaid: bookSlot[i].isPaid,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType
             }
-            
+
             shopDetail.push(shopWithBooking)
         }
 
-        if(!shopDetail){
+        if (!shopDetail) {
             throw new Error("Couldn't fetch shop details")
         }
 
         return res.status(200).json({
-            success : true,
-            message : "Data fetched successfully",
+            success: true,
+            message: "Data fetched successfully",
             bookSlot,
             shopDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
-            success : false,
-            message : error
-        }) 
+            success: false,
+            message: error
+        })
     }
 }
 
-export const getGeneratedBill = async(req,res)=>{
+
+export const getServiceHistoryForCustomer = async (req, res) => {
     try {
-        const mechanicId = req.params.id
         const customerId = req.userId
 
-        if(!customerId || !mechanicId){
+        // Add await and convert to array
+        const bookSlot = await book.find({
+            customerId,
+            isPaid: true
+        }).lean() //lean() to convert to plain JS objects
+
+        const shopDetail = []
+
+        for (let i = 0; i < bookSlot.length; i++) {
+            const fetchData = await Shop.find({
+                ownerId: bookSlot[i].mechanicId
+            }).lean() 
+            
+            const shopWithBooking = {
+                ...fetchData[0],
+                isPaid: bookSlot[i].isPaid,
+                registerNumber: bookSlot[i].registerNumber,
+                vehicleType: bookSlot[i].vehicleType
+            }
+
+            shopDetail.push(shopWithBooking)
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Successfully fetched data",
+            bookSlot,
+            shopDetail
+        })
+    } catch (error) {
+        console.log('Error in fetching details...' + error);
+        return res.status(400).json({
+            success: false,
+            message: error.message // Send error message instead of error object
+        })
+    }
+}
+
+export const getGeneratedBill = async (req, res) => {
+    try {
+        const customerId = req.userId
+        const {mechanicId,registerNumber} = req.body
+
+        if (!customerId || !mechanicId || !registerNumber) {
             throw new Error("no mechanic id or customer id")
         }
 
-        console.log("mechanic ; ",mechanicId);
-        console.log("customer ; ",customerId);
-        
+        console.log("mechanic ; ", mechanicId);
+        console.log("customer ; ", customerId);
+
         // Convert string IDs to ObjectId using new syntax
         const billDetail = await bill.find({
             mechanicId: new mongoose.Types.ObjectId(mechanicId),
-            customerId: new mongoose.Types.ObjectId(customerId)
+            customerId: new mongoose.Types.ObjectId(customerId),
+            registerNumber : registerNumber
         })
 
         console.log("bill found", billDetail)
 
-        if(!billDetail || billDetail.length === 0){
+        if (!billDetail || billDetail.length === 0) {
             throw new Error("No bill found")
         }
 
         const shopDetail = await Shop.find({
-            ownerId : mechanicId
+            ownerId: mechanicId
         })
         const bookSlot = await book.find({
             mechanicId,
@@ -306,8 +360,8 @@ export const getGeneratedBill = async(req,res)=>{
         const mechanicDetail = await User.findById(mechanicId).select("-password")
 
         return res.status(200).json({
-            success : true,
-            message : "Successfully fetched the information",
+            success: true,
+            message: "Successfully fetched the information",
             billDetail,
             shopDetail,
             bookSlot,
@@ -315,54 +369,55 @@ export const getGeneratedBill = async(req,res)=>{
             mechanicDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
-            success : false,
-            message : error.message
-        }) 
+            success: false,
+            message: error.message
+        })
     }
 }
 
-export const getDeatilsForFeedBackForm = async(req,res)=>{
+export const getDeatilsForFeedBackForm = async (req, res) => {
     try {
-        const mechanicId = req.params.id
         const customerId = req.userId
+        const {mechanicId , registerNumber} = req.body
 
-        if(!customerId || !mechanicId){
+        if (!customerId || !mechanicId) {
             throw new Error("no mechanic id or customer id")
         }
 
         const shopDetail = await Shop.find({
-            ownerId : mechanicId
+            ownerId: mechanicId
         })
         const customerDetail = await User.findById(customerId).select("-password")
         const bookFormDetail = await book.find({
             mechanicId: new mongoose.Types.ObjectId(mechanicId),
-            customerId: new mongoose.Types.ObjectId(customerId)
+            customerId: new mongoose.Types.ObjectId(customerId),
+            registerNumber : registerNumber
         })
 
         return res.status(200).json({
-            success : true,
-            message : "Successfully fetched the information",
+            success: true,
+            message: "Successfully fetched the information",
             shopDetail,
             customerDetail,
             bookFormDetail,
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
-            success : false,
-            message : error
-        }) 
+            success: false,
+            message: error
+        })
     }
 }
 
-export const updatePayment = async(req,res)=>{
+export const updatePayment = async (req, res) => {
     try {
         const customerId = req.userId;
-        const { mechanicId,registerNumber } = req.body;
+        const { mechanicId, registerNumber } = req.body;
 
-        if(!mechanicId || !customerId){
+        if (!mechanicId || !customerId) {
             throw new Error("Mechanic ID and Customer ID are required!");
         }
 
@@ -371,10 +426,10 @@ export const updatePayment = async(req,res)=>{
                 mechanicId: new mongoose.Types.ObjectId(mechanicId),
                 customerId: new mongoose.Types.ObjectId(customerId),
                 isCompleted: true,
-                registerNumber : registerNumber
+                registerNumber: registerNumber
             },
             { $set: { isPaid: true } },
-            { new: true } 
+            { new: true }
         );
 
         if (!updatedBooking) {
@@ -388,22 +443,22 @@ export const updatePayment = async(req,res)=>{
         console.log("Updated Booking:", updatedBooking); // Log the updated booking
 
         return res.status(200).json({ // Use 200 OK for successful update
-            success : true,
-            message : "Payment status updated successfully.",
+            success: true,
+            message: "Payment status updated successfully.",
             booking: updatedBooking
         });
 
     } catch (error) {
-        console.log('Error updating payment status: '+error);
+        console.log('Error updating payment status: ' + error);
         return res.status(400).json({
-            success : false,
+            success: false,
             // Send a clearer error message
-            message : error.message || "Failed to update payment status."
+            message: error.message || "Failed to update payment status."
         });
     }
 };
 
-export const addComment = async(req,res)=>{
+export const addComment = async (req, res) => {
     try {
         const {
             mechanicId,
@@ -415,7 +470,7 @@ export const addComment = async(req,res)=>{
 
         const customerId = req.userId;
 
-        if(!mechanicId || !customerId || !title || !description){
+        if (!mechanicId || !customerId || !title || !description) {
             throw new Error("All fields are required!!");
         }
 
@@ -457,17 +512,17 @@ export const addComment = async(req,res)=>{
         await newComment.save();
 
         return res.status(201).json({
-            success : true,
-            message : "Comment added successfully"
+            success: true,
+            message: "Comment added successfully"
         });
 
     } catch (error) {
         // Log the specific error
-        console.error('Error adding comment: '+error);
+        console.error('Error adding comment: ' + error);
         return res.status(400).json({
-            success : false,
+            success: false,
             // Send a more specific error message if possible
-            message : error.message || "Failed to add comment."
+            message: error.message || "Failed to add comment."
         });
     }
 };

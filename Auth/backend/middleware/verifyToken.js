@@ -1,16 +1,7 @@
 import jwt from "jsonwebtoken"
 
 export const verifyToken = (req,res,next)=>{
-    // Check for token in cookies first
-    let token = req.cookies.token
-
-    // If not in cookies, check Authorization header
-    if(!token && req.headers.authorization){
-        const authHeader = req.headers.authorization
-        if(authHeader.startsWith('Bearer ')){
-            token = authHeader.split(' ')[1]
-        }
-    }
+    const token = req.cookies.token
 
     if(!token){
         return res.status(401).json({
@@ -20,6 +11,7 @@ export const verifyToken = (req,res,next)=>{
     }
 
     try {
+        
         const decoded = jwt.verify(token,process.env.JWT_SECRET)
 
         if(!decoded){

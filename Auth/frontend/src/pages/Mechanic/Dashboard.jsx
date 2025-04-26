@@ -84,7 +84,7 @@ const MechanicDashboard = () => {
         // setcardStatus('completed')
         await getCompletedList()
       }
-      else if (cardName === "comments") {
+      else if (cardName === "history") {
         // setcardStatus('completed')
         // await completedShopList()
       }
@@ -248,12 +248,12 @@ const MechanicDashboard = () => {
               </div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => handleCards('comments')}>
+              onClick={() => handleCards('history')}>
               <div className="flex items-center space-x-4">
                 <FaComment className="text-3xl text-green-500" />
                 <div>
                   <span className="text-gray-600">
-                    View Comments
+                    History of Services
                   </span>
                 </div>
               </div>

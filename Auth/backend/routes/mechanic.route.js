@@ -12,7 +12,8 @@ import {
     updateBillForm,
     getComments,
     AddShop,
-    mechanicDeatil
+    mechanicDeatil,
+    getServiceHistoryForMechanic
 } from "../controllers/mechanic.controller.js"
 
 const router = express.Router();
@@ -29,6 +30,7 @@ router.get('/bill/:id',verifyToken,getBillForm)
 router.post('/bill',verifyToken,AddBillForm)
 router.put('/bill/:id',verifyToken,updateBillForm)
 router.get('/comments',verifyToken,getComments)
+router.get('/service-history',verifyToken,getServiceHistoryForMechanic)
 
 
 export default router

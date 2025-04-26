@@ -330,6 +330,27 @@ export const useAuthStore = create((set) => ({
         }
 
     },
+    getServiceHistoryCustomer : async()=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/consumer/service-history`)
+            set({
+                shop : response.data.shopDetail,
+                book : response.data.bookSlot,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
     bookFormDetail : async(id)=>{
         set({ isLoading: true, error: null })
 
@@ -353,11 +374,11 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    serviceFeedback : async(id)=>{
+    serviceFeedback : async(mechanicId,registerNumber)=>{
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/consumer/feedback/${id}`)
+            const response = await axios.post(`${API_URL}/consumer/getfeedback`,{mechanicId,registerNumber})
 
             set({
                 shop : response.data.shopDetail,
@@ -450,12 +471,12 @@ export const useAuthStore = create((set) => ({
         }
     },
 
-    invoice : async(id)=>{
+    invoice : async(mechanicId,registerNumber)=>{
         set({ isLoading: true, error: null })
 
         try {
             // const response = await axios.get(`http://localhost:1972/api/consumer/view-bill/${id}`)
-            const response = await axios.get(`${API_URL}/consumer/view-bill/${id}`)
+            const response = await axios.post(`${API_URL}/consumer/view-bill`,{mechanicId,registerNumber})
 
             set({
                 user: response.data.customerDetail,

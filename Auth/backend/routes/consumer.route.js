@@ -10,7 +10,8 @@ import  {
     getGeneratedBill,
     getDeatilsForFeedBackForm,
     addComment,
-    updatePayment
+    updatePayment,
+    getServiceHistoryForCustomer
 } from "../controllers/consumer.controller.js"
 import {verifyToken} from "../middleware/verifyToken.js"
 
@@ -20,13 +21,19 @@ const router = express.Router();
 
 router.get('/shoplist',getAllShopList)
 router.get('/shoplist/:id',getShopById)
-router.get('/view-bill/:id',verifyToken,getGeneratedBill)
+
+router.post('/view-bill',verifyToken,getGeneratedBill) //reg is imp
+
 router.get('/book-slot/:id',verifyToken,getBookFormDetails)
 router.post('/book-slot',verifyToken,addBookSlot)
+
 router.get('/pending',verifyToken,getShopListPendingById)
 router.get('/completed',verifyToken,getShopListCompletedById)
-router.get('/feedback/:id',verifyToken,getDeatilsForFeedBackForm)
-router.post('/feedback',verifyToken,addComment)
+router.get('/service-history',verifyToken,getServiceHistoryForCustomer)
+
 router.patch('/updatePay',verifyToken,updatePayment)
+router.post('/getfeedback',verifyToken,getDeatilsForFeedBackForm) //reg is imp
+router.post('/feedback',verifyToken,addComment)
+
 
 export default router

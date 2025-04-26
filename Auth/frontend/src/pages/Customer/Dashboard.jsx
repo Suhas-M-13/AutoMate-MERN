@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 import {
   FaHome,
   FaWrench,
@@ -35,7 +36,7 @@ const CustomerDashboard = () => {
   const [cardStatus, setcardStatus] = useState('shoplist')
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { user, logout, shopDetail, shop, isLoading, error, pendingShopList, book, completedShopList, updatePay } = useAuthStore();
+  const { user, shopDetail, shop, isLoading, error, pendingShopList, book, completedShopList, updatePay , getServiceHistoryCustomer } = useAuthStore();
 
   const fetchShopDetail = async () => {
     try {
@@ -49,17 +50,6 @@ const CustomerDashboard = () => {
     fetchShopDetail();
   }, []);
 
-  const handleLogout = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await logout();
-      toast.success(response.message);
-      navigate('/login')
-    } catch (error) {
-      toast.error("Error in logging out");
-    }
-  };
 
   const handleBookSlot = (mechanicId) => {
     // console.log(mechanicId)
@@ -80,9 +70,10 @@ const CustomerDashboard = () => {
     }
   };
 
-  const handleViewBill = (mechanicId) => {
+  const handleViewBill = (mechanicId,registerNumber) => {
     try {
-      navigate(`/invoice/${mechanicId}`)
+      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.SECRETKEY).toString();
+      navigate(`/invoice/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
     }
@@ -91,7 +82,8 @@ const CustomerDashboard = () => {
   const handlePayBill = async (mechanicId, registerNumber) => {
     try {
       await updatePay(mechanicId, registerNumber)
-      navigate(`/servicefeedback/${mechanicId}`)
+      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.SECRETKEY).toString();
+      navigate(`/servicefeedback/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
     }
@@ -109,6 +101,12 @@ const CustomerDashboard = () => {
     else if (cardName === "completed") {
       setcardStatus('completed')
       await completedShopList()
+    }
+    else if(cardName == 'serviceHistory'){
+      setcardStatus('serviceHistory')
+      console.log("clicked serviceHistory")
+      await getServiceHistoryCustomer()
+      // console.log(shop)
     }
   }
 
@@ -177,16 +175,6 @@ const CustomerDashboard = () => {
                   onClick={() => setShowPopup(!showPopup)}
                 />
               </div>
-              {showPopup && (
-                <div className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-sm rounded-lg shadow-xl py-1 border border-indigo-100">
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-indigo-900 hover:bg-indigo-50 transition-all duration-300"
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -198,7 +186,7 @@ const CustomerDashboard = () => {
           </h3>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
               onClick={() => handleCards("shoplist")}>
               <div className="flex items-center space-x-4">
@@ -228,6 +216,17 @@ const CustomerDashboard = () => {
                 <div>
                   <span className="text-gray-600">
                     Completed
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => handleCards("serviceHistory")}>
+              <div className="flex items-center space-x-4">
+                <FaClock className="text-3xl text-yellow-500" />
+                <div>
+                  <span className="text-gray-600">
+                    Get Service History
                   </span>
                 </div>
               </div>
@@ -348,7 +347,7 @@ const CustomerDashboard = () => {
                             ) : (
                               <div className="flex space-x-2">
                                 <button
-                                  onClick={() => handleViewBill(mechanic.ownerId)}
+                                  onClick={() => handleViewBill(mechanic.ownerId,mechanic.registerNumber)}
                                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
                                 >
                                   <FaFileInvoiceDollar className="mr-2" />

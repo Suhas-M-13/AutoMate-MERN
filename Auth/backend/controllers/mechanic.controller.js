@@ -235,13 +235,47 @@ export const getPendingList = async(req,res)=>{
     }
 }
 
+export const getServiceHistoryForMechanic = async(req,res)=>{
+    try {
+        const mechanicId = req.userId
+
+        const bookSlot = book.find({
+            mechanicId, 
+            isPaid : true
+        })
+
+        const customerDetail = []
+        
+        for(let i = 0;i<bookSlot.length;i++){
+            const fetchData = await User.find({
+                _id : bookSlot[i].customerId
+            }).select("-password")
+            customerDetail.push(fetchData)
+        }
+
+        return res.status(200).json({
+            success : true,
+            message : "Successfully fetched data",
+            bookSlot,
+            customerDetail
+        })
+    } catch (error) {
+        console.log('Error in fetching details...'+error);
+        return res.status(400).json({
+            success : false,
+            message : error
+        })
+    }
+}
+
 export const getCompletedList = async(req,res)=>{
     try {
         const mechanicId = req.userId
 
         const bookSlot = await book.find({
             mechanicId,
-            isCompleted : true
+            isCompleted : true,
+            isPaid : false
         })
 
         const customerDetail = []
