@@ -20,18 +20,21 @@ const Invoice = () => {
   const fetchInvoiceInformation = async () => {
     try {
       if (!invoiceId) {
+        console.log("not found")
         toast.error("No invoice ID provided");
         return;
       }
 
-      const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.SECRETKEY);
+      const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.VITE_SECRETKEY);
       const vehicleRegNumber = bytes.toString(CryptoJS.enc.Utf8);
 
-      console.log(vehicleRegNumber)
+      console.log("inside invoice : ",vehicleRegNumber)
+
+      console.log(invoiceId)
       
       await invoice(invoiceId,vehicleRegNumber);
     } catch (error) {
-      toast.error(error.message || "Error in fetching invoice information");
+      toast.error("Error in fetching invoice information");
     }
   };
 

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const MechanicRegistration = () => {
 
-  const {addshopRegistration,shopRegistration,isLoading,error,mechanic} = useAuthStore()
+  const { addshopRegistration, shopRegistration, isLoading, error, mechanic } = useAuthStore()
 
   const navigate = useNavigate()
 
@@ -32,7 +32,7 @@ const MechanicRegistration = () => {
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-  const fetchMechanicData = async()=>{
+  const fetchMechanicData = async () => {
     try {
       await shopRegistration()
       console.log("successfull fetched")
@@ -45,7 +45,7 @@ const MechanicRegistration = () => {
   useEffect(() => {
     fetchMechanicData()
   }, [])
-  
+
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -94,17 +94,17 @@ const MechanicRegistration = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addshopRegistration(mechanic.name,mechanic.mobileNumber,formData)
+      await addshopRegistration(mechanic.name, mechanic.mobileNumber, formData)
       toast.success("Shop registered successfully")
       navigate("/verify-email")
-    } 
+    }
     catch (error) {
       console.error('Error submitting form:', error);
       toast.error("Shop registered successfully")
     }
   };
 
-  
+
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -122,13 +122,12 @@ const MechanicRegistration = () => {
             <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
               Enter Details For Shop Registration through online
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Shop Name */}
-              <div 
-                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${
-                  activeField === 'shopname' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
-                }`}
+              <div
+                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${activeField === 'shopname' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
+                  }`}
                 onClick={() => setActiveField('shopname')}
               >
                 <label className="text-sm font-medium text-gray-700 flex items-center">
@@ -139,7 +138,7 @@ const MechanicRegistration = () => {
                   type="text"
                   name="shopname"
                   required
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                  className="p-3 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                   value={formData.shopname}
                   onChange={handleInputChange}
                   onFocus={() => setActiveField('shopname')}
@@ -147,10 +146,9 @@ const MechanicRegistration = () => {
               </div>
 
               {/* Owner Name */}
-              <div 
-                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${
-                  activeField === 'ownername' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
-                }`}
+              <div
+                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${activeField === 'ownername' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
+                  }`}
                 onClick={() => setActiveField('ownername')}
               >
                 <label className="text-sm font-medium text-gray-700 flex items-center">
@@ -161,17 +159,16 @@ const MechanicRegistration = () => {
                   type="text"
                   name="ownername"
                   readOnly
-                  className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
+                  className="p-3 mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
                   value={mechanic.name}
                   onFocus={() => setActiveField('ownername')}
                 />
               </div>
 
               {/* Email */}
-              <div 
-                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${
-                  activeField === 'email' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
-                }`}
+              <div
+                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${activeField === 'email' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
+                  }`}
                 onClick={() => setActiveField('email')}
               >
                 <label className="text-sm font-medium text-gray-700 flex items-center">
@@ -182,17 +179,16 @@ const MechanicRegistration = () => {
                   type="email"
                   name="email"
                   readOnly
-                  className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
+                  className="p-3 mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
                   value={mechanic.email}
                   onFocus={() => setActiveField('email')}
                 />
               </div>
 
               {/* Shop Description */}
-              <div 
-                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${
-                  activeField === 'descaboutshop' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
-                }`}
+              <div
+                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${activeField === 'descaboutshop' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
+                  }`}
                 onClick={() => setActiveField('descaboutshop')}
               >
                 <label className="text-sm font-medium text-gray-700 flex items-center">
@@ -202,7 +198,7 @@ const MechanicRegistration = () => {
                 <textarea
                   name="descaboutshop"
                   rows="5"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200 p-3"
                   placeholder="Type Here"
                   value={formData.descaboutshop}
                   onChange={handleInputChange}
@@ -211,10 +207,9 @@ const MechanicRegistration = () => {
               </div>
 
               {/* Service Available */}
-              <div 
-                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${
-                  activeField === 'service' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
-                }`}
+              <div
+                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${activeField === 'service' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
+                  }`}
                 onClick={() => setActiveField('service')}
               >
                 <label className="text-sm font-medium text-gray-700 flex items-center">
@@ -247,11 +242,69 @@ const MechanicRegistration = () => {
                 </div>
               </div>
 
+
+              {/* Live Location */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 bg-white">
+                <label className="text-sm font-medium text-gray-700 flex items-center">
+                  <FaMapMarkerAlt className="mr-2" />
+                  Live Location
+                </label>
+                <div className="flex flex-col space-y-2">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onClick={async () => {
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(
+                          async (position) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              location: {
+                                type: 'Point',
+                                coordinates: [position.coords.longitude, position.coords.latitude]
+                              }
+                            }))
+                            toast.success('Location fetched successfully')
+
+                            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`;
+                            try {
+                              const response = await fetch(url);
+                              const data = await response.json();
+                              const address =  data.display_name || "Address not found";
+                              setFormData(prev => ({
+                                ...prev,
+                                addr : address
+                              }));
+                              console.log("fetched address : ",data.display_name)
+                            } catch (error) {
+                              console.error("Error fetching address:", error);
+                              toast.error("Error fetching address")
+                            }
+
+                          },
+                          (error) => {
+                            toast.error('Unable to fetch location')
+                          }
+                        )
+                      } else {
+                        toast.error('Geolocation is not supported by this browser')
+                      }
+                    }}
+                  >
+                    Fetch Live Location
+                  </button>
+                  {formData.location && (
+                    <span className="text-xs text-gray-600">Lat: {formData.location.coordinates[1]}, Lng: {formData.location.coordinates[0]}</span>
+                  )}
+                </div>
+              </div>
+
+              <p className='font-light text-xs text-red-400 text-center'>Once the location is fetched the address is automatically displayed.If you want to change your address you can change</p>
+
               {/* Shop Address */}
-              <div 
-                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${
-                  activeField === 'addr' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
-                }`}
+              <div
+                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${activeField === 'addr' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
+                  }`}
                 onClick={() => setActiveField('addr')}
               >
                 <label className="text-sm font-medium text-gray-700 flex items-center">
@@ -261,7 +314,7 @@ const MechanicRegistration = () => {
                 <textarea
                   name="addr"
                   rows="5"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                  className="p-3 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 transition-all duration-200"
                   placeholder="Type Address"
                   value={formData.addr}
                   onChange={handleInputChange}
@@ -269,11 +322,12 @@ const MechanicRegistration = () => {
                 />
               </div>
 
+
+
               {/* Shop Timings Section */}
-              <div 
-                className={`space-y-6 bg-gray-50 p-6 rounded-lg transition-all duration-200 ${
-                  activeField === 'timings' ? 'border-2 border-blue-500' : ''
-                }`}
+              <div
+                className={`space-y-6 bg-gray-50 p-6 rounded-lg transition-all duration-200 ${activeField === 'timings' ? 'border-2 border-blue-500' : ''
+                  }`}
                 onClick={() => setActiveField('timings')}
               >
                 <div className="flex items-center">
@@ -288,11 +342,10 @@ const MechanicRegistration = () => {
                       key={day}
                       type="button"
                       onClick={() => toggleWorkingDay(day)}
-                      className={`p-2 rounded-md transition-all duration-200 ${
-                        formData.workingHours[day].notavailable
+                      className={`p-2 rounded-md transition-all duration-200 ${formData.workingHours[day].notavailable
                         ? 'bg-white text-gray-700 hover:bg-gray-50'
                         : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                      }`}
+                        }`}
                     >
                       {day}
                     </button>
@@ -302,13 +355,12 @@ const MechanicRegistration = () => {
                 {/* Working Hours for Each Day */}
                 <div className="space-y-4">
                   {days.map((day) => (
-                    <div 
-                      key={day} 
-                      className={`p-4 rounded-lg transition-all duration-200 ${
-                        formData.workingHours[day].notavailable 
-                          ? 'bg-gray-100'
-                          :'bg-white hover:bg-blue-50' 
-                      }`}
+                    <div
+                      key={day}
+                      className={`p-4 rounded-lg transition-all duration-200 ${formData.workingHours[day].notavailable
+                        ? 'bg-gray-100'
+                        : 'bg-white hover:bg-blue-50'
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="font-medium">{day}</h4>
@@ -360,10 +412,9 @@ const MechanicRegistration = () => {
               </div>
 
               {/* Phone Number */}
-              <div 
-                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${
-                  activeField === 'phnum' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
-                }`}
+              <div
+                className={`grid grid-cols-1 md:grid-cols-2 gap-4 items-center p-4 rounded-lg transition-all duration-200 ${activeField === 'phnum' ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white'
+                  }`}
                 onClick={() => setActiveField('phnum')}
               >
                 <label className="text-sm font-medium text-gray-700 flex items-center">
@@ -374,7 +425,7 @@ const MechanicRegistration = () => {
                   type="text"
                   name="phnum"
                   readOnly
-                  className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
+                  className="p-3 mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
                   value={mechanic.mobileNumber}
                   onFocus={() => setActiveField('phnum')}
                 />

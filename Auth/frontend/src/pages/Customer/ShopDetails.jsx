@@ -3,12 +3,14 @@ import { FaMapMarkerAlt, FaClock, FaPhone, FaEnvelope, FaStar, FaComment, FaThum
 import { useAuthStore } from '../../store/authStore';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import ShopMap from '../../components/ShopMap';
 
 const ShopDetails = () => {
   const navigate = useNavigate();
   const { mechanicId } = useParams();
   const [activeImage, setActiveImage] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
   const { shop, comments, error, isLoading, shopDetailById } = useAuthStore();
 
   const images = [
@@ -31,6 +33,23 @@ const ShopDetails = () => {
 
   useEffect(() => {
     fetchShopDetail();
+    // Get user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          toast.error('Unable to get your location');
+          console.error('Error getting location:', error);
+        }
+      );
+    } else {
+      toast.error('Geolocation is not supported by your browser');
+    }
   }, [mechanicId]);
 
   if (isLoading) {
@@ -105,6 +124,18 @@ const ShopDetails = () => {
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Map Section */}
+            <div className="bg-white rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Location</h2>
+              {currentShop.location && (
+                <ShopMap
+                  shopLocation={currentShop.location}
+                  shopName={currentShop.shopname}
+                  userLocation={userLocation}
+                />
+              )}
             </div>
 
             {/* Reviews Section */}
@@ -229,6 +260,11 @@ const ShopDetails = () => {
                   <FaMapMarkerAlt className="text-gray-400 mr-3" />
                   <span className="text-gray-600">{currentShop.address}</span>
                 </div>
+                {currentShop.location && currentShop.location.coordinates && (
+                  <div className="flex items-center">
+                    <span className="text-xs text-gray-600">Lat: {currentShop.location.coordinates[1]}, Lng: {currentShop.location.coordinates[0]}</span>
+                  </div>
+                )}
                 <div className="flex items-center">
                   <FaPhone className="text-gray-400 mr-3" />
                   <span className="text-gray-600">{currentShop.mobileNumber}</span>
@@ -255,23 +291,6 @@ const ShopDetails = () => {
                     </div>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Google Maps */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Location</h2>
-              <div className="aspect-w-16 aspect-h-9">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d387193.30591910525!2d-74.25986532962815!3d40.69714941980809!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c24fa5d33f083b%3A0xc80b8f06e177fe62!2sNew%20York%2C%20NY%2C%20USA!5e0!3m2!1sen!2s!4v1647891234567!5m2!1sen!2s"
-                  width="100%"
-                  height="300"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="rounded-lg"
-                />
               </div>
             </div>
 

@@ -2,8 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
+import CryptoJS from 'crypto-js';
+
 
 const Bill = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const encryptedVeh = searchParams.get('veh');
+  
   const {customerId} = useParams()
   const {addBillData , getBillData , user , mechanic , shop , bill , book , error , isLoading} = useAuthStore()
   const navigate = useNavigate();
@@ -24,9 +30,25 @@ const Bill = () => {
     fetchData()
   }, []);
 
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      description : book[0].complaintDescription
+    }));
+  }, [book[0].complaintDescription])
+  
+
   const fetchData = async()=>{
     try {
-      await getBillData(customerId)
+      if (!customerId) {
+        console.log("not found")
+        toast.error("No customerId provided");
+        return;
+      }
+
+      const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.VITE_SECRETKEY);
+      const vehicleRegNumber = bytes.toString(CryptoJS.enc.Utf8);
+      await getBillData(customerId,vehicleRegNumber)
     } catch (error) {
       toast.error(error.message || "Error in fetching shop information");
     }

@@ -42,7 +42,7 @@ export const mechanicDeatil = async(req,res)=>{
 export const AddShop = async(req,res)=>{
     try {
         const ownerId = req.userId
-        const { shopname, ownerName, mobileNumber, description, serviceAvailable, address, timings } = req.body;
+        const { shopname, ownerName, mobileNumber, description, serviceAvailable, address, timings, location } = req.body;
     
         // Validate the request data
         // if (!shopname || !ownerName || !mobileNumber || !ownerId || !serviceAvailable) {
@@ -100,7 +100,8 @@ export const AddShop = async(req,res)=>{
           description,
           serviceAvailable,
           address,
-          timings
+          timings,
+          location
         });
     
         // Save the shop to the database
@@ -163,35 +164,48 @@ export const updateAcceptRequest = async(req,res)=>{
     try {
         const mechanicId = req.userId
         const customerId = req.params.id
+        const { registerNumber } = req.body
         
         if(!customerId){
-            throw new Error("invalid Customer...")
+            return res.status(400).json({
+                success: false,
+                message: "Invalid Customer ID"
+            })
+        }
+
+        if(!registerNumber){
+            return res.status(400).json({
+                success: false,
+                message: "Register number is required"
+            })
         }
 
         const bookSlot = await book.findOne({
             mechanicId,
-            customerId
+            customerId,
+            registerNumber
         })
 
         if(!bookSlot){
-            throw new Error("no slot booked...")
+            return res.status(404).json({
+                success: false,
+                message: "No booking slot found"
+            })
         }
 
         bookSlot.isAccepted = true
-
-        bookSlot.save()
+        await bookSlot.save()
 
         return res.status(200).json({
-            success : true,
-            message : "Successfully updated the accept button"
+            success: true,
+            message: "Request accepted successfully"
         })
 
-
     } catch (error) {
-        console.log('Error in fetching details...'+error);
-        return res.status(400).json({
-            success : false,
-            message : error
+        console.error('Error in accepting request:', error);
+        return res.status(500).json({
+            success: false,
+            message: error.message || "Internal server error"
         })
     }
 }
@@ -239,7 +253,7 @@ export const getServiceHistoryForMechanic = async(req,res)=>{
     try {
         const mechanicId = req.userId
 
-        const bookSlot = book.find({
+        const bookSlot = await book.find({
             mechanicId, 
             isPaid : true
         })
@@ -311,6 +325,7 @@ export const updateCompleteCustomerRequest = async(req,res)=>{
     try {
         const mechanicId = req.userId
         const customerId = req.params.id
+        const {registerNumber} = req.body
         
         if(!customerId){
             throw new Error("invalid Customer...")
@@ -318,7 +333,8 @@ export const updateCompleteCustomerRequest = async(req,res)=>{
 
         const bookSlot = await book.findOne({
             mechanicId,
-            customerId
+            customerId,
+            registerNumber
         })
 
         if(!bookSlot){
@@ -370,6 +386,7 @@ export const getBillForm = async(req,res)=>{
     try {
         const mechanicId = req.userId
         const customerId = req.params.id
+        const {registerNumber} = req.body
 
         console.log("customer id : ",customerId);
         console.log("mechanicId id : ",mechanicId);
@@ -381,7 +398,8 @@ export const getBillForm = async(req,res)=>{
 
         const billForm = await bill.find({
             mechanicId,
-            customerId
+            customerId,
+            registerNumber
         })
 
         const shopDetail = await Shop.find({
@@ -389,7 +407,8 @@ export const getBillForm = async(req,res)=>{
         })
         const bookSlot = await book.find({
             mechanicId,
-            customerId
+            customerId,
+            registerNumber
         })
         const customerDetail = await User.findById(customerId).select("-password")
         const mechanicDetail = await User.findById(mechanicId).select("-password")

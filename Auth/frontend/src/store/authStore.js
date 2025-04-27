@@ -98,26 +98,27 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    updateAcceptButton : async(id)=>{
+    updateAcceptButton : async(id,registerNumber)=>{
         set({ isLoading: true, error: null })
-
         try {
-            const response = await axios.patch(`${API_URL}/mechanic/accept/${id}`)
-
-            set({
-                message : response.data.message,
-                isAuthenticated: true,
-                isLoading: false
-            })
-            
+            const response = await axios.patch(`${API_URL}/mechanic/accept/${id}`,{registerNumber})
+            if (response.data && response.data.message) {
+                set({
+                    message: response.data.message,
+                    isAuthenticated: true,
+                    isLoading: false
+                })
+                return response.data
+            }
+            throw new Error('Invalid response format')
         } catch (error) {
+            const errorMessage = error.response?.data?.message || error.message || "Error accepting request"
             set({
-                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
+                error: errorMessage,
                 isLoading: false
             })
-            throw error
+            throw new Error(errorMessage)
         }
-
     },
     getPendingList : async()=>{
         set({ isLoading: true, error: null })
@@ -163,11 +164,12 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    getBillData : async(id)=>{
+    getBillData : async(id,registerNumber)=>{
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/mechanic/bill/${id} `)
+            const response = await axios.post(`${API_URL}/mechanic/bill/${id}`,{registerNumber})
+            
 
             set({
                 shop : response.data.shopDetail,
@@ -212,11 +214,11 @@ export const useAuthStore = create((set) => ({
             throw error
         }
     },
-    updateCompleteButton : async(id)=>{
+    updateCompleteButton : async(id,registerNumber)=>{
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.patch(`${API_URL}/mechanic/completed/${id}`)
+            const response = await axios.patch(`${API_URL}/mechanic/completed/${id}`,{registerNumber})
 
             set({
                 message : response.data.message,
@@ -250,7 +252,8 @@ export const useAuthStore = create((set) => ({
             }
             const address = formData.addr
             const timings = formData.workingHours
-            const response = await axios.post(`${API_URL}/mechanic/addShop`,{shopname,ownerName,mobileNumber,description,serviceAvailable,address,timings})
+            const location = formData.location
+            const response = await axios.post(`${API_URL}/mechanic/addShop`,{shopname,ownerName,mobileNumber,description,serviceAvailable,address,timings,location})
 
             set({
                 message : response.data.message,
@@ -351,6 +354,27 @@ export const useAuthStore = create((set) => ({
         }
 
     },
+    getServiceHistoryMechanic : async()=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/mechanic/service-history`)
+            set({
+                book : response.data.bookSlot,
+                customerDetail : response.data.customerDetail,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
     bookFormDetail : async(id)=>{
         set({ isLoading: true, error: null })
 
@@ -421,13 +445,13 @@ export const useAuthStore = create((set) => ({
     },
 
 
-    addServiceFeedback : async(mechanicId,customerName,feedback)=>{
+    addServiceFeedback : async(mechanicId,customerName,feedback,registerNumber)=>{
         set({ isLoading: true, error: null })
 
         try {
             const title = feedback.title
             const description = feedback.description
-            const response = await axios.post(`${API_URL}/consumer/feedback`,{mechanicId,customerName,title,description})
+            const response = await axios.post(`${API_URL}/consumer/feedback`,{mechanicId,customerName,title,description,registerNumber})
 
             set({
                 message : response.data.message,

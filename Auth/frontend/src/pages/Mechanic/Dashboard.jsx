@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 import {
   FaHome,
   FaWrench,
@@ -29,7 +30,7 @@ const MechanicDashboard = () => {
   const [selectedComplaint, setSelectedComplaint] = useState('');
   const [workingRequests, setWorkingRequests] = useState([]);
 
-  const { getCompletedList, updateCompleteButton, book, user, customerDetail, getPendingList, customerRequests, updateAcceptButton, isLoading, error } = useAuthStore()
+  const { getServiceHistoryMechanic , getCompletedList, updateCompleteButton, book, user, customerDetail, getPendingList, customerRequests, updateAcceptButton, isLoading, error } = useAuthStore()
 
   let data, second, third, Name, dashboardname, arr, mechanicnumber, complaint = null
 
@@ -86,7 +87,7 @@ const MechanicDashboard = () => {
       }
       else if (cardName === "history") {
         // setcardStatus('completed')
-        // await completedShopList()
+        await getServiceHistoryMechanic()
       }
     } catch (error) {
       console.error('Error accepting request:', error);
@@ -95,18 +96,22 @@ const MechanicDashboard = () => {
   }
 
 
-  const handleAccept = async (customerId) => {
+  const handleAccept = async (customerId,registerNumber) => {
     try {
-      await updateAcceptButton(customerId)
-      toast.success("Request Accepted...")
+      const response = await updateAcceptButton(customerId,registerNumber)
+      if (response && response.message) {
+        toast.success(response.message)
+        // Refresh the requests list
+        await fetchCustomerRequest()
+      }
     } catch (error) {
       console.error('Error accepting request:', error);
-      toast.error('Failed to accept request');
+      toast.error(error.message || 'Failed to accept request');
     }
   };
-  const handleComplete = async (customerId) => {
+  const handleComplete = async (customerId,registerNumber) => {
     try {
-      await updateCompleteButton(customerId)
+      await updateCompleteButton(customerId,registerNumber)
       toast.success("Service Completed...")
 
     } catch (error) {
@@ -115,9 +120,10 @@ const MechanicDashboard = () => {
     }
   };
 
-  const handleGenerateBill = (customerId) => {
+  const handleGenerateBill = (customerId,registerNumber) => {
     try {
-      navigate(`/billmechanic/${customerId}`)
+      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
+      navigate(`/billmechanic/${customerId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       console.error('Error accepting request:', error);
       toast.error('Failed to open bill section');
@@ -329,7 +335,7 @@ const MechanicDashboard = () => {
                             (!request.isAccepted) ?
                               <>
                                 <button
-                                  onClick={() => handleAccept(request.customerId)}
+                                  onClick={() => handleAccept(request.customerId,request.registerNumber)}
                                   className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                 >
 
@@ -340,7 +346,7 @@ const MechanicDashboard = () => {
                               (request.isAccepted && !request.isCompleted) ?
                                 <>
                                   <button
-                                    onClick={() => handleComplete(request.customerId)}
+                                    onClick={() => handleComplete(request.customerId,request.registerNumber)}
                                     className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                   >
 
@@ -363,7 +369,7 @@ const MechanicDashboard = () => {
                                       :
                                       <>
                                         <button
-                                          onClick={() => handleGenerateBill(request.customerId)}
+                                          onClick={() => handleGenerateBill(request.customerId,request.registerNumber)}
                                           className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
                                         >
 

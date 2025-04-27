@@ -54,11 +54,11 @@ const EmailVerificationPage = () => {
 
         try {
             await verifyEmail(vefi)
-            // console.log(response);
+            console.log(user);
             if(user.role.toLowerCase() === "customer")
                 navigate('/dashboardcustomer')
-              else if(user.role.toLowerCase() === "mechanic")
-                navigate('/mechanicregestration')
+            else if(user.role.toLowerCase() === "mechanic")
+                navigate('/dashboardmechanic')
             toast.success("Email verified Successfully")
         } catch (error) {
             // console.log(error);

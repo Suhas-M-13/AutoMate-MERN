@@ -3,6 +3,8 @@ import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaSignOutAlt } from 'react-icon
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
+import BannerImage from "../images/Banner.png"
+
 
 
 
@@ -40,7 +42,7 @@ const HamburgerMenu = ({ children }) => {
           {/* Header with Close Button */}
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-3">
-              <img src='../images/Banner.png' alt="AutoMate" className="h-10 w-10" />
+              <img src={BannerImage} alt="AutoMate" className="h-10 w-10" />
               <h2 className="text-2xl font-bold text-black">AutoMate</h2>
             </div>
             <button

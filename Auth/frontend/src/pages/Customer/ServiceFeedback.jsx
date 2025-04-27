@@ -23,7 +23,7 @@ const ServiceFeedback = () => {
 
   const fetchServiceDetails = async () => {
     try {
-      const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.SECRETKEY);
+      const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.VITE_SECRETKEY);
       const vehicleRegNumber = bytes.toString(CryptoJS.enc.Utf8);
 
       console.log(vehicleRegNumber)
@@ -41,7 +41,7 @@ const ServiceFeedback = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addServiceFeedback(mechanicId, user.name, feedback)
+      await addServiceFeedback(mechanicId, user.name, feedback,book[0].registerNumber)
       toast.success("Feedback submitted successfully");
       navigate("/dashboardCustomer")
     } catch (error) {

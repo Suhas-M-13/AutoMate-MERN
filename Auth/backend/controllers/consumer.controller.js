@@ -354,7 +354,8 @@ export const getGeneratedBill = async (req, res) => {
         })
         const bookSlot = await book.find({
             mechanicId,
-            customerId
+            customerId,
+            registerNumber
         })
         const customerDetail = await User.findById(customerId).select("-password")
         const mechanicDetail = await User.findById(mechanicId).select("-password")

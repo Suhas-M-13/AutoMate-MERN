@@ -72,7 +72,9 @@ const CustomerDashboard = () => {
 
   const handleViewBill = (mechanicId,registerNumber) => {
     try {
-      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.SECRETKEY).toString();
+      console.log(mechanicId,registerNumber)
+      console.log(import.meta.env.VITE_SECRETKEY)
+      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/invoice/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
@@ -82,7 +84,7 @@ const CustomerDashboard = () => {
   const handlePayBill = async (mechanicId, registerNumber) => {
     try {
       await updatePay(mechanicId, registerNumber)
-      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.SECRETKEY).toString();
+      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/servicefeedback/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
