@@ -28,6 +28,7 @@ export const useAuthStore = create((set) => ({
     book : [],
     comments : [],
     customerDetail : [],
+    // mapDetail : {},
 
 
 
@@ -53,6 +54,34 @@ export const useAuthStore = create((set) => ({
         }
 
     },
+
+    // fetchMapRoute : async(user,shop)=>{
+    //     set({ isLoading: true, error: null })
+    //     try {
+    //         const response = await axios.post(`${API_URL}/consumer/get-route`,{user,shop})
+            
+    //         if (!response.data || !response.data.mapDetail) {
+    //             throw new Error("Invalid response format from server");
+    //         }
+
+    //         set({
+    //             mapDetail: response.data.mapDetail,
+    //             isAuthenticated: true,
+    //             isLoading: false,
+    //             error: null
+    //         });
+
+    //         return response.data.mapDetail;
+    //     } catch (error) {
+    //         const errorMessage = error.response?.data?.message || error.message || "Error in finding route";
+    //         set({
+    //             error: errorMessage,
+    //             isLoading: false,
+    //             mapDetail: null
+    //         });
+    //         throw new Error(errorMessage);
+    //     }
+    // },
     shopDetail : async()=>{
         set({ isLoading: true, error: null })
 

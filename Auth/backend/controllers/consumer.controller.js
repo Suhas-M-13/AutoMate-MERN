@@ -6,6 +6,7 @@ import { comment } from "../models/comments.model.js"
 import mongoose from "mongoose"
 import { analyzeReviewWithHuggingFace } from "../services/analyzeReviewWithHuggingFace.js"
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
+import axios from "axios"
 
 
 export const getAllShopList = async (req, res) => {
@@ -297,8 +298,8 @@ export const getServiceHistoryForCustomer = async (req, res) => {
         for (let i = 0; i < bookSlot.length; i++) {
             const fetchData = await Shop.find({
                 ownerId: bookSlot[i].mechanicId
-            }).lean() 
-            
+            }).lean()
+
             const shopWithBooking = {
                 ...fetchData[0],
                 isPaid: bookSlot[i].isPaid,
@@ -327,7 +328,7 @@ export const getServiceHistoryForCustomer = async (req, res) => {
 export const getGeneratedBill = async (req, res) => {
     try {
         const customerId = req.userId
-        const {mechanicId,registerNumber} = req.body
+        const { mechanicId, registerNumber } = req.body
 
         if (!customerId || !mechanicId || !registerNumber) {
             throw new Error("no mechanic id or customer id")
@@ -340,7 +341,7 @@ export const getGeneratedBill = async (req, res) => {
         const billDetail = await bill.find({
             mechanicId: new mongoose.Types.ObjectId(mechanicId),
             customerId: new mongoose.Types.ObjectId(customerId),
-            registerNumber : registerNumber
+            registerNumber: registerNumber
         })
 
         console.log("bill found", billDetail)
@@ -381,7 +382,7 @@ export const getGeneratedBill = async (req, res) => {
 export const getDeatilsForFeedBackForm = async (req, res) => {
     try {
         const customerId = req.userId
-        const {mechanicId , registerNumber} = req.body
+        const { mechanicId, registerNumber } = req.body
 
         if (!customerId || !mechanicId) {
             throw new Error("no mechanic id or customer id")
@@ -394,7 +395,7 @@ export const getDeatilsForFeedBackForm = async (req, res) => {
         const bookFormDetail = await book.find({
             mechanicId: new mongoose.Types.ObjectId(mechanicId),
             customerId: new mongoose.Types.ObjectId(customerId),
-            registerNumber : registerNumber
+            registerNumber: registerNumber
         })
 
         return res.status(200).json({
@@ -476,26 +477,54 @@ export const addComment = async (req, res) => {
         }
 
         let inputText = `Title: ${title}\nDescription: ${description}`;
+        let ratingResponse = null;
+        let attempts = 0;
+        const maxAttempts = 6;
+        const delayBetweenAttempts = 2000; // 2 seconds
 
-        // Await the analysis result
-        const ratingResponse = await analyzeReviewWithHuggingFace(inputText);
-
-        // Check if analysis failed
-        if (ratingResponse.moderation === "error" || ratingResponse.rating === "error") {
-            console.error("Sentiment analysis failed:", ratingResponse.details);
-            // Decide how to handle: throw error, use default rating, etc.
-            // Option 1: Throw an error
-            throw new Error("Failed to analyze comment sentiment.");
-            // Option 2: Use a default rating (e.g., 3 or null)
-            // ratingResponse.rating = 3; // Example default
+        // Retry logic for Hugging Face API
+        while (attempts < maxAttempts) {
+            try {
+                ratingResponse = await analyzeReviewWithHuggingFace(inputText);
+                
+                // Check if we got a valid response
+                if (ratingResponse && 
+                    ratingResponse.moderation !== "error" && 
+                    ratingResponse.rating !== "error" &&
+                    ratingResponse.rating >= 1 && 
+                    ratingResponse.rating <= 5) {
+                    break; // Exit the loop if we got a valid response
+                }
+                
+                attempts++;
+                if (attempts < maxAttempts) {
+                    console.log(`Attempt ${attempts} failed, retrying in ${delayBetweenAttempts/1000} seconds...`);
+                    await new Promise(resolve => setTimeout(resolve, delayBetweenAttempts));
+                }
+            } catch (error) {
+                attempts++;
+                console.error(`Attempt ${attempts} failed with error:`, error);
+                if (attempts >= maxAttempts) {
+                    throw new Error("Failed to analyze comment after multiple attempts");
+                }
+                await new Promise(resolve => setTimeout(resolve, delayBetweenAttempts));
+            }
         }
 
-        // Remove the unnecessary setTimeout
-        // setTimeout(function() {
-        //     console.log("This message will be logged after 10 seconds.");
-        // }, 10000);
+        // If we still don't have a valid response after all attempts
+        if (!ratingResponse || 
+            ratingResponse.moderation === "error" || 
+            ratingResponse.rating === "error" ||
+            ratingResponse.rating < 1 || 
+            ratingResponse.rating > 5) {
+            console.error("Failed to get valid rating after all attempts, using default rating");
+            ratingResponse = {
+                rating: 3, // Default neutral rating
+                sentiment: "neutral",
+                moderation: "success"
+            };
+        }
 
-        // Ensure Rating type matches the schema (assuming String here)
         const Rating = String(ratingResponse.rating);
         const sentiment = ratingResponse.sentiment;
 
@@ -506,7 +535,7 @@ export const addComment = async (req, res) => {
             title,
             description,
             registerNumber,
-            Rating, // Use the analyzed (and potentially defaulted) rating
+            Rating,
             sentiment
         });
 
@@ -514,16 +543,38 @@ export const addComment = async (req, res) => {
 
         return res.status(201).json({
             success: true,
-            message: "Comment added successfully"
+            message: "Comment added successfully",
+            rating: Rating,
+            sentiment: sentiment
         });
 
     } catch (error) {
-        // Log the specific error
-        console.error('Error adding comment: ' + error);
+        console.error('Error adding comment:', error);
         return res.status(400).json({
             success: false,
-            // Send a more specific error message if possible
-            message: error.message || "Failed to add comment."
+            message: error.message || "Failed to add comment"
         });
     }
 };
+
+export const getMapRoute = async (req, res) => {
+    const { user, shop } = req.body;
+
+    const osrmUrl = `http://router.project-osrm.org/route/v1/driving/${user.lon},${user.lat};${shop.lon},${shop.lat}?overview=full&geometries=geojson`;
+
+    try {
+        const response = await axios.get(osrmUrl);
+        const route = response.data.routes[0];
+
+        const coords = route.geometry.coordinates;
+        const distance = route.distance
+        const duration = route.duration
+        // console.log(response.data)
+        // console.log(response.data.routes[0].geometry)
+
+        res.json({ routeCoords: coords, distance: distance, duration: duration });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch route" });
+    }
+}

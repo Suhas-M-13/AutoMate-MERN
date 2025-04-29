@@ -11,7 +11,8 @@ import  {
     getDeatilsForFeedBackForm,
     addComment,
     updatePayment,
-    getServiceHistoryForCustomer
+    getServiceHistoryForCustomer,
+    getMapRoute
 } from "../controllers/consumer.controller.js"
 import {verifyToken} from "../middleware/verifyToken.js"
 
@@ -34,6 +35,8 @@ router.get('/service-history',verifyToken,getServiceHistoryForCustomer)
 router.patch('/updatePay',verifyToken,updatePayment)
 router.post('/getfeedback',verifyToken,getDeatilsForFeedBackForm) //reg is imp
 router.post('/feedback',verifyToken,addComment)
+
+router.post('/get-route',getMapRoute)
 
 
 export default router

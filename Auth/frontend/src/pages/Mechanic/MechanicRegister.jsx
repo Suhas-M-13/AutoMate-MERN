@@ -81,6 +81,48 @@ const MechanicRegistration = () => {
     }));
   };
 
+  const updateAddress = async (latitude, longitude) => {
+    const url = `${import.meta.env.VITE_ADDRESS_URL}lat=${latitude}&lon=${longitude}`;
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      const address = data.display_name || "Address not found";
+      setFormData(prev => ({
+        ...prev,
+        addr: address
+      }));
+      // console.log("fetched address : ",data.display_name)
+    } catch (error) {
+      console.error("Error fetching address:", error);
+      toast.error("Error fetching address")
+    }
+  }
+
+  const fetchLiveLocation = async () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          setFormData((prev) => ({
+            ...prev,
+            location: {
+              type: 'Point',
+              coordinates: [position.coords.longitude, position.coords.latitude]
+            }
+          }))
+          toast.success('Location fetched successfully')
+
+          updateAddress(position.coords.latitude, position.coords.longitude)
+
+        },
+        (error) => {
+          toast.error('Unable to fetch location')
+        }
+      )
+    } else {
+      toast.error('Geolocation is not supported by this browser')
+    }
+  }
+
   const getWorkingDays = () => {
     return days.filter(day => !formData.workingHours[day].notavailable);
   };
@@ -253,43 +295,7 @@ const MechanicRegistration = () => {
                   <button
                     type="button"
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onClick={async () => {
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(
-                          async (position) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              location: {
-                                type: 'Point',
-                                coordinates: [position.coords.longitude, position.coords.latitude]
-                              }
-                            }))
-                            toast.success('Location fetched successfully')
-
-                            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.coords.latitude}&lon=${position.coords.longitude}`;
-                            try {
-                              const response = await fetch(url);
-                              const data = await response.json();
-                              const address =  data.display_name || "Address not found";
-                              setFormData(prev => ({
-                                ...prev,
-                                addr : address
-                              }));
-                              console.log("fetched address : ",data.display_name)
-                            } catch (error) {
-                              console.error("Error fetching address:", error);
-                              toast.error("Error fetching address")
-                            }
-
-                          },
-                          (error) => {
-                            toast.error('Unable to fetch location')
-                          }
-                        )
-                      } else {
-                        toast.error('Geolocation is not supported by this browser')
-                      }
-                    }}
+                    onClick={fetchLiveLocation}
                   >
                     Fetch Live Location
                   </button>
