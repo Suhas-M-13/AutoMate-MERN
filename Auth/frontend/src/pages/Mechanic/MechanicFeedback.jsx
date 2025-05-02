@@ -74,13 +74,13 @@ const MechanicFeedback = () => {
       
       const matchesRating = 
         filterRating === "all" || 
-        (filterRating === "positive" && item.overallRating >= 4) ||
-        (filterRating === "negative" && item.overallRating < 4);
+        (filterRating === "positive" && item.overallRating >= 5) ||
+        (filterRating === "negative" && item.overallRating < 5);
       
       return matchesSearch && matchesRating;
     })
     .sort((a, b) => {
-      if (sortBy === "date") return new Date(b.date) - new Date(a.date);
+      if (sortBy === "date") return new Date(a.date) - new Date(b.date);
       if (sortBy === "rating") return b.overallRating - a.overallRating;
       return 0;
     });

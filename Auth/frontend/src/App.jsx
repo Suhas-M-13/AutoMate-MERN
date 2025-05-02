@@ -83,9 +83,9 @@ function App() {
             </ProtectedRoute>
           } />
           <Route path="/shopdetails/:mechanicId" element={
-            // <ProtectedRoute>
-              <ShopDetails />
-            // </ProtectedRoute>
+            <ProtectedRoute>
+            <ShopDetails />
+            </ProtectedRoute>
           } />
           <Route path="/servicefeedback/:mechanicId" element={
             <ProtectedRoute>
@@ -107,7 +107,9 @@ function App() {
             <MechanicRegistration />
           } />
           <Route path="/mechanicfeedback" element={
-            <MechanicFeedback />
+            <ProtectedRoute>
+              <MechanicFeedback />
+            </ProtectedRoute>
           } />
           <Route path="/signup" element={
             <RedirectAuthenticatedUser>

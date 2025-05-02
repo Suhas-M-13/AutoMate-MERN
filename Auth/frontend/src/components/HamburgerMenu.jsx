@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaSignOutAlt, FaRegCommentDots } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
@@ -11,7 +11,7 @@ import BannerImage from "../images/Banner.png"
 const HamburgerMenu = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout } = useAuthStore();
+  const { logout , user } = useAuthStore();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -83,6 +83,19 @@ const HamburgerMenu = ({ children }) => {
                   <span>Settings</span>
                 </button>
               </li>
+              {
+                user.role === 'mechanic' && 
+                <li>
+                <button
+                  onClick={() => navigate('/mechanicfeedback')}
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all duration-200"
+                >
+                  <FaRegCommentDots className="text-lg" />
+                  <span>Feedbacks</span>
+                </button>
+              </li>
+              }
+              
             </ul>
           </nav>
 

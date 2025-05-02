@@ -104,9 +104,9 @@ const CustomerDashboard = () => {
       setcardStatus('completed')
       await completedShopList()
     }
-    else if(cardName == 'serviceHistory'){
+    else if(cardName === 'serviceHistory'){
       setcardStatus('serviceHistory')
-      console.log("clicked serviceHistory")
+      // console.log("clicked serviceHistory")
       await getServiceHistoryCustomer()
       // console.log(shop)
     }
@@ -245,8 +245,8 @@ const CustomerDashboard = () => {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mechanic Details</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Details</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'pending' || cardStatus === 'completed') ? "Vehicle Type" : "Contact"}</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'pending' || cardStatus === 'completed') ? "Vehicle Register Number" : "Shop Info"}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'shoplist') ? "Contact" : "Vehicle Type"}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'pending' || cardStatus === 'completed') ? "Vehicle Register Number" : (cardStatus === 'serviceHistory') ? "Booked Date" : "Shop Info"}</th>  
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>

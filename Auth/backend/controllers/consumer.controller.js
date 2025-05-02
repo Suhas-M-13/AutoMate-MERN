@@ -304,7 +304,8 @@ export const getServiceHistoryForCustomer = async (req, res) => {
                 ...fetchData[0],
                 isPaid: bookSlot[i].isPaid,
                 registerNumber: bookSlot[i].registerNumber,
-                vehicleType: bookSlot[i].vehicleType
+                vehicleType: bookSlot[i].vehicleType,
+                BookDate : bookSlot[i].bookDate
             }
 
             shopDetail.push(shopWithBooking)
