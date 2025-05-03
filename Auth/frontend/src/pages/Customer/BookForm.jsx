@@ -55,43 +55,42 @@ const BookingForm = () => {
   };
 
   const validateForm = () => {
+    // Check if date and time are selected
     if (!formData.regdate || !formData.regtime) {
       toast.error("Please select both date and time");
       return false;
     }
 
-
-    
+    // Get current date and time
+    const now = new Date();
     const selectedDate = new Date(formData.regdate);
     const selectedTime = new Date(formData.regtime);
     
-    const selectedHours = selectedTime.getHours();
-    const selectedMinutes = selectedTime.getMinutes();
-  
+    // Create a combined date-time object
     const selectedDateTime = new Date(selectedDate);
-    selectedDateTime.setHours(selectedHours, selectedMinutes, 0, 0);
+    selectedDateTime.setHours(selectedTime.getHours(), selectedTime.getMinutes(), 0, 0);
     
-    console.log(selectedDateTime)
-    const now = new Date();
-    const todayThreePM = new Date(selectedDateTime);
+    // Set time boundaries
+    const todayThreePM = new Date(selectedDate);
     todayThreePM.setHours(15, 0, 0, 0);
     
     const shopOpeningTime = new Date(selectedDate);
     shopOpeningTime.setHours(9, 0, 0, 0);
-    
-    console.log(todayThreePM)
+
+    // Check if selected time is in the future
+    if (selectedDate.toDateString() === now.toDateString() && selectedDateTime < now) {
+      toast.error("Cannot book a slot in the past");
+      return false;
+    }
+
+    // Check if time is within working hours
     if (selectedDateTime > todayThreePM) {
-      toast.error("Booking time must be before 3 PM");
+      toast.error("Booking time must be before 15:00");
       return false;
     }
 
     if (selectedDateTime < shopOpeningTime) {
-      toast.error("Booking time must be after 9 AM");
-      return false;
-    }
-
-    if (selectedDate.toDateString() === now.toDateString() && selectedDateTime < now) {
-      toast.error("Cannot book a slot in the past");
+      toast.error("Booking time must be after 09:00");
       return false;
     }
 
@@ -100,15 +99,20 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    
+    // Run validation first
+    if (!validateForm()) {
+      return; // Stop if validation fails
+    }
 
     try {
-      await addBookFormDetail(mechanicId,user.name,formData);
+      // If validation passes, proceed with booking
+      await addBookFormDetail(mechanicId, user.name, formData);
       toast.success("Slot booked successfully!");
       navigate('/dashboardcustomer');
     } catch (error) {
       toast.error("Error in booking slot");
-      navigate('/dashboardcustomer')
+      navigate('/dashboardcustomer');
     }
   };
 
@@ -270,14 +274,14 @@ const BookingForm = () => {
               options={{
                 enableTime: true,
                 noCalendar: true,
-                dateFormat: "h:i K",
-                minTime: "9:00 AM",
-                maxTime: "3:00 PM",
+                dateFormat: "H:i",
+                minTime: "09:00",
+                maxTime: "15:00",
                 minuteIncrement: 30,
-                time_24hr: false
+                time_24hr: true
               }}
               className="w-full pl-10 pr-4 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Select Time"
+              placeholder="Select Time (24-hour format)"
               required
             />
           </div>
