@@ -302,7 +302,8 @@ const CustomerDashboard = () => {
                             {
                               (cardStatus === 'pending' || cardStatus === 'completed') ? (
                                 <>
-                                  {mechanic.registerNumber}
+                                  {mechanic.registerNumber}<br/>
+                                  Booking Date : {new Date(mechanic.BookDate).toDateString()}
                                 </>
                               ) : (cardStatus === 'serviceHistory') ? (
                                 <>

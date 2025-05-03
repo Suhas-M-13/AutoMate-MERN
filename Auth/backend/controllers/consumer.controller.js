@@ -198,7 +198,8 @@ export const getShopListPendingById = async (req, res) => {
                 ...fetchData[0].toObject(),
                 isAccepted: bookSlot[i].isAccepted,
                 registerNumber: bookSlot[i].registerNumber,
-                vehicleType: bookSlot[i].vehicleType
+                vehicleType: bookSlot[i].vehicleType,
+                BookDate : bookSlot[i].bookDate
             }
 
             shopDetail.push(shopWithBooking)
@@ -257,7 +258,8 @@ export const getShopListCompletedById = async (req, res) => {
                 ...fetchData[0].toObject(),
                 isPaid: bookSlot[i].isPaid,
                 registerNumber: bookSlot[i].registerNumber,
-                vehicleType: bookSlot[i].vehicleType
+                vehicleType: bookSlot[i].vehicleType,
+                BookDate : bookSlot[i].bookDate
             }
 
             shopDetail.push(shopWithBooking)
