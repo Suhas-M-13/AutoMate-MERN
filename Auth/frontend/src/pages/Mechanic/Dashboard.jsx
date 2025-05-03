@@ -29,8 +29,10 @@ const MechanicDashboard = () => {
   const [showDescription, setShowDescription] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState('');
   const [workingRequests, setWorkingRequests] = useState([]);
+  const [groupedRequests, setGroupedRequests] = useState({});
+  const [groupedHistory, setGroupedHistory] = useState({});
 
-  const { getServiceHistoryMechanic , getCompletedList, updateCompleteButton, book, user, customerDetail, getPendingList, customerRequests, updateAcceptButton, isLoading, error } = useAuthStore()
+  const { getServiceHistoryMechanic, getCompletedList, updateCompleteButton, book, user, customerDetail, getPendingList, customerRequests, updateAcceptButton, isLoading, error } = useAuthStore()
 
   let data, second, third, Name, dashboardname, arr, mechanicnumber, complaint = null
 
@@ -51,15 +53,58 @@ const MechanicDashboard = () => {
     setProfileImage(canvas.toDataURL());
   }, [user.name]);
 
+  const groupRequestsByDate = (requests) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const grouped = {};
+    
+    requests.forEach(request => {
+      const requestDate = new Date(request.bookDate);
+      requestDate.setHours(0, 0, 0, 0);
+      
+      // Only include current and future dates
+      if (requestDate >= today) {
+        const dateStr = requestDate.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        
+        if (!grouped[dateStr]) {
+          grouped[dateStr] = [];
+        }
+        grouped[dateStr].push(request);
+      }
+    });
+    
+    // Sort dates in ascending order
+    const sortedDates = Object.keys(grouped).sort((a, b) => {
+      return new Date(a) - new Date(b);
+    });
+    
+    const sortedGrouped = {};
+    sortedDates.forEach(date => {
+      sortedGrouped[date] = grouped[date];
+    });
+    
+    return sortedGrouped;
+  };
 
   const fetchCustomerRequest = async () => {
     try {
       await customerRequests()
       // Filter working requests
-      // const working = book.filter(request => request.isAccepted && !request.isCompleted);
-      // setWorkingRequests(working);
-      // console.log(book)
-      // console.log(customerDetail)
+      const working = book.filter(request => request.isAccepted && !request.isCompleted);
+      setWorkingRequests(working);
+      
+      // Group requests by date
+      const grouped = groupRequestsByDate(book);
+      setGroupedRequests(grouped);
+      
+      console.log(book)
+      console.log(customerDetail)
     } catch (error) {
       toast.error(error.message || "Error in fetching shop information");
     }
@@ -69,36 +114,77 @@ const MechanicDashboard = () => {
     fetchCustomerRequest()
   }, [])
 
-
+  const groupHistoryByDate = (history) => {
+    const grouped = {};
+    
+    history.forEach(service => {
+      const serviceDate = new Date(service.bookDate);
+      const dateStr = serviceDate.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      if (!grouped[dateStr]) {
+        grouped[dateStr] = [];
+      }
+      grouped[dateStr].push(service);
+    });
+    
+    // Sort dates in descending order (most recent first)
+    const sortedDates = Object.keys(grouped).sort((a, b) => {
+      return new Date(b) - new Date(a);
+    });
+    
+    const sortedGrouped = {};
+    sortedDates.forEach(date => {
+      sortedGrouped[date] = grouped[date];
+    });
+    
+    return sortedGrouped;
+  };
 
   const handleCards = async (cardName) => {
     try {
       if (cardName === "pending") {
-        // setcardStatus('shoplist')
+        setActiveTab('pending');
         await fetchCustomerRequest();
       }
       else if (cardName === "working") {
-        // setcardStatus('pending')
-        await getPendingList()
+        setActiveTab('working');
+        await getPendingList();
       }
       else if (cardName === "completed") {
-        // setcardStatus('completed')
-        await getCompletedList()
+        setActiveTab('completed');
+        await getCompletedList();
       }
       else if (cardName === "history") {
-        // setcardStatus('completed')
-        await getServiceHistoryMechanic()
+        setActiveTab('history');
+        try {
+          await getServiceHistoryMechanic();
+          if (book && book.length > 0) {
+            const grouped = groupHistoryByDate(book);
+            setGroupedHistory(grouped);
+          } else {
+            console.log('No service history data available');
+            setGroupedHistory({});
+          }
+        } catch (error) {
+          console.error('Error fetching service history:', error);
+          toast.error('Failed to fetch service history');
+          setGroupedHistory({});
+        }
       }
     } catch (error) {
-      console.error('Error accepting request:', error);
+      console.error('Error handling cards:', error);
       toast.error('Failed to fetch information');
     }
-  }
+  };
 
-
-  const handleAccept = async (customerId,registerNumber) => {
+  const handleAccept = async (customerId, registerNumber) => {
     try {
-      const response = await updateAcceptButton(customerId,registerNumber)
+      const response = await updateAcceptButton(customerId, registerNumber)
       if (response && response.message) {
         toast.success(response.message)
         // Refresh the requests list
@@ -109,9 +195,9 @@ const MechanicDashboard = () => {
       toast.error(error.message || 'Failed to accept request');
     }
   };
-  const handleComplete = async (customerId,registerNumber) => {
+  const handleComplete = async (customerId, registerNumber) => {
     try {
-      await updateCompleteButton(customerId,registerNumber)
+      await updateCompleteButton(customerId, registerNumber)
       toast.success("Service Completed...")
 
     } catch (error) {
@@ -120,7 +206,7 @@ const MechanicDashboard = () => {
     }
   };
 
-  const handleGenerateBill = (customerId,registerNumber) => {
+  const handleGenerateBill = (customerId, registerNumber) => {
     try {
       const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/billmechanic/${customerId}?veh=${encodeURIComponent(encryptedVeh)}`)
@@ -259,124 +345,100 @@ const MechanicDashboard = () => {
           {/* Tables */}
           <div className="space-y-6">
             {/* Pending Requests Table */}
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <table className="min-w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Date</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Information</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Problem Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {book && book.map((request, index) => {
-
-                    const customerData = customerDetail.find(item => item._id === request.customerId)
-
-                    const phNumber = customerData ? customerData.mobileNumber : ""
-
-                    return (
-                      <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <FaUserCircle className="h-10 w-10 text-gray-400" />
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{request.customerName}</div>
-                              <div className="text-sm text-gray-500">{phNumber}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{request.bookDate.split("T")[0]}</div>
-                          <div className="text-sm text-gray-500">{request.bookTime.split("T")[1].split(".")[0]}</div>
-                        </td>
-                        <td className="px-6 py-4">
-
-                          <div className="text-sm text-gray-900 text-center">{
-                            request.vehicleType[0] === 'Bike' ? (
-                              <>
-                                <FaMotorcycle className="mr-12" />
-                              </>
-                            ) : (
-                              <>
-                                <FaCar className="ml-12" />
-                              </>
-                            )
-                          }
-                            {request.vehicleType}
-                          </div>
-                          <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <button
-                            onClick={() => handleViewDescription(request.complaintDescription)}
-                            className="text-blue-600 hover:text-blue-800"
-                          >
-                            View Description
-                          </button>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-
-                          {
-                            (!request.isAccepted) ?
-                              <>
-                                <button
-                                  onClick={() => handleAccept(request.customerId,request.registerNumber)}
-                                  className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-
-                                  Accept
-                                </button>
-                              </>
-                              :
-                              (request.isAccepted && !request.isCompleted) ?
-                                <>
-                                  <button
-                                    onClick={() => handleComplete(request.customerId,request.registerNumber)}
-                                    className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                  >
-
-                                    Completed
-                                  </button>
-                                </>
-                                :
-                                <>
-                                  {
-
-                                    request.isPaid ?
-                                      <>
-                                        <button
-                                        disabled
-                                          className="px-3 py-1 bg-blue-200 text-white rounded-md hover:bg-blue-300"
-                                        >
-                                          Bill Paid
-                                        </button>
-                                      </>
-                                      :
-                                      <>
-                                        <button
-                                          onClick={() => handleGenerateBill(request.customerId,request.registerNumber)}
-                                          className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                        >
-
-                                          Generate Bill
-                                        </button>
-
-                                      </>
-                                  }
-                                </>
-                          }
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
+            {activeTab === 'pending' && (
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                {Object.entries(groupedRequests).map(([date, requests]) => (
+                  <div key={date} className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-800 bg-gray-50 p-4 border-b">
+                      {date}
+                    </h3>
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Customer
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Time
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Vehicle
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Description
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {requests.map((request) => (
+                          <tr key={request._id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10">
+                                  <img
+                                    className="h-10 w-10 rounded-full"
+                                    src={profileImage}
+                                    alt=""
+                                  />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {request.customerName}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">{request.bookTime.split("T")[1].split(".")[0]}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-900 text-center">
+                                {request.vehicleType[0] === 'Bike' ? (
+                                  <>
+                                    <FaMotorcycle className="mr-12" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <FaCar className="ml-12" />
+                                  </>
+                                )}
+                                {request.vehicleType}
+                              </div>
+                              <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <button
+                                onClick={() => handleViewDescription(request.complaintDescription)}
+                                className="text-blue-600 hover:text-blue-800"
+                              >
+                                View Description
+                              </button>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              <button
+                                onClick={() => handleAccept(request.customerId, request.registerNumber)}
+                                className="text-green-600 hover:text-green-900 mr-4"
+                              >
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleComplete(request.customerId, request.registerNumber)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Reject
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Completed Services Table */}
             {/* {activeTab === 'completed' && (
@@ -442,6 +504,102 @@ const MechanicDashboard = () => {
                 </table>
               </div>
             )} */}
+
+            {/* Service History Table */}
+            {activeTab === 'history' && (
+              <div className="bg-white rounded-lg shadow overflow-hidden">
+                {Object.entries(groupedHistory).map(([date, services]) => (
+                  <div key={date} className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-800 bg-gray-50 p-4 border-b">
+                      {date}
+                    </h3>
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Customer
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Vehicle
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Bill Status
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {services.map((service) => (
+                          <tr key={service._id} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-10 w-10">
+                                  <img
+                                    className="h-10 w-10 rounded-full"
+                                    src={profileImage}
+                                    alt=""
+                                  />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {service.customerName}
+                                  </div>
+                  
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">{new Date(service.bookDate).toLocaleDateString()}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-900 text-center">
+                                {service.vehicleType[0] === 'Bike' ? (
+                                  <>
+                                    <FaMotorcycle className="mr-12" />
+                                  </>
+                                ) : (
+                                  <>
+                                    <FaCar className="ml-12" />
+                                  </>
+                                )}
+                                {service.vehicleType}
+                              </div>
+                              <div className="text-sm text-gray-500 text-center">{service.registerNumber}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                <FaCheckCircle className="inline-block mr-1" />
+                                Completed
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              {service.isPaid ? (
+                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                  <FaRupeeSign className="inline-block mr-1" />
+                                  Paid
+                                </span>
+                              ) : (
+                                <button
+                                  onClick={() => handleGenerateBill(service.customerId, service.registerNumber)}
+                                  className="text-blue-600 hover:text-blue-900"
+                                >
+                                  Generate Bill
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main >

@@ -37,6 +37,15 @@ const BookingForm = () => {
     fetchBookingDetail();
   }, [mechanicId]);
 
+  const isDateDisabled = (date) => {
+    const dayOfWeek = date.getDay();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayName = days[dayOfWeek];
+    
+    // Check if the day is marked as not available in the mechanic's working hours
+    return shop[0]?.timings?.[dayName]?.notavailable === true;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -239,7 +248,12 @@ const BookingForm = () => {
               options={{
                 minDate: 'today',
                 dateFormat: 'Y-m-d',
-                disableMobile: true
+                disableMobile: true,
+                disable: [
+                  function(date) {
+                    return isDateDisabled(date);
+                  }
+                ]
               }}
               className="w-full pl-10 pr-4 py-2 bg-gray-700 text-gray-300 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="Select Date"
