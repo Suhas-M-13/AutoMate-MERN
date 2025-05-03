@@ -468,12 +468,13 @@ export const addComment = async (req, res) => {
             title,
             description,
             customerName,
-            registerNumber
+            registerNumber,
+            vehicleType
         } = req.body;
 
         const customerId = req.userId;
 
-        if (!mechanicId || !customerId || !title || !description) {
+        if (!mechanicId || !customerId || !title || !description || !vehicleType) {
             throw new Error("All fields are required!!");
         }
 
@@ -537,7 +538,8 @@ export const addComment = async (req, res) => {
             description,
             registerNumber,
             Rating,
-            sentiment
+            sentiment,
+            vehicleType
         });
 
         await newComment.save();

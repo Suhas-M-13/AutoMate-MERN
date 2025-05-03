@@ -274,7 +274,7 @@ const CustomerDashboard = () => {
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-900 flex items-center">
                               {
-                                (cardStatus === 'pending' || cardStatus === 'completed') ? (
+                                (cardStatus === 'pending' || cardStatus === 'completed' || cardStatus === 'serviceHistory') ? (
                                   <>
                                     {
                                       mechanic.vehicleType[0] === 'Bike' ? (
@@ -304,7 +304,13 @@ const CustomerDashboard = () => {
                                 <>
                                   {mechanic.registerNumber}
                                 </>
-                              ) : (
+                              ) : (cardStatus === 'serviceHistory') ? (
+                                <>
+                                  {new Date(mechanic.BookDate).toLocaleDateString()}
+                                </>
+                              )
+                              :
+                              (
                                 <>
                                   <button
                                     onClick={() => handleViewShopDetails(mechanic.ownerId)}

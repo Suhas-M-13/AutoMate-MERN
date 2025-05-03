@@ -473,14 +473,36 @@ export const useAuthStore = create((set) => ({
 
     },
 
+    getFeedbacksForMechanic : async()=>{
+        set({ isLoading: true, error: null })
 
-    addServiceFeedback : async(mechanicId,customerName,feedback,registerNumber)=>{
+        try {
+            const response = await axios.get(`${API_URL}/mechanic/comments`)
+
+            set({
+                comments : response.data.comments,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching invoice data",
+                isLoading: false
+            })
+            throw error
+        }
+
+    },
+
+
+    addServiceFeedback : async(mechanicId,customerName,feedback,registerNumber,vehicleType)=>{
         set({ isLoading: true, error: null })
 
         try {
             const title = feedback.title
             const description = feedback.description
-            const response = await axios.post(`${API_URL}/consumer/feedback`,{mechanicId,customerName,title,description,registerNumber})
+            const response = await axios.post(`${API_URL}/consumer/feedback`,{mechanicId,customerName,title,description,registerNumber,vehicleType})
 
             set({
                 message : response.data.message,
