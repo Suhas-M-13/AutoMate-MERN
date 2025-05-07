@@ -38,6 +38,23 @@ const CustomerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { user, shopDetail, shop, isLoading, error, pendingShopList, book, completedShopList, updatePay , getServiceHistoryCustomer } = useAuthStore();
 
+  useEffect(() => {
+    // Generate profile image
+    const firstCharacter = user.name.charAt(0).toUpperCase();
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = 100;
+    canvas.height = 100;
+    context.fillStyle = '#F2AA4CFF';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = '#101820FF';
+    context.font = 'bold 50px Arial';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.fillText(firstCharacter, canvas.width / 2, canvas.height / 2);
+    setProfileImage(canvas.toDataURL());
+  }, [user.name]);
+
   const fetchShopDetail = async () => {
     try {
       await shopDetail();

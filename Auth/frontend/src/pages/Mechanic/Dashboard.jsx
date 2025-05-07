@@ -355,19 +355,19 @@ const MechanicDashboard = () => {
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                             Customer
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                             Time
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                             Vehicle
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                             Description
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
                             Actions
                           </th>
                         </tr>
@@ -375,7 +375,7 @@ const MechanicDashboard = () => {
                       <tbody className="bg-white divide-y divide-gray-200">
                         {requests.map((request) => (
                           <tr key={request._id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="px-6 py-4">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10">
                                   <img
@@ -391,45 +391,47 @@ const MechanicDashboard = () => {
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{request.bookTime.split("T")[1].split(".")[0]}</div>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-900 text-center">{request.bookTime.split("T")[1].split(".")[0]}</div>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="text-sm text-gray-900 text-center">
-                                {request.vehicleType[0] === 'Bike' ? (
-                                  <>
-                                    <FaMotorcycle className="mr-12" />
-                                  </>
-                                ) : (
-                                  <>
-                                    <FaCar className="ml-12" />
-                                  </>
-                                )}
-                                {request.vehicleType}
+                              <div className="flex flex-col items-center">
+                                <div className="text-sm text-gray-900 flex items-center justify-center">
+                                  {request.vehicleType[0] === 'Bike' ? (
+                                    <FaMotorcycle className="mr-2" />
+                                  ) : (
+                                    <FaCar className="mr-2" />
+                                  )}
+                                  {request.vehicleType}
+                                </div>
+                                <div className="text-sm text-gray-500">{request.registerNumber}</div>
                               </div>
-                              <div className="text-sm text-gray-500 text-center">{request.registerNumber}</div>
                             </td>
-                            <td className="px-6 py-4 text-center">
-                              <button
-                                onClick={() => handleViewDescription(request.complaintDescription)}
-                                className="text-blue-600 hover:text-blue-800"
-                              >
-                                View Description
-                              </button>
+                            <td className="px-6 py-4">
+                              <div className="flex justify-center">
+                                <button
+                                  onClick={() => handleViewDescription(request.complaintDescription)}
+                                  className="text-blue-600 hover:text-blue-800 text-sm"
+                                >
+                                  View Description
+                                </button>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button
-                                onClick={() => handleAccept(request.customerId, request.registerNumber)}
-                                className="text-green-600 hover:text-green-900 mr-4"
-                              >
-                                Accept
-                              </button>
-                              <button
-                                onClick={() => handleComplete(request.customerId, request.registerNumber)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Reject
-                              </button>
+                            <td className="px-6 py-4">
+                              <div className="flex justify-center space-x-4">
+                                <button
+                                  onClick={() => handleAccept(request.customerId, request.registerNumber)}
+                                  className="text-green-600 hover:text-green-900 text-sm"
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  onClick={() => handleComplete(request.customerId, request.registerNumber)}
+                                  className="text-red-600 hover:text-red-900 text-sm"
+                                >
+                                  Reject
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
