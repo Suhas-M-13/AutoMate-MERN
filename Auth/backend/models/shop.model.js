@@ -36,6 +36,10 @@ const shopSchema = new mongoose.Schema({
             notavailable: Boolean
         }
     },
+    isShopVerified : {
+        type : Boolean,
+        require : true
+    },
     location: {
         type: {
           type: String,

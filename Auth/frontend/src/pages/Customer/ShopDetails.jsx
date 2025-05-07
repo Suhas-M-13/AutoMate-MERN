@@ -4,14 +4,15 @@ import { useAuthStore } from '../../store/authStore';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import ShopMap from '../../components/ShopMap';
+import { useLocation } from '../../context/LocationContext';
 
 const ShopDetails = () => {
   const navigate = useNavigate();
   const { mechanicId } = useParams();
   const [activeImage, setActiveImage] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [userLocation, setUserLocation] = useState(null);
   const { shop, comments, error, isLoading, shopDetailById } = useAuthStore();
+  const { location, fetchUserLocation } = useLocation();
 
   const images = [
     "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
@@ -33,23 +34,7 @@ const ShopDetails = () => {
 
   useEffect(() => {
     fetchShopDetail();
-    // Get user's current location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          });
-        },
-        (error) => {
-          toast.error('Unable to get your location');
-          console.error('Error getting location:', error);
-        }
-      );
-    } else {
-      toast.error('Geolocation is not supported by your browser');
-    }
+    fetchUserLocation();
   }, [mechanicId]);
 
   if (isLoading) {
@@ -131,8 +116,8 @@ const ShopDetails = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Location</h2>
               {currentShop.location && (
                 <ShopMap
-                  shopDetail = {currentShop}
-                  userLoc = {userLocation}
+                  shopDetail={currentShop}
+                  userLoc={location}
                 />
               )}
             </div>

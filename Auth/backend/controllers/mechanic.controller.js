@@ -101,7 +101,8 @@ export const AddShop = async(req,res)=>{
           serviceAvailable,
           address,
           timings,
-          location
+          location,
+          isShopVerified : false
         });
     
         // Save the shop to the database

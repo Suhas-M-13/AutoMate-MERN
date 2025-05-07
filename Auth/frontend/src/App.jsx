@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom"
 import { Toaster } from "react-hot-toast"
 import { useEffect } from "react"
+import { LocationProvider } from './context/LocationContext'
 
 import SignUpPage from "./pages/SignUpPage"
 import LoginPage from "./pages/LoginPage"
@@ -59,7 +60,7 @@ function App() {
   }, [])
 
   return (
-    <>
+    <LocationProvider>
       <div className="min-h-screen bg-gradient-to-br from-blue-700 to-slate-700 flex items-center justify-center relative overflow-hidden">
         <Routes>
           <Route path="/" element={
@@ -140,7 +141,7 @@ function App() {
         </Routes>
         <Toaster />
       </div>
-    </>
+    </LocationProvider>
   )
 }
 

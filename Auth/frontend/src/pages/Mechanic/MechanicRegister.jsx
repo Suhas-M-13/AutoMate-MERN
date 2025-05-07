@@ -3,12 +3,16 @@ import { FaStore, FaUser, FaEnvelope, FaInfoCircle, FaCar, FaMapMarkerAlt, FaClo
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+import { useLocation } from '../../context/LocationContext';
+import MapPicker from '../../components/MapPicker';
 
 const MechanicRegistration = () => {
 
   const { addshopRegistration, shopRegistration, isLoading, error, mechanic } = useAuthStore()
 
   const navigate = useNavigate()
+
+  const { location, fetchUserLocation, isLocating } = useLocation();
 
   const [formData, setFormData] = useState({
     shopname: '',
@@ -46,6 +50,19 @@ const MechanicRegistration = () => {
     fetchMechanicData()
   }, [])
 
+  // Sync context location to formData
+  useEffect(() => {
+    if (location) {
+      setFormData((prev) => ({
+        ...prev,
+        location: {
+          type: 'Point',
+          coordinates: [location.lng, location.lat],
+        },
+      }));
+      updateAddress(location.lat, location.lng);
+    }
+  }, [location]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -95,31 +112,6 @@ const MechanicRegistration = () => {
     } catch (error) {
       console.error("Error fetching address:", error);
       toast.error("Error fetching address")
-    }
-  }
-
-  const fetchLiveLocation = async () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          setFormData((prev) => ({
-            ...prev,
-            location: {
-              type: 'Point',
-              coordinates: [position.coords.longitude, position.coords.latitude]
-            }
-          }))
-          toast.success('Location fetched successfully')
-
-          updateAddress(position.coords.latitude, position.coords.longitude)
-
-        },
-        (error) => {
-          toast.error('Unable to fetch location')
-        }
-      )
-    } else {
-      toast.error('Geolocation is not supported by this browser')
     }
   }
 
@@ -295,12 +287,32 @@ const MechanicRegistration = () => {
                   <button
                     type="button"
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    onClick={fetchLiveLocation}
+                    onClick={fetchUserLocation}
+                    disabled={isLocating}
                   >
-                    Fetch Live Location
+                    {isLocating ? 'Fetching...' : 'Fetch Live Location'}
                   </button>
                   {formData.location && (
                     <span className="text-xs text-gray-600">Lat: {formData.location.coordinates[1]}, Lng: {formData.location.coordinates[0]}</span>
+                  )}
+                  {/* Map Preview */}
+                  {formData.location && (
+                    <div className="mt-2">
+                      <MapPicker
+                        lat={formData.location.coordinates[1]}
+                        lng={formData.location.coordinates[0]}
+                        onChange={(lat, lng) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            location: {
+                              type: 'Point',
+                              coordinates: [lng, lat],
+                            },
+                          }));
+                          updateAddress(lat, lng);
+                        }}
+                      />
+                    </div>
                   )}
                 </div>
               </div>

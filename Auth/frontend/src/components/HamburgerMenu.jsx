@@ -13,6 +13,9 @@ const HamburgerMenu = ({ children }) => {
   const navigate = useNavigate();
   const { logout , user } = useAuthStore();
 
+  // console.log(user);
+  
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };

@@ -11,7 +11,7 @@ import axios from "axios"
 
 export const getAllShopList = async (req, res) => {
     try {
-        const allShop = await Shop.find({})
+        const allShop = await Shop.find({isShopVerified : true})
 
         if (!allShop) {
             throw new Error("Error in fetching...")

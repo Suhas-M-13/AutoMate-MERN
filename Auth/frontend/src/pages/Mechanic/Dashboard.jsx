@@ -20,49 +20,39 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import HamburgerMenu from '../../components/HamburgerMenu';
 import { toast } from 'react-hot-toast';
+import UserIcon from '../../components/UserIcon';
 
 const MechanicDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('pending');
   const [profileImage, setProfileImage] = useState('');
   const [showPopup, setShowPopup] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [showDescription, setShowDescription] = useState(false);
   const [selectedComplaint, setSelectedComplaint] = useState('');
   const [workingRequests, setWorkingRequests] = useState([]);
   const [groupedRequests, setGroupedRequests] = useState({});
   const [groupedHistory, setGroupedHistory] = useState({});
+  const [filteredUsers, setFilteredUsers] = useState([]);
 
   const { getServiceHistoryMechanic, getCompletedList, updateCompleteButton, book, user, customerDetail, getPendingList, customerRequests, updateAcceptButton, isLoading, error } = useAuthStore()
 
   let data, second, third, Name, dashboardname, arr, mechanicnumber, complaint = null
 
-  useEffect(() => {
-    // Generate profile image
-    const firstCharacter = user.name.charAt(0).toUpperCase();
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = 100;
-    canvas.height = 100;
-    context.fillStyle = '#F2AA4CFF';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#101820FF';
-    context.font = 'bold 60px Arial';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.fillText(firstCharacter, canvas.width / 2, canvas.height / 2);
-    setProfileImage(canvas.toDataURL());
-  }, [user.name]);
+  // console.log(user);
+  
+
 
   const groupRequestsByDate = (requests) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     const grouped = {};
-    
+
     requests.forEach(request => {
       const requestDate = new Date(request.bookDate);
       requestDate.setHours(0, 0, 0, 0);
-      
+
       // Only include current and future dates
       if (requestDate >= today) {
         const dateStr = requestDate.toLocaleDateString('en-US', {
@@ -71,40 +61,65 @@ const MechanicDashboard = () => {
           month: 'long',
           day: 'numeric'
         });
-        
+
         if (!grouped[dateStr]) {
           grouped[dateStr] = [];
         }
         grouped[dateStr].push(request);
       }
     });
-    
+
     // Sort dates in ascending order
     const sortedDates = Object.keys(grouped).sort((a, b) => {
       return new Date(a) - new Date(b);
     });
-    
+
     const sortedGrouped = {};
     sortedDates.forEach(date => {
       sortedGrouped[date] = grouped[date];
     });
-    
+
     return sortedGrouped;
   };
 
-  const fetchCustomerRequest = async () => {
+  const fetchCustomerRequest = async (cardName) => {
     try {
-      await customerRequests()
+      let working = []
+      if (cardName === "pending") {
+        await customerRequests()
+        console.log("book = ", book);
+
+        working = await book.filter(request => !request.isAccepted);
+
+        console.log("inside pending ; working : ", working)
+
+      }
+      else if (cardName === "working") {
+        await getPendingList();
+        console.log("insidde working book : ", book);
+
+        working = await book.filter(request => request.isAccepted && !request.isCompleted);
+
+        console.log("inside working ; working : ", working)
+      }
+      else if (cardName === "completed") {
+        await getCompletedList();
+
+        working = await book.filter(request => request.isCompleted);
+
+      }
       // Filter working requests
-      const working = book.filter(request => request.isAccepted && !request.isCompleted);
       setWorkingRequests(working);
-      
+
       // Group requests by date
-      const grouped = groupRequestsByDate(book);
+      const grouped = groupRequestsByDate(working);
+
+      console.log("grouped  : ", grouped)
       setGroupedRequests(grouped);
-      
-      console.log(book)
-      console.log(customerDetail)
+      console.log("grouped req : ", groupedRequests)
+
+      // console.log(book)
+      // console.log(customerDetail)
     } catch (error) {
       toast.error(error.message || "Error in fetching shop information");
     }
@@ -114,9 +129,28 @@ const MechanicDashboard = () => {
     fetchCustomerRequest()
   }, [])
 
+  useEffect(() => {
+    if (book && Array.isArray(book)) {
+      const filtered = book.filter((customer) => {
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          customer.customerName.toLowerCase().includes(searchLower) ||
+          customer.registerNumber.replace("-","").toLowerCase().includes(searchLower.replace("-",""))
+        );
+      });
+      setFilteredUsers(filtered);
+
+      const grouped = groupRequestsByDate(filtered);
+
+      setGroupedRequests(grouped);
+    } else {
+      setFilteredUsers([]);
+    }
+  }, [searchQuery, book]);
+
   const groupHistoryByDate = (history) => {
     const grouped = {};
-    
+
     history.forEach(service => {
       const serviceDate = new Date(service.bookDate);
       const dateStr = serviceDate.toLocaleDateString('en-US', {
@@ -125,41 +159,41 @@ const MechanicDashboard = () => {
         month: 'long',
         day: 'numeric'
       });
-      
+
       if (!grouped[dateStr]) {
         grouped[dateStr] = [];
       }
       grouped[dateStr].push(service);
     });
-    
+
     // Sort dates in descending order (most recent first)
     const sortedDates = Object.keys(grouped).sort((a, b) => {
       return new Date(b) - new Date(a);
     });
-    
+
     const sortedGrouped = {};
     sortedDates.forEach(date => {
       sortedGrouped[date] = grouped[date];
     });
-    
+
     return sortedGrouped;
   };
 
   const handleCards = async (cardName) => {
     try {
-      if (cardName === "pending") {
-        setActiveTab('pending');
-        await fetchCustomerRequest();
-      }
-      else if (cardName === "working") {
-        setActiveTab('working');
-        await getPendingList();
-      }
-      else if (cardName === "completed") {
-        setActiveTab('completed');
-        await getCompletedList();
-      }
-      else if (cardName === "history") {
+      // if (cardName === "pending") {
+      //   setActiveTab('pending');
+      //   await fetchCustomerRequest();
+      // }
+      // else if (cardName === "working") {
+      //   setActiveTab('working');
+      //   await getPendingList();
+      // }
+      // else if (cardName === "completed") {
+      //   setActiveTab('completed');
+      //   await getCompletedList();
+      // }
+      if (cardName === "history") {
         setActiveTab('history');
         try {
           await getServiceHistoryMechanic();
@@ -176,6 +210,12 @@ const MechanicDashboard = () => {
           setGroupedHistory({});
         }
       }
+      else {
+        console.log('clicked ', cardName);
+
+        setActiveTab(cardName)
+        await fetchCustomerRequest(cardName);
+      }
     } catch (error) {
       console.error('Error handling cards:', error);
       toast.error('Failed to fetch information');
@@ -188,7 +228,7 @@ const MechanicDashboard = () => {
       if (response && response.message) {
         toast.success(response.message)
         // Refresh the requests list
-        await fetchCustomerRequest()
+        // await fetchCustomerRequest()
       }
     } catch (error) {
       console.error('Error accepting request:', error);
@@ -271,20 +311,12 @@ const MechanicDashboard = () => {
                   type="text"
                   placeholder="Search..."
                   className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
-            <div className="relative">
-              <div className="flex items-center space-x-2">
-                <span className="text-gray-700">{user.name}</span>
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full cursor-pointer"
-                  onClick={() => setShowPopup(!showPopup)}
-                />
-              </div>
-            </div>
+            <UserIcon username={user.name} />
           </div>
         </div>
 
@@ -345,7 +377,7 @@ const MechanicDashboard = () => {
           {/* Tables */}
           <div className="space-y-6">
             {/* Pending Requests Table */}
-            {activeTab === 'pending' && (
+            {activeTab !== 'history' && (
               <div className="bg-white rounded-lg shadow overflow-hidden">
                 {Object.entries(groupedRequests).map(([date, requests]) => (
                   <div key={date} className="mb-8">
@@ -359,7 +391,7 @@ const MechanicDashboard = () => {
                             Customer
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">
-                            Time
+                            Date & Time
                           </th>
                           <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">
                             Vehicle
@@ -378,21 +410,19 @@ const MechanicDashboard = () => {
                             <td className="px-6 py-4">
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10">
-                                  <img
-                                    className="h-10 w-10 rounded-full"
-                                    src={profileImage}
-                                    alt=""
-                                  />
+                                  <UserIcon username={request.customerName} />
                                 </div>
                                 <div className="ml-4">
                                   <div className="text-sm font-medium text-gray-900">
-                                    {request.customerName}
+                                    {/* {request.customerName} */}
                                   </div>
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4">
-                              <div className="text-sm text-gray-900 text-center">{request.bookTime.split("T")[1].split(".")[0]}</div>
+                              <div className="text-sm text-gray-900 text-center">
+                                {new Date(request.bookDate).toDateString()}<br />
+                                {request.bookTime.split("T")[1].split(".")[0]}</div>
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex flex-col items-center">
@@ -419,18 +449,24 @@ const MechanicDashboard = () => {
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex justify-center space-x-4">
-                                <button
+                                {activeTab === 'pending' && <button
                                   onClick={() => handleAccept(request.customerId, request.registerNumber)}
                                   className="text-green-600 hover:text-green-900 text-sm"
                                 >
                                   Accept
-                                </button>
-                                <button
+                                </button>}
+                                {activeTab === 'working' && <button
                                   onClick={() => handleComplete(request.customerId, request.registerNumber)}
                                   className="text-red-600 hover:text-red-900 text-sm"
                                 >
-                                  Reject
-                                </button>
+                                  Mark as Complete
+                                </button>}
+                                {activeTab === 'completed' && <button
+                                  onClick={() => handleGenerateBill(request.customerId, request.registerNumber)}
+                                  className="text-red-600 hover:text-red-900 text-sm"
+                                >
+                                  Generate Bill
+                                </button>}
                               </div>
                             </td>
                           </tr>
@@ -540,18 +576,14 @@ const MechanicDashboard = () => {
                           <tr key={service._id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <div className="flex-shrink-0 h-10 w-10">
-                                  <img
-                                    className="h-10 w-10 rounded-full"
-                                    src={profileImage}
-                                    alt=""
-                                  />
-                                </div>
+                                {/* <div className="flex-shrink-0 h-10 w-10"> */}
+                                <UserIcon username={service.customerName} />
+                                {/* </div> */}
                                 <div className="ml-4">
                                   <div className="text-sm font-medium text-gray-900">
-                                    {service.customerName}
+                                    {/* {service.customerName} */}
                                   </div>
-                  
+
                                 </div>
                               </div>
                             </td>

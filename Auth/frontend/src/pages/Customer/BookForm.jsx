@@ -107,6 +107,7 @@ const BookingForm = () => {
 
     try {
       // If validation passes, proceed with booking
+      console.log(formData)
       await addBookFormDetail(mechanicId, user.name, formData);
       toast.success("Slot booked successfully!");
       navigate('/dashboardcustomer');

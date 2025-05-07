@@ -118,7 +118,7 @@ const Invoice = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Booked Date</p>
-                    <p className="text-base font-medium text-gray-900">{currentBook?.bookDate}</p>
+                    <p className="text-base font-medium text-gray-900">{new Date(currentBook?.bookDate).toDateString()}</p>
                   </div>
                 </div>
               </div>

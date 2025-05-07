@@ -28,32 +28,16 @@ import {
 import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
 import HamburgerMenu from '../../components/HamburgerMenu';
+import UserIcon from '../../components/UserIcon';
 
 const CustomerDashboard = () => {
   const navigate = useNavigate();
   // const [activeTab, setActiveTab] = useState('pending');
-  const [profileImage, setProfileImage] = useState('');
   const [cardStatus, setcardStatus] = useState('shoplist')
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filteredShops, setFilteredShops] = useState([]);
   const { user, shopDetail, shop, isLoading, error, pendingShopList, book, completedShopList, updatePay , getServiceHistoryCustomer } = useAuthStore();
-
-  useEffect(() => {
-    // Generate profile image
-    const firstCharacter = user.name.charAt(0).toUpperCase();
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = 100;
-    canvas.height = 100;
-    context.fillStyle = '#F2AA4CFF';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#101820FF';
-    context.font = 'bold 50px Arial';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-    context.fillText(firstCharacter, canvas.width / 2, canvas.height / 2);
-    setProfileImage(canvas.toDataURL());
-  }, [user.name]);
 
   const fetchShopDetail = async () => {
     try {
@@ -67,6 +51,23 @@ const CustomerDashboard = () => {
     fetchShopDetail();
   }, []);
 
+  useEffect(() => {
+    if (shop) {
+      const filtered = shop.filter((mechanic) => {
+        if(Array.isArray(mechanic.vehicleType) && mechanic.vehicleType.length > 0)
+          console.log(mechanic.vehicleType[0]);
+        
+        const searchLower = searchQuery.toLowerCase();
+        return (
+          mechanic.shopname.toLowerCase().includes(searchLower) ||
+          mechanic.ownerName.toLowerCase().includes(searchLower) ||
+          mechanic.address.toLowerCase().includes(searchLower) ||
+          mechanic.registerNumber.replace("-","").toLowerCase().includes(searchLower.replace("-",""))
+        );
+      });
+      setFilteredShops(filtered);
+    }
+  }, [searchQuery, shop]);
 
   const handleBookSlot = (mechanicId) => {
     // console.log(mechanicId)
@@ -129,8 +130,6 @@ const CustomerDashboard = () => {
     }
   }
 
-  const filteredData = null;
-
   // Move loading and error states after all hooks
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -179,22 +178,14 @@ const CustomerDashboard = () => {
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search by shop name, owner name, or address..."
                   className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
             </div>
-            <div className="relative">
-              <div className="flex items-center space-x-3">
-                <span className="text-indigo-900 font-medium">{user.name}</span>
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="w-12 h-12 rounded-full cursor-pointer ring-2 ring-indigo-500 hover:ring-indigo-600 transition-all duration-300 hover:scale-105"
-                  onClick={() => setShowPopup(!showPopup)}
-                />
-              </div>
-            </div>
+            <UserIcon username = {user.name}/>
           </div>
         </div>
 
@@ -268,24 +259,27 @@ const CustomerDashboard = () => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {shop.map((mechanic, index) => {
+                    {(filteredShops.length > 0 ? filteredShops : shop).map((mechanic, index) => {
                       return (
                         <tr key={index} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                <FaUserCircle className="h-10 w-10 text-gray-400" />
-                              </div>
+                              {/* <div className="h-5 w-15 rounded-full"> */}
+                                {/* <FaUserCircle className="h-10 w-10 text-gray-400" /> */}
+                                <UserIcon username={mechanic?.ownerName}/>
+                              {/* </div> */}
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{mechanic.ownerName}</div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {/* {mechanic.ownerName} */}
+                                  </div>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{mechanic.shopname}</div>
+                            <div className="text-sm text-gray-900">{mechanic?.shopname}</div>
                             <div className="text-sm text-gray-500 flex items-center">
                               <FaMapMarkerAlt className="mr-1" />
-                              {mechanic.address}
+                              {mechanic?.address}
                             </div>
                           </td>
                           <td className="px-6 py-4">
@@ -294,22 +288,24 @@ const CustomerDashboard = () => {
                                 (cardStatus === 'pending' || cardStatus === 'completed' || cardStatus === 'serviceHistory') ? (
                                   <>
                                     {
-                                      mechanic.vehicleType[0] === 'Bike' ? (
+                                      mechanic?.vehicleType && Array.isArray(mechanic.vehicleType) && mechanic.vehicleType.length > 0 ? (
                                         <>
-                                          <FaMotorcycle className="mr-1" />
+                                          {mechanic.vehicleType[0] === 'Bike' ? (
+                                            <FaMotorcycle className="mr-1" />
+                                          ) : (
+                                            <FaCar className="mr-1" />
+                                          )}
+                                          {mechanic.vehicleType}
                                         </>
                                       ) : (
-                                        <>
-                                          <FaCar className="mr-1" />
-                                        </>
+                                        <span>No vehicle type available</span>
                                       )
                                     }
-                                    {mechanic.vehicleType}
                                   </>
                                 ) : (
                                   <>
                                     <FaPhone className="mr-1" />
-                                    {mechanic.mobileNumber}
+                                    {mechanic?.mobileNumber}
                                   </>
                                 )
                               }
@@ -319,19 +315,19 @@ const CustomerDashboard = () => {
                             {
                               (cardStatus === 'pending' || cardStatus === 'completed') ? (
                                 <>
-                                  {mechanic.registerNumber}<br/>
-                                  Booking Date : {new Date(mechanic.BookDate).toDateString()}
+                                  {mechanic?.registerNumber}<br/>
+                                  Booking Date : {new Date(mechanic?.BookDate).toDateString()}
                                 </>
                               ) : (cardStatus === 'serviceHistory') ? (
                                 <>
-                                  {new Date(mechanic.BookDate).toLocaleDateString()}
+                                  {new Date(mechanic?.BookDate).toLocaleDateString()}
                                 </>
                               )
                               :
                               (
                                 <>
                                   <button
-                                    onClick={() => handleViewShopDetails(mechanic.ownerId)}
+                                    onClick={() => handleViewShopDetails(mechanic?.ownerId)}
                                     className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group"
                                   >
                                     <FaTools className="mr-2 group-hover:rotate-12 transition-transform duration-200" />
@@ -345,7 +341,7 @@ const CustomerDashboard = () => {
                           <td className="px-6 py-4">
                             {cardStatus === 'shoplist' ? (
                               <button
-                                onClick={() => handleBookSlot(mechanic.ownerId)}
+                                onClick={() => handleBookSlot(mechanic?.ownerId)}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
                               >
                                 <FaBook className="mr-2" />
@@ -357,7 +353,7 @@ const CustomerDashboard = () => {
                                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center opacity-75"
                               >
                                 {
-                                  mechanic.isAccepted === false ? (
+                                  mechanic?.isAccepted === false ? (
                                     <>
                                       <FaHourglassHalf className="mr-2 animate-spin" />
                                       Pending
@@ -373,22 +369,22 @@ const CustomerDashboard = () => {
                             ) : (
                               <div className="flex space-x-2">
                                 <button
-                                  onClick={() => handleViewBill(mechanic.ownerId,mechanic.registerNumber)}
+                                  onClick={() => handleViewBill(mechanic?.ownerId,mechanic?.registerNumber)}
                                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
                                 >
                                   <FaFileInvoiceDollar className="mr-2" />
                                   View Bill
                                 </button>
                                 <button
-                                  onClick={() => handlePayBill(mechanic.ownerId, mechanic.registerNumber)}
-                                  disabled={mechanic.isPaid}
-                                  className={`px-4 py-2 rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center ${mechanic.isPaid
+                                  onClick={() => handlePayBill(mechanic?.ownerId, mechanic?.registerNumber)}
+                                  disabled={mechanic?.isPaid}
+                                  className={`px-4 py-2 rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center ${mechanic?.isPaid
                                       ? 'bg-gray-400 text-white cursor-not-allowed opacity-75'
                                       : 'bg-green-600 text-white hover:bg-green-700'
                                     }`}
                                 >
                                   <FaMoneyBillWave className="mr-2" />
-                                  {mechanic.isPaid ? 'Paid' : 'Pay'}
+                                  {mechanic?.isPaid ? 'Paid' : 'Pay'}
                                 </button>
                               </div>
                             )}
