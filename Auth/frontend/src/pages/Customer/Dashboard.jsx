@@ -29,6 +29,8 @@ import { useAuthStore } from '../../store/authStore';
 import { toast } from 'react-hot-toast';
 import HamburgerMenu from '../../components/HamburgerMenu';
 import UserIcon from '../../components/UserIcon';
+import { useLocation } from '../../context/LocationContext';
+import ShopMap from '../../components/ShopMap';
 
 const CustomerDashboard = () => {
   const navigate = useNavigate();
@@ -37,7 +39,10 @@ const CustomerDashboard = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredShops, setFilteredShops] = useState([]);
-  const { user, shopDetail, shop, isLoading, error, pendingShopList, book, completedShopList, updatePay , getServiceHistoryCustomer } = useAuthStore();
+  const { user, shopDetail, shop, isLoading, error, pendingShopList,nearShop, book, completedShopList, updatePay, getServiceHistoryCustomer, fetchNearByShops } = useAuthStore();
+  const { location, fetchUserLocation } = useLocation();
+  const [showMap, setShowMap] = useState(false);
+  const [nearbyShops, setNearbyShops] = useState([]);
 
   const fetchShopDetail = async () => {
     try {
@@ -52,17 +57,25 @@ const CustomerDashboard = () => {
   }, []);
 
   useEffect(() => {
+    fetchUserLocation();
+  }, [shop]);
+
+  // useEffect(() => {
+  //   fetchNearByShops(location);
+  // }, [location]);
+
+  useEffect(() => {
     if (shop) {
       const filtered = shop.filter((mechanic) => {
-        if(Array.isArray(mechanic.vehicleType) && mechanic.vehicleType.length > 0)
+        if (Array.isArray(mechanic.vehicleType) && mechanic.vehicleType.length > 0)
           console.log(mechanic.vehicleType[0]);
-        
+
         const searchLower = searchQuery.toLowerCase();
         return (
           mechanic.shopname.toLowerCase().includes(searchLower) ||
           mechanic.ownerName.toLowerCase().includes(searchLower) ||
           mechanic.address.toLowerCase().includes(searchLower) ||
-          mechanic.registerNumber.replace("-","").toLowerCase().includes(searchLower.replace("-",""))
+          mechanic.registerNumber?.replace("-", "").toLowerCase().includes(searchLower.replace("-", ""))
         );
       });
       setFilteredShops(filtered);
@@ -88,9 +101,9 @@ const CustomerDashboard = () => {
     }
   };
 
-  const handleViewBill = (mechanicId,registerNumber) => {
+  const handleViewBill = (mechanicId, registerNumber) => {
     try {
-      console.log(mechanicId,registerNumber)
+      console.log(mechanicId, registerNumber)
       console.log(import.meta.env.VITE_SECRETKEY)
       const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/invoice/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
@@ -122,13 +135,37 @@ const CustomerDashboard = () => {
       setcardStatus('completed')
       await completedShopList()
     }
-    else if(cardName === 'serviceHistory'){
+    else if (cardName === 'serviceHistory') {
       setcardStatus('serviceHistory')
       // console.log("clicked serviceHistory")
       await getServiceHistoryCustomer()
       // console.log(shop)
     }
   }
+
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+  const handleFetchNearbyShops = async (e) => {
+    try {
+      e.preventDefault();
+      console.log("Location:", location); // should print lat/lng
+      if (location) {
+        await fetchNearByShops(location.lng, location.lat);
+        console.log(nearShop)
+        setNearbyShops(nearShop);
+        setShowMap(true);
+      } else {
+        toast.error("Location not available.");
+        setShowMap(false)
+      }
+    } catch (error) {
+      toast.error("Could not fetch nearby shops.");
+      console.error(error);
+    }
+  };
+
+
 
   // Move loading and error states after all hooks
   if (isLoading) {
@@ -173,7 +210,7 @@ const CustomerDashboard = () => {
         <div className="bg-white shadow-md p-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-12">
-              <HamburgerMenu/>
+              <HamburgerMenu />
               <div className="relative">
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
@@ -185,9 +222,39 @@ const CustomerDashboard = () => {
                 />
               </div>
             </div>
-            <UserIcon username = {user.name}/>
+            <UserIcon username={user.name} />
           </div>
         </div>
+
+        {/* Toggle Nearby Shops Map */}
+        <div className="p-4">
+          <button
+            onClick={(e) => handleFetchNearbyShops(e)}
+            // disabled={!location}
+            className={`px-4 py-2 text-white rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center  bg-blue-600 hover:bg-blue-700'
+            }`}
+          >
+            Fetch Nearby Shops
+          </button>
+
+          {location && (
+            <div className="mt-4">
+              <div
+                onClick={() => setShowMap(prev => !prev)}
+                className="flex items-center justify-between cursor-pointer px-4 py-2 bg-indigo-100 text-indigo-800 rounded-md font-semibold hover:bg-indigo-200 transition"
+              >
+                <span>Nearby Shops Map</span>
+                <span className="text-xl">{showMap ? '▲' : '▼'}</span>
+              </div>
+              {showMap && (<div className="mt-4 flex justify-center align-middle">
+                <div className="w-full md:w-3/4 h-[400px]">
+                  <ShopMap shopDetail={nearbyShops} userLoc={location} />
+                </div>
+              </div>)}
+            </div>
+          )}
+        </div>
+
 
         {/* Dashboard Content */}
         <div className="p-8">
@@ -254,7 +321,7 @@ const CustomerDashboard = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mechanic Details</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Details</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'shoplist') ? "Contact" : "Vehicle Type"}</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'pending' || cardStatus === 'completed') ? "Vehicle Register Number" : (cardStatus === 'serviceHistory') ? "Booked Date" : "Shop Info"}</th>  
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{(cardStatus === 'pending' || cardStatus === 'completed') ? "Vehicle Register Number" : (cardStatus === 'serviceHistory') ? "Booked Date" : "Shop Info"}</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     </tr>
                   </thead>
@@ -265,13 +332,13 @@ const CustomerDashboard = () => {
                           <td className="px-6 py-4">
                             <div className="flex items-center">
                               {/* <div className="h-5 w-15 rounded-full"> */}
-                                {/* <FaUserCircle className="h-10 w-10 text-gray-400" /> */}
-                                <UserIcon username={mechanic?.ownerName}/>
+                              {/* <FaUserCircle className="h-10 w-10 text-gray-400" /> */}
+                              <UserIcon username={mechanic?.ownerName} />
                               {/* </div> */}
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">
                                   {/* {mechanic.ownerName} */}
-                                  </div>
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -315,7 +382,7 @@ const CustomerDashboard = () => {
                             {
                               (cardStatus === 'pending' || cardStatus === 'completed') ? (
                                 <>
-                                  {mechanic?.registerNumber}<br/>
+                                  {mechanic?.registerNumber}<br />
                                   Booking Date : {new Date(mechanic?.BookDate).toDateString()}
                                 </>
                               ) : (cardStatus === 'serviceHistory') ? (
@@ -323,18 +390,18 @@ const CustomerDashboard = () => {
                                   {new Date(mechanic?.BookDate).toLocaleDateString()}
                                 </>
                               )
-                              :
-                              (
-                                <>
-                                  <button
-                                    onClick={() => handleViewShopDetails(mechanic?.ownerId)}
-                                    className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group"
-                                  >
-                                    <FaTools className="mr-2 group-hover:rotate-12 transition-transform duration-200" />
-                                    Explore Shop
-                                  </button>
-                                </>
-                              )
+                                :
+                                (
+                                  <>
+                                    <button
+                                      onClick={() => handleViewShopDetails(mechanic?.ownerId)}
+                                      className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-md hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center group"
+                                    >
+                                      <FaTools className="mr-2 group-hover:rotate-12 transition-transform duration-200" />
+                                      Explore Shop
+                                    </button>
+                                  </>
+                                )
                             }
 
                           </td>
@@ -369,7 +436,7 @@ const CustomerDashboard = () => {
                             ) : (
                               <div className="flex space-x-2">
                                 <button
-                                  onClick={() => handleViewBill(mechanic?.ownerId,mechanic?.registerNumber)}
+                                  onClick={() => handleViewBill(mechanic?.ownerId, mechanic?.registerNumber)}
                                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
                                 >
                                   <FaFileInvoiceDollar className="mr-2" />
@@ -379,8 +446,8 @@ const CustomerDashboard = () => {
                                   onClick={() => handlePayBill(mechanic?.ownerId, mechanic?.registerNumber)}
                                   disabled={mechanic?.isPaid}
                                   className={`px-4 py-2 rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center ${mechanic?.isPaid
-                                      ? 'bg-gray-400 text-white cursor-not-allowed opacity-75'
-                                      : 'bg-green-600 text-white hover:bg-green-700'
+                                    ? 'bg-gray-400 text-white cursor-not-allowed opacity-75'
+                                    : 'bg-green-600 text-white hover:bg-green-700'
                                     }`}
                                 >
                                   <FaMoneyBillWave className="mr-2" />

@@ -12,7 +12,8 @@ import  {
     addComment,
     updatePayment,
     getServiceHistoryForCustomer,
-    getMapRoute
+    getMapRoute,
+    getNearByShops
 } from "../controllers/consumer.controller.js"
 import {verifyToken} from "../middleware/verifyToken.js"
 
@@ -37,6 +38,8 @@ router.post('/getfeedback',verifyToken,getDeatilsForFeedBackForm) //reg is imp
 router.post('/feedback',verifyToken,addComment)
 
 router.post('/get-route',getMapRoute)
+
+router.post('/nearbyShop',getNearByShops)
 
 
 export default router

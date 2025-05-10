@@ -583,3 +583,30 @@ export const getMapRoute = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch route" });
     }
 }
+
+export const getNearByShops = async(req,res)=>{
+    try {
+
+        const {userLong,userLat} = req.body
+
+        const shopDetail = await Shop.find({
+            location: {
+              $near: {
+                $geometry: { type: "Point", coordinates: [userLong, userLat] },
+                $maxDistance: 1000000 // in meters
+              }
+            }
+          })
+
+          console.log("shops : ",shopDetail)
+
+          return res.status(200).json({
+            message : "successfully fetched",
+            shopDetail : shopDetail
+          })    
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch shops" });
+    }
+}

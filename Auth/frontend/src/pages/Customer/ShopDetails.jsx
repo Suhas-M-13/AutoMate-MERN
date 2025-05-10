@@ -116,7 +116,7 @@ const ShopDetails = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Location</h2>
               {currentShop.location && (
                 <ShopMap
-                  shopDetail={currentShop}
+                  shopDetail={[currentShop]}
                   userLoc={location}
                 />
               )}

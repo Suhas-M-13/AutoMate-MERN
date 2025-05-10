@@ -8,7 +8,10 @@ import { useAuthStore } from "../store/authStore";
 function ShopMap({ shopDetail, userLoc }) {
   // const { fetchMapRoute, mapDetail } = useAuthStore()
   const [routeCoords, setRouteCoords] = useState([]);
-  const [selectedShop, setSelectedShop] = useState(null);
+  const [selectedShop, setSelectedShop] = useState([]);
+
+  // console.log(shopDetail)
+  // console.log("useloc",userLoc)
 
   const redIcon = new L.Icon({
     iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
@@ -21,7 +24,7 @@ function ShopMap({ shopDetail, userLoc }) {
 
 
 
-  const fetchRoute = async () => {
+  const fetchRoute = async (shopDetail) => {
     try {
       const res = await axios.post("http://localhost:1972/api/consumer/get-route", {
         user: { lat: userLoc.lat, lon: userLoc.lng },
@@ -40,6 +43,7 @@ function ShopMap({ shopDetail, userLoc }) {
         distance: res.data.distance ? (res.data.distance / 1000).toFixed(2) : 'N/A',
         duration: res.data.duration ? (res.data.duration / 60).toFixed(2) : 'N/A'
       });
+
     } catch (err) {
       console.error("Error fetching route:", err);
     }
@@ -53,8 +57,10 @@ function ShopMap({ shopDetail, userLoc }) {
     }
   };
 
-  if (!userLoc) return <div>Loading your location...</div>;
-
+  if (!userLoc) {
+    return <div>Loading your location...</div>;
+  } 
+    
   return (
     <div style={{ position: "relative" }}>
       <div style={{ height: "400px", width: "800px", transition: "0.3s", position: "relative" }}>
@@ -72,14 +78,18 @@ function ShopMap({ shopDetail, userLoc }) {
             <Popup>Your Location</Popup>
           </Marker>
 
-          {shopDetail && (
-            <Marker key={shopDetail._id} position={[shopDetail.location.coordinates[1], shopDetail.location.coordinates[0]]} icon={redIcon}>
+          {shopDetail && shopDetail.map((shopItem) => (
+            <Marker
+              key={shopItem._id}
+              position={[shopItem.location.coordinates[1], shopItem.location.coordinates[0]]}
+              icon={redIcon}
+            >
               <Popup>
                 <div className="p-2 min-w-[200px]">
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {shopDetail.shopname}
+                    {shopItem.shopname}
                   </h3>
-                  {selectedShop?.id === shopDetail._id && (
+                  {selectedShop?.id === shopItem._id && (
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2 bg-blue-50 p-2 rounded-lg">
                         <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,7 +111,7 @@ function ShopMap({ shopDetail, userLoc }) {
                     </div>
                   )}
                   <button
-                    onClick={() => fetchRoute()}
+                    onClick={() => fetchRoute(shopItem)}
                     className="mt-3 w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +122,8 @@ function ShopMap({ shopDetail, userLoc }) {
                 </div>
               </Popup>
             </Marker>
-          )}
+          ))}
+
 
           {routeCoords.length > 0 && (
             <Polyline positions={routeCoords} color="blue" />

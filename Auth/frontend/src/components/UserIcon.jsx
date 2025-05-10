@@ -34,7 +34,7 @@ const UserIcon = ({username}) => {
                         src={profileImage}
                         alt="Profile"
                         className="w-8 h-8 rounded-full cursor-pointer ring-2 ring-indigo-500 hover:ring-indigo-600 transition-all duration-300 hover:scale-110"
-                        onClick={() => setShowPopup(!showPopup)}
+                        // onClick={() => setShowPopup(!showPopup)}
                     />
                 </div>
             </div>

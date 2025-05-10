@@ -28,6 +28,7 @@ export const useAuthStore = create((set) => ({
     book : [],
     comments : [],
     customerDetail : [],
+    nearShop : [],
     // mapDetail : {},
 
 
@@ -53,6 +54,27 @@ export const useAuthStore = create((set) => ({
             throw error
         }
 
+    },
+
+    fetchNearByShops : async(userLong,userLat)=>{
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.post(`${API_URL}/consumer/nearbyShop`,{userLong,userLat})
+
+            set({
+                nearShop : response.data.shopDetail,
+                isAuthenticated: true,
+                isLoading: false
+            })
+            
+        } catch (error) {
+            set({
+                error: error.response?.data?.message || "Error in fetching customer data", // shop data?
+                isLoading: false
+            })
+            throw error
+        }
     },
 
     // fetchMapRoute : async(user,shop)=>{
