@@ -39,10 +39,11 @@ const CustomerDashboard = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredShops, setFilteredShops] = useState([]);
-  const { user, shopDetail, shop, isLoading, error, pendingShopList,nearShop, book, completedShopList, updatePay, getServiceHistoryCustomer, fetchNearByShops } = useAuthStore();
+  const { user, shopDetail, shop, isLoading, error, pendingShopList, nearShop, book, completedShopList, updatePay, getServiceHistoryCustomer, fetchNearByShops } = useAuthStore();
   const { location, fetchUserLocation } = useLocation();
   const [showMap, setShowMap] = useState(false);
   const [nearbyShops, setNearbyShops] = useState([]);
+  const [paymentBox, setpaymentBox] = useState(false)
 
   const fetchShopDetail = async () => {
     try {
@@ -114,13 +115,23 @@ const CustomerDashboard = () => {
 
   const handlePayBill = async (mechanicId, registerNumber) => {
     try {
-      await updatePay(mechanicId, registerNumber)
       const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
-      navigate(`/servicefeedback/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
+      navigate(`/paymentPage/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
     }
   };
+
+
+  // const handlePayBill = async (mechanicId, registerNumber) => {
+  //   try {
+  //     await updatePay(mechanicId, registerNumber)
+  //     const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
+  //     navigate(`/servicefeedback/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
+  //   } catch (error) {
+  //     toast.error("No mechanic id found");
+  //   }
+  // };
 
   const handleCards = async (cardName) => {
     if (cardName === "shoplist") {
@@ -151,6 +162,7 @@ const CustomerDashboard = () => {
       e.preventDefault();
       console.log("Location:", location); // should print lat/lng
       if (location) {
+        toast.success("Location fetched")
         await fetchNearByShops(location.lng, location.lat);
         console.log(nearShop)
         setNearbyShops(nearShop);
@@ -461,7 +473,7 @@ const CustomerDashboard = () => {
                     })}
                   </tbody>
                 </table>
-              </div>
+              </div> 
             )}
           </div>
         </div>

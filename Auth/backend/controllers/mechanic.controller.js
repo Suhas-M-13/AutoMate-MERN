@@ -456,12 +456,14 @@ export const AddBillForm = async(req,res)=>{
             throw new Error("All fields are required!!")
         }
 
+        let amount = Number(totalAmount)
+
         const newBill = new bill({
             mechanicId,
             customerId,
             registerNumber,
             Decription,
-            totalAmount
+            totalAmount : amount
         })
 
         await newBill.save()

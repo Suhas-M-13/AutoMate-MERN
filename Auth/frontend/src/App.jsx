@@ -21,6 +21,7 @@ import MechanicRegistration from "./pages/Mechanic/MechanicRegister.jsx"
 import ShopDetails from "./pages/Customer/ShopDetails.jsx"
 import ServiceFeedback from "./pages/Customer/ServiceFeedback.jsx"
 import MechanicFeedback from "./pages/Mechanic/MechanicFeedback.jsx"
+import PaymentPage from "./pages/Customer/PaymentPage.jsx"
 
 //protecting routes
 const ProtectedRoute = ({ children }) => {
@@ -85,12 +86,18 @@ function App() {
           } />
           <Route path="/shopdetails/:mechanicId" element={
             <ProtectedRoute>
-            <ShopDetails />
+              <ShopDetails />
             </ProtectedRoute>
           } />
           <Route path="/servicefeedback/:mechanicId" element={
             <ProtectedRoute>
               <ServiceFeedback />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/paymentPage/:mechanicId" element={
+            <ProtectedRoute>
+              <PaymentPage/>
             </ProtectedRoute>
           } />
 

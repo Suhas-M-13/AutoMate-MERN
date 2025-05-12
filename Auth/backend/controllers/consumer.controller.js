@@ -8,6 +8,10 @@ import { analyzeReviewWithHuggingFace } from "../services/analyzeReviewWithHuggi
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
 import axios from "axios"
 
+import  Stripe from 'stripe';
+
+const stripe_secret_key = Stripe(process.env.STRIPE_SECRET_KEY);
+
 
 export const getAllShopList = async (req, res) => {
     try {
@@ -609,4 +613,29 @@ export const getNearByShops = async(req,res)=>{
         console.error(error);
         res.status(500).json({ message: "Failed to fetch shops" });
     }
+}
+
+export const createPaymentIntentForBill = async(req,res)=>{
+    
+    try {
+    const { billId } = req.body;
+    // console.log("bill id : ",billId)
+    const billDetail = await bill.findById(billId);
+    if (!billDetail) return res.status(404).json({ error: 'Bill not found' });
+
+    const paymentIntent = await stripe_secret_key.paymentIntents.create({
+      amount: billDetail.totalAmount * 100, // in paise
+      currency: 'inr',
+      automatic_payment_methods: { enabled: true },
+    });
+
+    console.log('paymentIntent : ',paymentIntent)
+
+    res.status(200).json({
+      clientSecret: paymentIntent.client_secret,
+      amount: billDetail.totalAmount,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 }

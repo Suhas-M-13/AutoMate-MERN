@@ -13,7 +13,8 @@ import  {
     updatePayment,
     getServiceHistoryForCustomer,
     getMapRoute,
-    getNearByShops
+    getNearByShops,
+    createPaymentIntentForBill
 } from "../controllers/consumer.controller.js"
 import {verifyToken} from "../middleware/verifyToken.js"
 
@@ -40,6 +41,8 @@ router.post('/feedback',verifyToken,addComment)
 router.post('/get-route',getMapRoute)
 
 router.post('/nearbyShop',getNearByShops)
+
+router.post('/payment',createPaymentIntentForBill)
 
 
 export default router

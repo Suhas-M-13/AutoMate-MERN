@@ -22,8 +22,13 @@ const billSchema = new mongoose.Schema({
         required : true
     },
     totalAmount : {
-        type : String,
+        type : Number,
         required : true
+    },
+    status : {
+        type : String,
+        enum : ['unpaid','paid'],
+        default : 'unpaid'
     }
 },{timestamps:true})
 

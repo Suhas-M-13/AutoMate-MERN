@@ -16,11 +16,11 @@ export const LocationProvider = ({ children }) => {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           });
-          toast.success('Location fetched successfully');
+          // toast.success('Location fetched successfully');
           setIsLocating(false);
         },
         (error) => {
-          toast.error('Unable to fetch location');
+          // toast.error('Unable to fetch location');
           setIsLocating(false);
         }
       );
