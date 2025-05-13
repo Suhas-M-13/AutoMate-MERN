@@ -16,43 +16,14 @@ const MechanicFeedback = () => {
   const [sentimentFilter, setSentimentFilter] = useState("all");
   const [starSortOrder, setStarSortOrder] = useState("none");
   const [searchQuery, setSearchQuery] = useState("");
-  // const [comment, setcomment] = useState([])
-
-  // const [comment] = useState([
-  //   {
-  //     _id: "1",
-  //     customerName: "Alice Johnson",
-  //     vehicleType: ["Car"],
-  //     registerNumber: "ABC123",
-  //     title: "Fantastic Experience",
-  //     description: "The mechanic was prompt and very professional. Great service!",
-  //     Rating: "5",
-  //     sentiment: "positive",
-  //     createdAt: "2025-04-29T18:30:00.000Z"
-  //   },
-  //   {
-  //     _id: "2",
-  //     customerName: "Bob Smith",
-  //     vehicleType: ["Bike"],
-  //     registerNumber: "XYZ789",
-  //     title: "Not up to the mark",
-  //     description: "Service was okay, but communication could be improved.",
-  //     Rating: "3",
-  //     sentiment: "neutral",
-  //     createdAt: "2025-04-28T14:15:00.000Z"
-  //   }
-  // ]);
 
   const fetchMechanicFeedbacks = async()=>{
     try {
-
       await getFeedbacksForMechanic()
-      
     } catch (error) {
       
     }
   }
-
 
   useEffect(() => {
     fetchMechanicFeedbacks()

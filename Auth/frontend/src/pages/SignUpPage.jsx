@@ -24,12 +24,10 @@ const SignUpPage = () => {
 
   const handleSignUp = async(e) => {
     e.preventDefault();
-    console.log("inside handlesignup : "+isLoading);
     try {
       await signup(email,password,name,role,mobile)
       navigate('/mechanicregestration')
     } catch (error) {
-      // console.log(error);
       toast.error(error.message || "Error in signing up..")
     }
   }

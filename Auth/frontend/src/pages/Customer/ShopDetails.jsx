@@ -11,8 +11,9 @@ const ShopDetails = () => {
   const { mechanicId } = useParams();
   const [activeImage, setActiveImage] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const { shop, comments, error, isLoading, shopDetailById } = useAuthStore();
+  const { mechanic , shop, comments, error, isLoading, shopDetailById , user} = useAuthStore();
   const { location, fetchUserLocation } = useLocation();
+  const [totalRating, settotalRating] = useState(0.0)
 
   const images = [
     "https://images.unsplash.com/photo-1487754180451-c456f719a1fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
@@ -25,7 +26,6 @@ const ShopDetails = () => {
   const fetchShopDetail = async () => {
     try {
       await shopDetailById(mechanicId);
-      console.log(comments)
     } catch (error) {
       toast.error("Couldn't fetch shop detail");
       navigate('/dashboardcustomer');
@@ -50,6 +50,19 @@ const ShopDetails = () => {
   }
 
   const currentShop = shop[0];
+
+  const FindtotalRating = ()=>{
+    if(comments.length > 0){
+      let sum = 0.0
+      comments.forEach(element => {
+        sum = sum + parseFloat(element.Rating)
+      });
+      let avg = (sum / comments.length)
+      return avg
+    }
+
+    return 0
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 w-full">
@@ -112,7 +125,9 @@ const ShopDetails = () => {
             </div>
 
             {/* Map Section */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
+            {
+              (user._id !== mechanic._id) && 
+              <div className="bg-white rounded-lg shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Location</h2>
               {currentShop.location && (
                 <ShopMap
@@ -121,12 +136,14 @@ const ShopDetails = () => {
                 />
               )}
             </div>
+            }
+            
 
             {/* Reviews Section */}
             <div className="bg-white rounded-lg shadow-lg p-6">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Reviews
-                  <br/>
+                  <br />
                   {/* {currentShop.createdAt.substring(0,10)} */}
                 </h2>
                 {/* <button
@@ -203,9 +220,8 @@ const ShopDetails = () => {
                           {[...Array(5)].map((_, index) => (
                             <svg
                               key={index}
-                              className={`w-5 h-5 ${
-                                index < review.Rating ? 'text-yellow-400' : 'text-gray-300'
-                              }`}
+                              className={`w-5 h-5 ${index < review.Rating ? 'text-yellow-400' : 'text-gray-300'
+                                }`}
                               fill="currentColor"
                               viewBox="0 0 20 20"
                             >
@@ -217,9 +233,17 @@ const ShopDetails = () => {
                           </span>
                         </div>
                       </div>
-                      <span className="text-sm text-gray-500">
-                        {new Date(review.createdAt).toLocaleDateString()}
-                      </span>
+                      <div className='flex flex-col text-sm text-gray-500'>
+                        <span className="text-sm text-gray-500">
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </span>
+                        <span>
+                          <strong>
+                            Vehicle : &nbsp;
+                          </strong>
+                          {review.vehicleType}
+                        </span>
+                      </div>
                     </div>
                     <strong className="text-gray-600 mb-4">{review.title}</strong>
                     <p className="text-gray-600 mb-4">{review.description}</p>
@@ -264,7 +288,7 @@ const ShopDetails = () => {
                 </div>
                 <div className="flex items-center">
                   <FaEnvelope className="text-gray-400 mr-3" />
-                  {/* <span className="text-gray-600">{shop.email}</span> */}
+                  <span className="text-gray-600">{mechanic.email}</span>
                 </div>
               </div>
             </div>
@@ -295,12 +319,15 @@ const ShopDetails = () => {
                   {[...Array(5)].map((_, i) => (
                     <FaStar
                       key={i}
-                      className={i < Math.floor(currentShop.rating) ? 'text-yellow-400' : 'text-gray-300'}
+                      className={i < Math.floor(FindtotalRating()) ? 'text-yellow-400' : 'text-gray-300'}
                     />
                   ))}
                 </div>
                 <div className="text-gray-600">
-                  Based on {currentShop.totalReviews} reviews
+                  Average Review : {FindtotalRating()}
+                </div>
+                <div className="text-gray-600">
+                  Based on {comments.length} reviews
                 </div>
               </div>
             </div>

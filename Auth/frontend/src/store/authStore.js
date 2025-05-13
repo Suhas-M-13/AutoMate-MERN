@@ -9,7 +9,7 @@ global state management solution
 import { create } from "zustand"
 import axios from "axios"
 
-const API_URL = import.meta.env.MODE === "development" ? "http://localhost:1972/api" : "/api/auth"
+const API_URL = import.meta.env.MODE === "development" ? "http://localhost:1972/api" : "/api"
 const Customer_URL = "http://localhost:1972/api/consumer"
 
 axios.defaults.withCredentials = true
@@ -78,22 +78,25 @@ export const useAuthStore = create((set) => ({
     },
 
     // fetchMapRoute : async(user,shop)=>{
-    //     set({ isLoading: true, error: null })
+    //     set({ isLoading: true, error: null , mapDetail : null })
     //     try {
     //         const response = await axios.post(`${API_URL}/consumer/get-route`,{user,shop})
             
-    //         if (!response.data || !response.data.mapDetail) {
+    //         if (!response.data) {
     //             throw new Error("Invalid response format from server");
     //         }
 
+    //         const routeData = response.data;
+
     //         set({
-    //             mapDetail: response.data.mapDetail,
+    //             mapDetail: routeData,
     //             isAuthenticated: true,
     //             isLoading: false,
     //             error: null
     //         });
 
-    //         return response.data.mapDetail;
+    //         // return response.data.mapDetail;
+    //         return routeData
     //     } catch (error) {
     //         const errorMessage = error.response?.data?.message || error.message || "Error in finding route";
     //         set({
@@ -220,7 +223,6 @@ export const useAuthStore = create((set) => ({
 
         try {
             const response = await axios.post(`${API_URL}/mechanic/bill/${id}`,{registerNumber})
-            
 
             set({
                 shop : response.data.shopDetail,
@@ -246,7 +248,6 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            console.log("inside addshopresister : ",formData)
             const Decription = formData.description
             const totalAmount = formData.totalDue
             const response = await axios.post(`${API_URL}/mechanic/bill `,{customerId,Decription,totalAmount,registerNumber})
@@ -291,7 +292,6 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            console.log("inside addshopresister : ",formData)
             const shopname = formData.shopname
             const description = formData.descaboutshop
             const serviceAvailable = []
@@ -314,7 +314,7 @@ export const useAuthStore = create((set) => ({
             
         } catch (error) {
             set({
-                error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
+                error: error.response?.data?.message || "Error in fetching mechanic data",
                 isLoading: false
             })
             throw error
@@ -330,6 +330,7 @@ export const useAuthStore = create((set) => ({
             set({
                 shop : response.data.shopList,
                 comments : response.data.reviews,
+                mechanic : response.data.mechanicDeatil,
                 isAuthenticated: true,
                 isLoading: false
             })
@@ -600,11 +601,20 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axios.post(`${API_URL}/auth/signup`, { email, password, name, role, mobileNumber })
 
-            set({
-                user: response.data.user,
-                isAuthenticated: true,
-                isLoading: false
-            })
+            if(role === mechanic){
+                set({
+                    mechanic: response.data.user,
+                    isAuthenticated: true,
+                    isLoading: false
+                })
+            }
+            else{   
+                set({
+                    user: response.data.user,
+                    isAuthenticated: true,
+                    isLoading: false
+                })
+            }
 
         } catch (error) {
             set({
@@ -621,8 +631,10 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axios.post(`${API_URL}/auth/login`, { email, password })
 
+            
             set({
                 user: response.data.user,
+                mechanic : response.data.user,
                 isLoading: false,
                 isAuthenticated: true,
                 error: null
@@ -688,6 +700,7 @@ export const useAuthStore = create((set) => ({
 
             set({
                 user: response.data.user,
+                mechanic : response.data.user,
                 isAuthenticated: true,
                 isCheckingAuth: false
             })

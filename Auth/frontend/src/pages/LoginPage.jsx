@@ -27,7 +27,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      console.log("inside login");
+      // console.log("inside login");
       
       await login(email, password)
 

@@ -9,18 +9,16 @@ import { formatDate } from "../utils/formatDate"
 
 const DashBoardPage = () => {
 
-    const { user,logout,isLoading } = useAuthStore()
+    const { user, isLoading,error } = useAuthStore()
 
 
-    const handleLogout = async(e)=>{
-        e.preventDefault()
-        try {
-            const response = await logout()
-            toast.success(response.message)
-        } catch (error) {
-            // console.log(error);
-            toast.error("Error in logging out")
-        }
+
+    if (isLoading) {
+        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
+
+    if (error) {
+        return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
     }
 
     return (
@@ -43,8 +41,9 @@ const DashBoardPage = () => {
                     transition={{ delay: 0.2 }}
                 >
                     <h3 className='text-xl font-semibold text-green-400 mb-3'>Profile Information</h3>
-                    <p className='text-gray-300'>Name: {user.name}</p>
-                    <p className='text-gray-300'>Email: {user.email}</p>
+                    <p className='text-gray-300'>Name : {user.name}</p>
+                    <p className='text-gray-300'>Email : {user.email}</p>
+                    <p className='text-gray-300'>Phone No : {user.mobileNumber}</p>
                 </motion.div>
 
                 <motion.div
@@ -70,7 +69,7 @@ const DashBoardPage = () => {
                 </motion.div>
             </div>
 
-            <motion.div
+            {/* <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
@@ -86,7 +85,7 @@ const DashBoardPage = () => {
                 >
                     {isLoading ? <Loader className='w-6 h-6 animate-spin  mx-auto'/> : "Logout"}
                 </motion.button>
-            </motion.div>
+            </motion.div> */}
         </motion.div >
     )
 }

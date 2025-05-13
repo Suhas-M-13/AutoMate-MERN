@@ -41,7 +41,6 @@ const Bill = () => {
   const fetchData = async()=>{
     try {
       if (!customerId) {
-        console.log("not found")
         toast.error("No customerId provided");
         return;
       }
@@ -57,6 +56,11 @@ const Bill = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if(bill.length !== 0){
+        toast.success("Bill already generated for this customer")
+        // navigate('/dashboardmechanic')
+        return
+      }
       if (!book || book.length === 0) {
         toast.error("No booking information available");
         return;

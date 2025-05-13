@@ -116,7 +116,6 @@ const PaymentForm = ({ amount, mechanicId, vehicleRegNumber, billId }) => {
     const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
     const handleSubmit = async (event) => {
-        console.log("inside payment part")
         event.preventDefault();
         setProcessing(true);
 
@@ -125,23 +124,11 @@ const PaymentForm = ({ amount, mechanicId, vehicleRegNumber, billId }) => {
         }
 
         try {
-            console.log("billid : ",billId)
             const response = await axios.post('http://localhost:1972/api/consumer/payment', {
                 billId,
             });
 
-            console.log("sleeping for few seconds");
-
-            sleep(10000)
-            
-
-            console.log("res : ",response);
-
             const data = response.data
-
-            console.log("data : ",data);
-            
-            
 
             const result = await stripe.confirmCardPayment(data.clientSecret, {
                 payment_method: {

@@ -11,15 +11,11 @@ export async function analyzeReviewWithHuggingFace(inputText) {
             headers["Authorization"] = `Bearer ${HF_API_TOKEN}`;
         }
 
-        console.log("Sending to Hugging Face:", inputText); // Log input
-
         const response = await axios.post(
             HF_MODEL_API_URL,
             { inputs: inputText },
             { headers: headers }
         );
-
-        console.log("Hugging Face Response:", response.data);
 
         // --- Process the response ---
         // The model returns scores for each label ("1 star" to "5 stars")
@@ -54,12 +50,10 @@ export async function analyzeReviewWithHuggingFace(inputText) {
                 rating: predictedRating
             };
         } else {
-            console.error("Unexpected response format from Hugging Face:", response.data);
             return { moderation: "error", sentiment: "error", rating: "error", details: "Unexpected HF response format" };
         }
 
     } catch (error) {
-        console.error("Error calling Hugging Face API:", error.response ? error.response.data : error.message);
         return { moderation: "error", sentiment: "error", rating: "error", details: error.message };
     }
 }

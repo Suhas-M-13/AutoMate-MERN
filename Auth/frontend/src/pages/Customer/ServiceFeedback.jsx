@@ -26,8 +26,6 @@ const ServiceFeedback = () => {
       const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.VITE_SECRETKEY);
       const vehicleRegNumber = bytes.toString(CryptoJS.enc.Utf8);
 
-      console.log(vehicleRegNumber)
-
       await serviceFeedback(mechanicId,vehicleRegNumber);
     } catch (error) {
       toast.error("Error fetching service details");

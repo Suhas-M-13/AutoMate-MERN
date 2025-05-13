@@ -54,7 +54,7 @@ const EmailVerificationPage = () => {
 
         try {
             await verifyEmail(vefi)
-            console.log(user);
+            // console.log(user);
             if(user.role.toLowerCase() === "customer")
                 navigate('/dashboardcustomer')
             else if(user.role.toLowerCase() === "mechanic")

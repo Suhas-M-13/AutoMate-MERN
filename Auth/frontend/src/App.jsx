@@ -65,13 +65,18 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-blue-700 to-slate-700 flex items-center justify-center relative overflow-hidden">
         <Routes>
           <Route path="/" element={
-            <ProtectedRoute>
+            <RedirectAuthenticatedUser>
               <Homepage />
-            </ProtectedRoute>
+            </RedirectAuthenticatedUser>
           } />
           <Route path="/bookform/:mechanicId" element={
             <ProtectedRoute>
               <BookingForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/user-profile" element={
+            <ProtectedRoute>
+              <DashBoardPage />
             </ProtectedRoute>
           } />
           <Route path="/dashboardcustomer" element={

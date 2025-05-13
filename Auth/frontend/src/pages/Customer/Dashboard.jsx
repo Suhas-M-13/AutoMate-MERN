@@ -68,8 +68,9 @@ const CustomerDashboard = () => {
   useEffect(() => {
     if (shop) {
       const filtered = shop.filter((mechanic) => {
-        if (Array.isArray(mechanic.vehicleType) && mechanic.vehicleType.length > 0)
-          console.log(mechanic.vehicleType[0]);
+        if (Array.isArray(mechanic.vehicleType) && mechanic.vehicleType.length > 0) {
+          // console.log(mechanic.vehicleType[0]);
+        }
 
         const searchLower = searchQuery.toLowerCase();
         return (
@@ -94,7 +95,7 @@ const CustomerDashboard = () => {
   };
 
   const handleViewShopDetails = (mechanicId) => {
-    console.log("Viewing shop details for mechanic:", mechanicId);
+    // console.log("Viewing shop details for mechanic:", mechanicId);
     try {
       navigate(`/shopdetails/${mechanicId}`)
     } catch (error) {
@@ -104,8 +105,8 @@ const CustomerDashboard = () => {
 
   const handleViewBill = (mechanicId, registerNumber) => {
     try {
-      console.log(mechanicId, registerNumber)
-      console.log(import.meta.env.VITE_SECRETKEY)
+      // console.log(mechanicId, registerNumber)
+      // console.log(import.meta.env.VITE_SECRETKEY)
       const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/invoice/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
@@ -160,11 +161,11 @@ const CustomerDashboard = () => {
   const handleFetchNearbyShops = async (e) => {
     try {
       e.preventDefault();
-      console.log("Location:", location); // should print lat/lng
+      // console.log("Location:", location); // should print lat/lng
       if (location) {
         toast.success("Location fetched")
         await fetchNearByShops(location.lng, location.lat);
-        console.log(nearShop)
+        // console.log(nearShop)
         setNearbyShops(nearShop);
         setShowMap(true);
       } else {
@@ -343,15 +344,7 @@ const CustomerDashboard = () => {
                         <tr key={index} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center">
-                              {/* <div className="h-5 w-15 rounded-full"> */}
-                              {/* <FaUserCircle className="h-10 w-10 text-gray-400" /> */}
-                              <UserIcon username={mechanic?.ownerName} />
-                              {/* </div> */}
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {/* {mechanic.ownerName} */}
-                                </div>
-                              </div>
+                              <UserIcon username={mechanic?.ownerName} reverse={true} />
                             </div>
                           </td>
                           <td className="px-6 py-4">
@@ -473,7 +466,7 @@ const CustomerDashboard = () => {
                     })}
                   </tbody>
                 </table>
-              </div> 
+              </div>
             )}
           </div>
         </div>

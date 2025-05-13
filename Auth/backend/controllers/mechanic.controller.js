@@ -32,7 +32,7 @@ export const mechanicDeatil = async(req,res)=>{
         })
         
     } catch (error) {
-        console.log('Error creating shop: ', error);
+        // console.log('Error creating shop: ', error);
         return res.status(500).json({
           success: false,
           message: error.message || "Server error"
@@ -114,7 +114,7 @@ export const AddShop = async(req,res)=>{
           shop: newShop
         });
       } catch (error) {
-        console.log('Error creating shop: ', error);
+        // console.log('Error creating shop: ', error);
         return res.status(500).json({
           success: false,
           message: error.message || "Server error"
@@ -132,7 +132,7 @@ export const getAllCustomerRequest = async(req,res)=>{
             isAccepted : false
         })
 
-        console.log(customerRequest)
+        // console.log(customerRequest)
 
         const customerDetail = []
         
@@ -153,7 +153,7 @@ export const getAllCustomerRequest = async(req,res)=>{
             customerDetail
         })
     } catch (error) {
-        console.log('Error in fetching details...'+error);
+        // console.log('Error in fetching details...'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -203,7 +203,7 @@ export const updateAcceptRequest = async(req,res)=>{
         })
 
     } catch (error) {
-        console.error('Error in accepting request:', error);
+        // console.error('Error in accepting request:', error);
         return res.status(500).json({
             success: false,
             message: error.message || "Internal server error"
@@ -242,7 +242,7 @@ export const getPendingList = async(req,res)=>{
 
         
     } catch (error) {
-        console.log('Error in fetching details...'+error);
+        // console.log('Error in fetching details...'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -275,7 +275,7 @@ export const getServiceHistoryForMechanic = async(req,res)=>{
             customerDetail
         })
     } catch (error) {
-        console.log('Error in fetching details...'+error);
+        // console.log('Error in fetching details...'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -314,7 +314,7 @@ export const getCompletedList = async(req,res)=>{
 
         
     } catch (error) {
-        console.log('Error in fetching details...'+error);
+        // console.log('Error in fetching details...'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -353,7 +353,7 @@ export const updateCompleteCustomerRequest = async(req,res)=>{
 
 
     } catch (error) {
-        console.log('Error in fetching details...'+error);
+        // console.log('Error in fetching details...'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -375,7 +375,7 @@ export const getComments = async(req,res)=>{
             comments
         })
     } catch (error) {
-        console.log('Error in fetching details...'+error);
+        // console.log('Error in fetching details...'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -389,8 +389,8 @@ export const getBillForm = async(req,res)=>{
         const customerId = req.params.id
         const {registerNumber} = req.body
 
-        console.log("customer id : ",customerId);
-        console.log("mechanicId id : ",mechanicId);
+        // console.log("customer id : ",customerId);
+        // console.log("mechanicId id : ",mechanicId);
         
 
         if(!customerId || !mechanicId){
@@ -402,6 +402,13 @@ export const getBillForm = async(req,res)=>{
             customerId,
             registerNumber
         })
+
+        // if(billForm){
+        //     return res.status(200).json({
+        //         message : "Bill generated already",
+        //         success : false
+        //     })
+        // }
 
         const shopDetail = await Shop.find({
             ownerId : mechanicId
@@ -424,7 +431,7 @@ export const getBillForm = async(req,res)=>{
             billForm
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        // console.log('Error in fetching shop details...'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -445,10 +452,10 @@ export const AddBillForm = async(req,res)=>{
         const mechanicId = req.userId
 
 
-        console.log(customerId,
-            Decription,
-            totalAmount,
-            registerNumber,mechanicId);
+        // console.log(customerId,
+        //     Decription,
+        //     totalAmount,
+        //     registerNumber,mechanicId);
         
 
 
@@ -473,7 +480,7 @@ export const AddBillForm = async(req,res)=>{
             message : "Bill data added to db"
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        // console.log('Error in fetching shop details...'+error);
         return res.status(400).json({
             success : false,
             message : error
@@ -503,7 +510,7 @@ export const updateBillForm = async(req,res)=>{
             throw new Error("no bill found")
         }
 
-        console.log('desc : '+Decription+" amt : "+totalAmount);
+        // console.log('desc : '+Decription+" amt : "+totalAmount);
 
         billForm.Decription = Decription
         billForm.totalAmount = totalAmount
@@ -517,7 +524,7 @@ export const updateBillForm = async(req,res)=>{
             billForm
         })
     } catch (error) {
-        console.log('Error in fetching shop details...'+error);
+        // console.log('Error in fetching shop details...'+error);
         return res.status(400).json({
             success : false,
             message : error

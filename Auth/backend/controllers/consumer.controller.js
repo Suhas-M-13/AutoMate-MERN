@@ -27,7 +27,7 @@ export const getAllShopList = async (req, res) => {
             message: "fetched All shop details"
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: "Failed to fetched shop details"
@@ -45,6 +45,7 @@ export const getShopById = async (req, res) => {
         const comments = await comment.find({
             mechanicId: id
         })
+        const mechanicDeatil = await User.findById(id)
 
         if (!reqShop) {
             throw new Error("Error in fetching...")
@@ -56,11 +57,12 @@ export const getShopById = async (req, res) => {
         return res.status(200).json({
             shopList: reqShop,
             reviews: comments,
+            mechanicDeatil : mechanicDeatil,
             success: true,
             message: "fetched required shop details"
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: "Failed to fetched shop details"
@@ -95,7 +97,7 @@ export const getBookFormDetails = async (req, res) => {
             mechanicDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error
@@ -161,7 +163,7 @@ export const addBookSlot = async (req, res) => {
             }
         })
     } catch (error) {
-        console.log('Error in book' + error);
+        // console.log('Error in book' + error);
         return res.status(400).json({
             success: false,
             message: error.message || "Failed to add booking slot"
@@ -220,7 +222,7 @@ export const getShopListPendingById = async (req, res) => {
             shopDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error.message
@@ -280,7 +282,7 @@ export const getShopListCompletedById = async (req, res) => {
             shopDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error
@@ -324,7 +326,7 @@ export const getServiceHistoryForCustomer = async (req, res) => {
             shopDetail
         })
     } catch (error) {
-        console.log('Error in fetching details...' + error);
+        // console.log('Error in fetching details...' + error);
         return res.status(400).json({
             success: false,
             message: error.message // Send error message instead of error object
@@ -341,8 +343,8 @@ export const getGeneratedBill = async (req, res) => {
             throw new Error("no mechanic id or customer id")
         }
 
-        console.log("mechanic ; ", mechanicId);
-        console.log("customer ; ", customerId);
+        // console.log("mechanic ; ", mechanicId);
+        // console.log("customer ; ", customerId);
 
         // Convert string IDs to ObjectId using new syntax
         const billDetail = await bill.find({
@@ -351,7 +353,7 @@ export const getGeneratedBill = async (req, res) => {
             registerNumber: registerNumber
         })
 
-        console.log("bill found", billDetail)
+        // console.log("bill found", billDetail)
 
         if (!billDetail || billDetail.length === 0) {
             throw new Error("No bill found")
@@ -378,7 +380,7 @@ export const getGeneratedBill = async (req, res) => {
             mechanicDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error.message
@@ -413,7 +415,7 @@ export const getDeatilsForFeedBackForm = async (req, res) => {
             bookFormDetail,
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error
@@ -449,7 +451,7 @@ export const updatePayment = async (req, res) => {
             });
         }
 
-        console.log("Updated Booking:", updatedBooking); // Log the updated booking
+        // console.log("Updated Booking:", updatedBooking); // Log the updated booking
 
         return res.status(200).json({ // Use 200 OK for successful update
             success: true,
@@ -458,7 +460,7 @@ export const updatePayment = async (req, res) => {
         });
 
     } catch (error) {
-        console.log('Error updating payment status: ' + error);
+        // console.log('Error updating payment status: ' + error);
         return res.status(400).json({
             success: false,
             // Send a clearer error message
@@ -506,12 +508,12 @@ export const addComment = async (req, res) => {
                 
                 attempts++;
                 if (attempts < maxAttempts) {
-                    console.log(`Attempt ${attempts} failed, retrying in ${delayBetweenAttempts/1000} seconds...`);
+                    // console.log(`Attempt ${attempts} failed, retrying in ${delayBetweenAttempts/1000} seconds...`);
                     await new Promise(resolve => setTimeout(resolve, delayBetweenAttempts));
                 }
             } catch (error) {
                 attempts++;
-                console.error(`Attempt ${attempts} failed with error:`, error);
+                // console.error(`Attempt ${attempts} failed with error:`, error);
                 if (attempts >= maxAttempts) {
                     throw new Error("Failed to analyze comment after multiple attempts");
                 }
@@ -525,7 +527,7 @@ export const addComment = async (req, res) => {
             ratingResponse.rating === "error" ||
             ratingResponse.rating < 1 || 
             ratingResponse.rating > 5) {
-            console.error("Failed to get valid rating after all attempts, using default rating");
+            // console.error("Failed to get valid rating after all attempts, using default rating");
             ratingResponse = {
                 rating: 3, // Default neutral rating
                 sentiment: "neutral",
@@ -558,7 +560,7 @@ export const addComment = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error adding comment:', error);
+        // console.error('Error adding comment:', error);
         return res.status(400).json({
             success: false,
             message: error.message || "Failed to add comment"
@@ -583,7 +585,7 @@ export const getMapRoute = async (req, res) => {
 
         res.json({ routeCoords: coords, distance: distance, duration: duration });
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.status(500).json({ message: "Failed to fetch route" });
     }
 }
@@ -602,7 +604,7 @@ export const getNearByShops = async(req,res)=>{
             }
           })
 
-          console.log("shops : ",shopDetail)
+          // console.log("shops : ",shopDetail)
 
           return res.status(200).json({
             message : "successfully fetched",
@@ -610,7 +612,7 @@ export const getNearByShops = async(req,res)=>{
           })    
         
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.status(500).json({ message: "Failed to fetch shops" });
     }
 }
@@ -629,7 +631,7 @@ export const createPaymentIntentForBill = async(req,res)=>{
       automatic_payment_methods: { enabled: true },
     });
 
-    console.log('paymentIntent : ',paymentIntent)
+    // console.log('paymentIntent : ',paymentIntent)
 
     res.status(200).json({
       clientSecret: paymentIntent.client_secret,
