@@ -49,4 +49,5 @@ app.use("/api/mechanic",mechanicRoutes)
 
 app.listen(PORT,()=>{
     connectDB()
+    console.log(`connected to port ${PORT}`);
 })

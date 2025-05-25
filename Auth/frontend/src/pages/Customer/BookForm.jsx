@@ -99,6 +99,9 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("date : ",formData.regdate)
+    console.log("time : ",formData.regtime)
     
     // Run validation first
     if (!validateForm()) {

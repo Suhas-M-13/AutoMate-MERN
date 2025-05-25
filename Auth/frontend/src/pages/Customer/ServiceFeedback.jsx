@@ -34,12 +34,15 @@ const ServiceFeedback = () => {
 
   useEffect(() => {
     fetchServiceDetails();
+
+    console.log("book : ",book);
+    
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addServiceFeedback(mechanicId, user.name, feedback,book[0].registerNumber,book[0].vehicleType)
+      await addServiceFeedback(mechanicId, user.name, feedback,book[0].registerNumber,book[0].vehicleType,book._id)
       toast.success("Feedback submitted successfully");
       navigate("/dashboardCustomer")
     } catch (error) {
@@ -104,7 +107,7 @@ const ServiceFeedback = () => {
                 <FaCalendarAlt className="text-gray-400 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Service Date</p>
-                  <p className="font-medium">{currentBook?.bookDate.split("T")[0]}</p>
+                  <p className="font-medium">{new Date(currentBook?.bookDate).toLocaleDateString()}</p>
                 </div>
               </div>
             </div>

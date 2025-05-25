@@ -163,30 +163,31 @@ export const getAllCustomerRequest = async(req,res)=>{
 
 export const updateAcceptRequest = async(req,res)=>{
     try {
-        const mechanicId = req.userId
-        const customerId = req.params.id
-        const { registerNumber } = req.body
+        // const mechanicId = req.userId
+        const bookslotId = req.params.id
+        // const {bookslotId} = req.body
         
-        if(!customerId){
+        // if(!customerId){
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "Invalid Customer ID"
+        //     })
+        // }
+
+        if(!bookslotId){
             return res.status(400).json({
                 success: false,
-                message: "Invalid Customer ID"
+                message: "bookslotId is required"
             })
         }
 
-        if(!registerNumber){
-            return res.status(400).json({
-                success: false,
-                message: "Register number is required"
-            })
-        }
-
-        const bookSlot = await book.findOne({
-            mechanicId,
-            customerId,
-            registerNumber
-        })
-
+        const bookSlot = await book.findById(bookslotId)
+        // const bookSlot = await book.findOne({
+        //     mechanicId,
+        //     customerId,
+        //     registerNumber
+        // })
+        
         if(!bookSlot){
             return res.status(404).json({
                 success: false,
@@ -324,19 +325,20 @@ export const getCompletedList = async(req,res)=>{
 
 export const updateCompleteCustomerRequest = async(req,res)=>{
     try {
-        const mechanicId = req.userId
-        const customerId = req.params.id
-        const {registerNumber} = req.body
+        // const mechanicId = req.userId
+        const bookslotId = req.params.id
+        // const {registerNumber} = req.body
         
-        if(!customerId){
+        if(!bookslotId){
             throw new Error("invalid Customer...")
         }
 
-        const bookSlot = await book.findOne({
-            mechanicId,
-            customerId,
-            registerNumber
-        })
+        const bookSlot = await book.findById(bookslotId)
+        // const bookSlot = await book.findOne({
+        //     mechanicId,
+        //     customerId,
+        //     registerNumber
+        // })
 
         if(!bookSlot){
             throw new Error("no slot booked...")
@@ -387,20 +389,24 @@ export const getBillForm = async(req,res)=>{
     try {
         const mechanicId = req.userId
         const customerId = req.params.id
-        const {registerNumber} = req.body
+        const {bookslotId} = req.body
 
         // console.log("customer id : ",customerId);
         // console.log("mechanicId id : ",mechanicId);
         
 
-        if(!customerId || !mechanicId){
-            throw new Error("no mechanic id or customer id")
+        if(!bookslotId){
+            throw new Error("no booking is made for this...")
+        }
+        if(!customerId){
+            throw new Error("No customer found...")
+        }
+        if(!mechanicId){
+            throw new Error("No mechanic found")
         }
 
         const billForm = await bill.find({
-            mechanicId,
-            customerId,
-            registerNumber
+            bookslotId : new mongoose.Types.ObjectId(bookslotId),
         })
 
         // if(billForm){
@@ -413,11 +419,12 @@ export const getBillForm = async(req,res)=>{
         const shopDetail = await Shop.find({
             ownerId : mechanicId
         })
-        const bookSlot = await book.find({
-            mechanicId,
-            customerId,
-            registerNumber
-        })
+        const bookSlot = await book.findById(bookslotId)
+        // const bookSlot = await book.find({
+        //     mechanicId,
+        //     customerId,
+        //     registerNumber
+        // })
         const customerDetail = await User.findById(customerId).select("-password")
         const mechanicDetail = await User.findById(mechanicId).select("-password")
 
@@ -445,7 +452,8 @@ export const AddBillForm = async(req,res)=>{
             customerId,
             Decription,
             totalAmount,
-            registerNumber
+            registerNumber,
+            bookslotId
         } = req.body
 
 
@@ -459,7 +467,7 @@ export const AddBillForm = async(req,res)=>{
         
 
 
-        if(!mechanicId || !customerId || !Decription || !totalAmount){
+        if(!mechanicId || !customerId || !Decription || !totalAmount || !bookslotId || !registerNumber){
             throw new Error("All fields are required!!")
         }
 
@@ -470,7 +478,8 @@ export const AddBillForm = async(req,res)=>{
             customerId,
             registerNumber,
             Decription,
-            totalAmount : amount
+            totalAmount : amount,
+            bookslotId
         })
 
         await newBill.save()

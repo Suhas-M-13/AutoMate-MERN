@@ -21,7 +21,6 @@ const slotSchema = new mongoose.Schema({
     registerNumber : {
         type : String,
         required : true,
-        unique : true
     },
     complaintDescription : {
         type : String,

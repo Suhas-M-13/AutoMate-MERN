@@ -101,7 +101,7 @@ const MechanicDashboard = () => {
       const grouped = groupRequestsByDate(working);
       setGroupedRequests(grouped);
     } catch (error) {
-      toast.error(error.message || "Error in fetching shop information");
+      // toast.error(error.message || "Error in fetching shop information");
     }
   };
 
@@ -186,9 +186,9 @@ const MechanicDashboard = () => {
     return sortedGrouped;
   };
 
-  const handleAccept = async (customerId, registerNumber) => {
+  const handleAccept = async (bookslotId) => {
     try {
-      const response = await updateAcceptButton(customerId, registerNumber);
+      const response = await updateAcceptButton(bookslotId);
       if (response && response.message) {
         toast.success(response.message);
         // Refresh the current tab data
@@ -200,9 +200,9 @@ const MechanicDashboard = () => {
     }
   };
 
-  const handleComplete = async (customerId, registerNumber) => {
+  const handleComplete = async (bookslotId) => {
     try {
-      await updateCompleteButton(customerId, registerNumber);
+      await updateCompleteButton(bookslotId);
       toast.success("Service Completed...");
       // Refresh the current tab data
       await fetchCustomerRequest(activeTab);
@@ -212,9 +212,9 @@ const MechanicDashboard = () => {
     }
   };
 
-  const handleGenerateBill = (customerId, registerNumber) => {
+  const handleGenerateBill = (customerId, bookslotId) => {
     try {
-      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
+      const encryptedVeh = CryptoJS.AES.encrypt(bookslotId, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/billmechanic/${customerId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       console.error('Error accepting request:', error);
@@ -406,7 +406,7 @@ const MechanicDashboard = () => {
                               <div className="flex justify-center space-x-4">
                                 {activeTab === 'pending' && (
                                   <button
-                                    onClick={() => handleAccept(request.customerId, request.registerNumber)}
+                                    onClick={() => handleAccept(request._id)}
                                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors shadow-sm hover:shadow-md"
                                   >
                                     Accept
@@ -414,7 +414,7 @@ const MechanicDashboard = () => {
                                 )}
                                 {activeTab === 'working' && (
                                   <button
-                                    onClick={() => handleComplete(request.customerId, request.registerNumber)}
+                                    onClick={() => handleComplete(request._id)}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md"
                                   >
                                     Mark as Complete
@@ -422,7 +422,7 @@ const MechanicDashboard = () => {
                                 )}
                                 {activeTab === 'completed' && (
                                   <button
-                                    onClick={() => handleGenerateBill(request.customerId, request.registerNumber)}
+                                    onClick={() => handleGenerateBill(request.customerId, request._id)}
                                     className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm hover:shadow-md"
                                   >
                                     Generate Bill
@@ -505,7 +505,7 @@ const MechanicDashboard = () => {
                                 </span>
                               ) : (
                                 <button
-                                  onClick={() => handleGenerateBill(service.customerId, service.registerNumber)}
+                                  onClick={() => handleGenerateBill(service.customerId, service._id)}
                                   className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors shadow-sm hover:shadow-md"
                                 >
                                   Generate Bill

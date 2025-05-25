@@ -22,30 +22,30 @@ export const useAuthStore = create((set) => ({
     isLoading: false,
     isCheckingAuth: true,
     message: null,
-    mechanic : {},
-    bill : [],
-    shop : [],
-    book : [],
-    comments : [],
-    customerDetail : [],
-    nearShop : [],
+    mechanic: {},
+    bill: [],
+    shop: [],
+    book: [],
+    comments: [],
+    customerDetail: [],
+    nearShop: [],
     // mapDetail : {},
 
 
 
-    customerRequests : async()=>{
+    customerRequests: async () => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/mechanic/request`)
 
             set({
-                book : response.data.customerRequest,
-                customerDetail : response.data.customerDetail,
+                book: response.data.customerRequest,
+                customerDetail: response.data.customerDetail,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching customer data", // shop data?
@@ -56,18 +56,18 @@ export const useAuthStore = create((set) => ({
 
     },
 
-    fetchNearByShops : async(userLong,userLat)=>{
+    fetchNearByShops: async (userLong, userLat) => {
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/consumer/nearbyShop`,{userLong,userLat})
+            const response = await axios.post(`${API_URL}/consumer/nearbyShop`, { userLong, userLat })
 
             set({
-                nearShop : response.data.shopDetail,
+                nearShop: response.data.shopDetail,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching customer data", // shop data?
@@ -81,7 +81,7 @@ export const useAuthStore = create((set) => ({
     //     set({ isLoading: true, error: null , mapDetail : null })
     //     try {
     //         const response = await axios.post(`${API_URL}/consumer/get-route`,{user,shop})
-            
+
     //         if (!response.data) {
     //             throw new Error("Invalid response format from server");
     //         }
@@ -107,7 +107,7 @@ export const useAuthStore = create((set) => ({
     //         throw new Error(errorMessage);
     //     }
     // },
-    shopDetail : async()=>{
+    shopDetail: async () => {
         set({ isLoading: true, error: null })
 
         try {
@@ -115,11 +115,11 @@ export const useAuthStore = create((set) => ({
             const response = await axios.get(`${API_URL}/consumer/shoplist`)
 
             set({
-                shop : response.data.shopList,
+                shop: response.data.shopList,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data", // shop data?
@@ -130,7 +130,7 @@ export const useAuthStore = create((set) => ({
 
     },
 
-    shopRegistration : async()=>{
+    shopRegistration: async () => {
         set({ isLoading: true, error: null })
 
         try {
@@ -138,11 +138,11 @@ export const useAuthStore = create((set) => ({
             const response = await axios.get(`${API_URL}/mechanic/getMechanicDeatil`)
 
             set({
-                mechanic : response.data.mechanic,
+                mechanic: response.data.mechanic,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
@@ -152,10 +152,10 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    updateAcceptButton : async(id,registerNumber)=>{
+    updateAcceptButton: async (id) => {
         set({ isLoading: true, error: null })
         try {
-            const response = await axios.patch(`${API_URL}/mechanic/accept/${id}`,{registerNumber})
+            const response = await axios.patch(`${API_URL}/mechanic/accept/${id}`)
             if (response.data && response.data.message) {
                 set({
                     message: response.data.message,
@@ -174,19 +174,19 @@ export const useAuthStore = create((set) => ({
             throw new Error(errorMessage)
         }
     },
-    getPendingList : async()=>{
+    getPendingList: async () => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/mechanic/pending`)
 
             set({
-                book : response.data.bookSlot,
-                customerDetail : response.data.customerDetail,
+                book: response.data.bookSlot,
+                customerDetail: response.data.customerDetail,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
@@ -196,19 +196,19 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    getCompletedList : async()=>{
+    getCompletedList: async () => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/mechanic/completed `)
 
             set({
-                book : response.data.bookSlot,
-                customerDetail : response.data.customerDetail,
+                book: response.data.bookSlot,
+                customerDetail: response.data.customerDetail,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
@@ -218,22 +218,22 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    getBillData : async(id,registerNumber)=>{
+    getBillData: async (id, bookslotId) => {
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/mechanic/bill/${id}`,{registerNumber})
+            const response = await axios.post(`${API_URL}/mechanic/bill/${id}`, { bookslotId })
 
             set({
-                shop : response.data.shopDetail,
-                book : response.data.bookSlot,
-                user : response.data.customerDetail,
-                mechanic : response.data.mechanicDetail,
-                bill : response.data.billForm,
+                shop: response.data.shopDetail,
+                book: response.data.bookSlot,
+                user: response.data.customerDetail,
+                mechanic: response.data.mechanicDetail,
+                bill: response.data.billForm,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
@@ -244,20 +244,20 @@ export const useAuthStore = create((set) => ({
 
     },
 
-    addBillData : async(customerId,registerNumber,formData)=>{
+    addBillData: async (customerId, registerNumber, formData, bookslotId) => {
         set({ isLoading: true, error: null })
 
         try {
             const Decription = formData.description
             const totalAmount = formData.totalDue
-            const response = await axios.post(`${API_URL}/mechanic/bill `,{customerId,Decription,totalAmount,registerNumber})
+            const response = await axios.post(`${API_URL}/mechanic/bill `, { customerId, Decription, totalAmount, registerNumber, bookslotId })
 
             set({
                 message: response.data.message || "Bill created successfully",
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in creating bill",
@@ -266,18 +266,18 @@ export const useAuthStore = create((set) => ({
             throw error
         }
     },
-    updateCompleteButton : async(id,registerNumber)=>{
+    updateCompleteButton: async (id) => {
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.patch(`${API_URL}/mechanic/completed/${id}`,{registerNumber})
+            const response = await axios.patch(`${API_URL}/mechanic/completed/${id}`)
 
             set({
-                message : response.data.message,
+                message: response.data.message,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching mechanic data", // shop data?
@@ -288,30 +288,30 @@ export const useAuthStore = create((set) => ({
 
     },
 
-    addshopRegistration : async(ownerName,mobileNumber,formData)=>{
+    addshopRegistration: async (ownerName, mobileNumber, formData) => {
         set({ isLoading: true, error: null })
 
         try {
             const shopname = formData.shopname
             const description = formData.descaboutshop
             const serviceAvailable = []
-            if(formData.bike){
+            if (formData.bike) {
                 serviceAvailable.push('Bike')
             }
-            if(formData.car){
+            if (formData.car) {
                 serviceAvailable.push('Car')
             }
             const address = formData.addr
             const timings = formData.workingHours
             const location = formData.location
-            const response = await axios.post(`${API_URL}/mechanic/addShop`,{shopname,ownerName,mobileNumber,description,serviceAvailable,address,timings,location})
+            const response = await axios.post(`${API_URL}/mechanic/addShop`, { shopname, ownerName, mobileNumber, description, serviceAvailable, address, timings, location })
 
             set({
-                message : response.data.message,
+                message: response.data.message,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching mechanic data",
@@ -321,20 +321,20 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    shopDetailById : async(id)=>{
+    shopDetailById: async (id) => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/consumer/shoplist/${id}`)
 
             set({
-                shop : response.data.shopList,
-                comments : response.data.reviews,
-                mechanic : response.data.mechanicDeatil,
+                shop: response.data.shopList,
+                comments: response.data.reviews,
+                mechanic: response.data.mechanicDeatil,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -344,18 +344,18 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    pendingShopList : async()=>{
+    pendingShopList: async () => {
         set({ isLoading: true, error: null })
-        
+
         try {
             const response = await axios.get(`${API_URL}/consumer/pending`)
             set({
-                shop : response.data.shopDetail,
-                book : response.data.bookSlot,
+                shop: response.data.shopDetail,
+                book: response.data.bookSlot,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -364,18 +364,18 @@ export const useAuthStore = create((set) => ({
             throw error
         }
     },
-    completedShopList : async()=>{
+    completedShopList: async () => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/consumer/completed`)
             set({
-                shop : response.data.shopDetail,
-                book : response.data.bookSlot,
+                shop: response.data.shopDetail,
+                book: response.data.bookSlot,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -385,18 +385,18 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    getServiceHistoryCustomer : async()=>{
+    getServiceHistoryCustomer: async () => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/consumer/service-history`)
             set({
-                shop : response.data.shopDetail,
-                book : response.data.bookSlot,
+                shop: response.data.shopDetail,
+                book: response.data.bookSlot,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching data",
@@ -406,18 +406,18 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    getServiceHistoryMechanic : async()=>{
+    getServiceHistoryMechanic: async () => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/mechanic/service-history`)
             set({
-                book : response.data.bookSlot,
-                customerDetail : response.data.customerDetail,
+                book: response.data.bookSlot,
+                customerDetail: response.data.customerDetail,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching data",
@@ -427,20 +427,20 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    bookFormDetail : async(id)=>{
+    bookFormDetail: async (id) => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/consumer/book-slot/${id}`)
 
             set({
-                shop : response.data.shopDetail,
-                user : response.data.customerDetail,
-                mechanic : response.data.mechanicDetail,
+                shop: response.data.shopDetail,
+                user: response.data.customerDetail,
+                mechanic: response.data.mechanicDetail,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -450,20 +450,20 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    serviceFeedback : async(mechanicId,registerNumber)=>{
+    serviceFeedback: async (mechanicId, bookslotId) => {
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/consumer/getfeedback`,{mechanicId,registerNumber})
+            const response = await axios.post(`${API_URL}/consumer/getfeedback`, { mechanicId, bookslotId })
 
             set({
-                shop : response.data.shopDetail,
-                user : response.data.customerDetail,
-                book : response.data.bookFormDetail,
+                shop: response.data.shopDetail,
+                user: response.data.customerDetail,
+                book: response.data.bookFormDetail,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -474,18 +474,18 @@ export const useAuthStore = create((set) => ({
 
     },
 
-    updatePay : async(mechanicId,registerNumber)=>{
+    updatePay: async (mechanicId, bookslotId) => {
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.patch(`${API_URL}/consumer/updatePay`,{mechanicId,registerNumber})
+            const response = await axios.patch(`${API_URL}/consumer/updatePay`, { mechanicId, bookslotId })
 
             set({
-                message : response.data.message,
+                message: response.data.message,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -496,18 +496,18 @@ export const useAuthStore = create((set) => ({
 
     },
 
-    getFeedbacksForMechanic : async()=>{
+    getFeedbacksForMechanic: async () => {
         set({ isLoading: true, error: null })
 
         try {
             const response = await axios.get(`${API_URL}/mechanic/comments`)
 
             set({
-                comments : response.data.comments,
+                comments: response.data.comments,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -519,20 +519,20 @@ export const useAuthStore = create((set) => ({
     },
 
 
-    addServiceFeedback : async(mechanicId,customerName,feedback,registerNumber,vehicleType)=>{
+    addServiceFeedback: async (mechanicId, customerName, feedback, registerNumber, vehicleType, bookslotId) => {
         set({ isLoading: true, error: null })
 
         try {
             const title = feedback.title
             const description = feedback.description
-            const response = await axios.post(`${API_URL}/consumer/feedback`,{mechanicId,customerName,title,description,registerNumber,vehicleType})
+            const response = await axios.post(`${API_URL}/consumer/feedback`, { mechanicId, customerName, title, description, registerNumber, vehicleType, bookslotId })
 
             set({
-                message : response.data.message,
+                message: response.data.message,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -542,20 +542,30 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    addBookFormDetail: async (mechanicId,customerName,formData) => {
+    addBookFormDetail: async (mechanicId, customerName, formData) => {
         set({ isLoading: true, error: null })
 
         try {
             const vehicleType = formData.vehicle
             const registerNumber = formData.regno
             const complaintDescription = formData.complaint
-            const bookDate = formData.regdate
-            const bookTime = formData.regtime
+            const bookDate = new Date(formData.regdate).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                timeZone: "Asia/Kolkata"
+            })
+            const bookTime = new Date(formData.regtime).toLocaleTimeString("en-IN", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+                timeZone: "Asia/Kolkata"
+            })
 
-            const response = await axios.post(`${API_URL}/consumer/book-slot`, {mechanicId,customerName,vehicleType,registerNumber,complaintDescription,bookDate,bookTime})
+            const response = await axios.post(`${API_URL}/consumer/book-slot`, { mechanicId, customerName, vehicleType, registerNumber, complaintDescription, bookDate, bookTime })
 
             set({
-                message : response.data.message,
+                message: response.data.message,
                 isAuthenticated: true,
                 isLoading: false
             })
@@ -569,23 +579,23 @@ export const useAuthStore = create((set) => ({
         }
     },
 
-    invoice : async(mechanicId,registerNumber)=>{
+    invoice: async (mechanicId, bookslotId) => {
         set({ isLoading: true, error: null })
 
         try {
             // const response = await axios.get(`http://localhost:1972/api/consumer/view-bill/${id}`)
-            const response = await axios.post(`${API_URL}/consumer/view-bill`,{mechanicId,registerNumber})
+            const response = await axios.post(`${API_URL}/consumer/view-bill`, { mechanicId, bookslotId })
 
             set({
                 user: response.data.customerDetail,
-                mechanic : response.data.mechanicDetail,
-                book : response.data.bookSlot,
-                shop : response.data.shopDetail,
-                bill : response.data.billDetail,
+                mechanic: response.data.mechanicDetail,
+                book: response.data.bookSlot,
+                shop: response.data.shopDetail,
+                bill: response.data.billDetail,
                 isAuthenticated: true,
                 isLoading: false
             })
-            
+
         } catch (error) {
             set({
                 error: error.response?.data?.message || "Error in fetching invoice data",
@@ -601,14 +611,14 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axios.post(`${API_URL}/auth/signup`, { email, password, name, role, mobileNumber })
 
-            if(role === mechanic){
+            if (role === mechanic) {
                 set({
                     mechanic: response.data.user,
                     isAuthenticated: true,
                     isLoading: false
                 })
             }
-            else{   
+            else {
                 set({
                     user: response.data.user,
                     isAuthenticated: true,
@@ -631,10 +641,10 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axios.post(`${API_URL}/auth/login`, { email, password })
 
-            
+
             set({
                 user: response.data.user,
-                mechanic : response.data.user,
+                mechanic: response.data.user,
                 isLoading: false,
                 isAuthenticated: true,
                 error: null
@@ -700,7 +710,7 @@ export const useAuthStore = create((set) => ({
 
             set({
                 user: response.data.user,
-                mechanic : response.data.user,
+                mechanic: response.data.user,
                 isAuthenticated: true,
                 isCheckingAuth: false
             })

@@ -131,8 +131,10 @@ export const addBookSlot = async (req, res) => {
             registerNumber
         })
 
-        if (checkSlot && checkSlot.isAccepted) {
-            throw new Error("For one vehicle only one booking can be done until the current status of the vehicle service is completed")
+        for(let i = 0;i<checkSlot.length;i++){            
+            if (checkSlot[i] && !checkSlot[i].isPaid) {
+                throw new Error("For one vehicle only one booking can be done until the current status of the vehicle service is completed and the bill is paid")
+            }
         }
 
         const newBookSlot = new book({
@@ -205,7 +207,8 @@ export const getShopListPendingById = async (req, res) => {
                 isAccepted: bookSlot[i].isAccepted,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType,
-                BookDate : bookSlot[i].bookDate
+                BookDate : bookSlot[i].bookDate,
+                bookslotId : bookSlot[i]._id
             }
 
             shopDetail.push(shopWithBooking)
@@ -265,7 +268,8 @@ export const getShopListCompletedById = async (req, res) => {
                 isPaid: bookSlot[i].isPaid,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType,
-                BookDate : bookSlot[i].bookDate
+                BookDate : bookSlot[i].bookDate,
+                bookslotId : bookSlot[i]._id
             }
 
             shopDetail.push(shopWithBooking)
@@ -337,9 +341,10 @@ export const getServiceHistoryForCustomer = async (req, res) => {
 export const getGeneratedBill = async (req, res) => {
     try {
         const customerId = req.userId
-        const { mechanicId, registerNumber } = req.body
+        // const { mechanicId, registerNumber } = req.body
+        const { bookslotId,mechanicId } = req.body
 
-        if (!customerId || !mechanicId || !registerNumber) {
+        if (!customerId || !mechanicId || !bookslotId) {
             throw new Error("no mechanic id or customer id")
         }
 
@@ -348,9 +353,10 @@ export const getGeneratedBill = async (req, res) => {
 
         // Convert string IDs to ObjectId using new syntax
         const billDetail = await bill.find({
-            mechanicId: new mongoose.Types.ObjectId(mechanicId),
-            customerId: new mongoose.Types.ObjectId(customerId),
-            registerNumber: registerNumber
+            // mechanicId: new mongoose.Types.ObjectId(mechanicId),
+            // customerId: new mongoose.Types.ObjectId(customerId),
+            // registerNumber: registerNumber
+            bookslotId : new mongoose.Types.ObjectId(bookslotId) 
         })
 
         // console.log("bill found", billDetail)
@@ -362,11 +368,12 @@ export const getGeneratedBill = async (req, res) => {
         const shopDetail = await Shop.find({
             ownerId: mechanicId
         })
-        const bookSlot = await book.find({
-            mechanicId,
-            customerId,
-            registerNumber
-        })
+        const bookSlot = await book.findById(bookslotId)
+        // const bookSlot = await book.find({
+        //     mechanicId,
+        //     customerId,
+        //     registerNumber
+        // })
         const customerDetail = await User.findById(customerId).select("-password")
         const mechanicDetail = await User.findById(mechanicId).select("-password")
 
@@ -391,7 +398,8 @@ export const getGeneratedBill = async (req, res) => {
 export const getDeatilsForFeedBackForm = async (req, res) => {
     try {
         const customerId = req.userId
-        const { mechanicId, registerNumber } = req.body
+        // const { mechanicId, registerNumber } = req.body
+        const { mechanicId, bookslotId } = req.body
 
         if (!customerId || !mechanicId) {
             throw new Error("no mechanic id or customer id")
@@ -404,7 +412,8 @@ export const getDeatilsForFeedBackForm = async (req, res) => {
         const bookFormDetail = await book.find({
             mechanicId: new mongoose.Types.ObjectId(mechanicId),
             customerId: new mongoose.Types.ObjectId(customerId),
-            registerNumber: registerNumber
+            _id: new mongoose.Types.ObjectId(bookslotId)
+            // registerNumber: registerNumber
         })
 
         return res.status(200).json({
@@ -426,18 +435,24 @@ export const getDeatilsForFeedBackForm = async (req, res) => {
 export const updatePayment = async (req, res) => {
     try {
         const customerId = req.userId;
-        const { mechanicId, registerNumber } = req.body;
+        // const { mechanicId, registerNumber } = req.body;
+        const { mechanicId, bookslotId } = req.body;
 
         if (!mechanicId || !customerId) {
             throw new Error("Mechanic ID and Customer ID are required!");
         }
 
+        if(!bookslotId){
+            throw new Error("No booking id was found..")
+        }
+
         const updatedBooking = await book.findOneAndUpdate(
             {
-                mechanicId: new mongoose.Types.ObjectId(mechanicId),
-                customerId: new mongoose.Types.ObjectId(customerId),
-                isCompleted: true,
-                registerNumber: registerNumber
+                // mechanicId: new mongoose.Types.ObjectId(mechanicId),
+                // customerId: new mongoose.Types.ObjectId(customerId),
+                // isCompleted: true,
+                // registerNumber: registerNumber,
+                _id : new mongoose.Types.ObjectId(bookslotId)
             },
             { $set: { isPaid: true } },
             { new: true }
@@ -477,7 +492,8 @@ export const addComment = async (req, res) => {
             description,
             customerName,
             registerNumber,
-            vehicleType
+            vehicleType,
+            bookslotId
         } = req.body;
 
         const customerId = req.userId;
@@ -547,7 +563,8 @@ export const addComment = async (req, res) => {
             registerNumber,
             Rating,
             sentiment,
-            vehicleType
+            vehicleType,
+            bookslotId
         });
 
         await newComment.save();
@@ -621,7 +638,6 @@ export const createPaymentIntentForBill = async(req,res)=>{
     
     try {
     const { billId } = req.body;
-    // console.log("bill id : ",billId)
     const billDetail = await bill.findById(billId);
     if (!billDetail) return res.status(404).json({ error: 'Bill not found' });
 

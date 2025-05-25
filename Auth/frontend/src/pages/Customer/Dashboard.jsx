@@ -103,20 +103,20 @@ const CustomerDashboard = () => {
     }
   };
 
-  const handleViewBill = (mechanicId, registerNumber) => {
+  const handleViewBill = (mechanicId, bookslotId) => {
     try {
       // console.log(mechanicId, registerNumber)
       // console.log(import.meta.env.VITE_SECRETKEY)
-      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
+      const encryptedVeh = CryptoJS.AES.encrypt(bookslotId, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/invoice/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
     }
   };
 
-  const handlePayBill = async (mechanicId, registerNumber) => {
+  const handlePayBill = async (mechanicId, bookslotId) => {
     try {
-      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
+      const encryptedVeh = CryptoJS.AES.encrypt(bookslotId, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/paymentPage/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
@@ -142,10 +142,14 @@ const CustomerDashboard = () => {
     else if (cardName === "pending") {
       setcardStatus('pending')
       await pendingShopList()
+
+      // console.log("shop list : ",shop);
+      
     }
     else if (cardName === "completed") {
       setcardStatus('completed')
       await completedShopList()
+      console.log("shop list : ",shop)
     }
     else if (cardName === 'serviceHistory') {
       setcardStatus('serviceHistory')
@@ -385,14 +389,10 @@ const CustomerDashboard = () => {
                           </td>
                           <td className="px-6 py-4">
                             {
-                              (cardStatus === 'pending' || cardStatus === 'completed') ? (
+                              (cardStatus === 'pending' || cardStatus === 'completed' || cardStatus === 'serviceHistory') ? (
                                 <>
                                   {mechanic?.registerNumber}<br />
                                   Booking Date : {new Date(mechanic?.BookDate).toDateString()}
-                                </>
-                              ) : (cardStatus === 'serviceHistory') ? (
-                                <>
-                                  {new Date(mechanic?.BookDate).toLocaleDateString()}
                                 </>
                               )
                                 :
@@ -441,14 +441,14 @@ const CustomerDashboard = () => {
                             ) : (
                               <div className="flex space-x-2">
                                 <button
-                                  onClick={() => handleViewBill(mechanic?.ownerId, mechanic?.registerNumber)}
+                                  onClick={() => handleViewBill(mechanic?.ownerId, mechanic?.bookslotId)}
                                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
                                 >
                                   <FaFileInvoiceDollar className="mr-2" />
                                   View Bill
                                 </button>
                                 <button
-                                  onClick={() => handlePayBill(mechanic?.ownerId, mechanic?.registerNumber)}
+                                  onClick={() => handlePayBill(mechanic?.ownerId, mechanic?.bookslotId)}
                                   disabled={mechanic?.isPaid}
                                   className={`px-4 py-2 rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center ${mechanic?.isPaid
                                     ? 'bg-gray-400 text-white cursor-not-allowed opacity-75'

@@ -42,10 +42,14 @@ const ProtectedRoute = ({ children }) => {
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore()
 
-  if (isAuthenticated && user.isverified && user.role.toLowerCase() === "customer") {
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />
+  // }
+  // else
+   if (isAuthenticated && user && user.isverified && user.role.toLowerCase() === "customer") {
     return <Navigate to="/dashboardcustomer" replace />
   }
-  else if (isAuthenticated && user.isverified && user.role.toLowerCase() === "mechanic") {
+  else if (isAuthenticated && user && user.isverified && user.role.toLowerCase() === "mechanic") {
     return <Navigate to="/dashboardmechanic" replace />
   }
 
