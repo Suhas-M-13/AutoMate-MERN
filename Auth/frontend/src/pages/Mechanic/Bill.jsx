@@ -27,27 +27,28 @@ const Bill = () => {
   };
 
   useEffect(() => {
-    fetchData()
+    fetchData()    
   }, []);
 
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
-      description : book[0].complaintDescription
+      description : book[0]?.complaintDescription
     }));
-  }, [book[0].complaintDescription])
+  }, [book[0]?.complaintDescription])
   
 
   const fetchData = async()=>{
     try {
       if (!customerId) {
-        console.log("not found")
         toast.error("No customerId provided");
         return;
       }
 
       const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.VITE_SECRETKEY);
       const vehicleRegNumber = bytes.toString(CryptoJS.enc.Utf8);
+      // console.log("bookslot id : ",vehicleRegNumber);
+      
       await getBillData(customerId,vehicleRegNumber)
     } catch (error) {
       toast.error(error.message || "Error in fetching shop information");
@@ -57,12 +58,18 @@ const Bill = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if(bill.length !== 0){
+        toast.success("Bill already generated for this customer")
+        // navigate('/dashboardmechanic')
+        return
+      }
       if (!book || book.length === 0) {
         toast.error("No booking information available");
         return;
       }
       
-      await addBillData(customerId, book[0].registerNumber,formData);
+      
+      await addBillData(customerId, book.registerNumber,formData,book._id);
       toast.success("Bill created successfully");
       navigate('/dashboardmechanic');
     } catch (error) {
@@ -81,6 +88,8 @@ const Bill = () => {
   if (!book || book.length === 0) {
     return <div className="min-h-screen flex items-center justify-center text-red-500">No booking information available</div>;
   }
+
+  const currentBook = book
 
   return (
     <div className="mx-auto p-8 bg-white rounded-lg shadow-md w-full">
@@ -121,7 +130,7 @@ const Bill = () => {
                 type="text"
                 id="vehicletype"
                 name="vehicletype"
-                value={book[0]?.vehicleType || ''}
+                value={currentBook?.vehicleType || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -139,7 +148,7 @@ const Bill = () => {
                 type="text"
                 id="registerNumber"
                 name="registerNumber"
-                value={book[0]?.registerNumber || ''}
+                value={currentBook?.registerNumber || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
@@ -152,7 +161,7 @@ const Bill = () => {
                 type="text"
                 id="bookeddate"
                 name="bookeddate"
-                value={book[0]?.bookDate || ''}
+                value={new Date(currentBook?.bookDate).toLocaleDateString() || ''}
                 readOnly
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"

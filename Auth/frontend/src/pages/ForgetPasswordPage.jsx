@@ -22,7 +22,6 @@ const ForgetPasswordPage = () => {
             await forgotPassword(email)
             setisSubmitting(true)
         } catch (error) {
-            // console.log(error);
             toast.error("Error in handling forget password web page")
         }
     }

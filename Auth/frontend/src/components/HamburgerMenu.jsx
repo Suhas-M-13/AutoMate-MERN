@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaSignOutAlt, FaRegCommentDots } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaUser, FaCog, FaSignOutAlt, FaRegCommentDots, FaShopify } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
@@ -11,18 +11,27 @@ import BannerImage from "../images/Banner.png"
 const HamburgerMenu = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout , user } = useAuthStore();
+  const { logout, user,mechanic } = useAuthStore();
 
   // console.log(user);
-  
+
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = async() => {
+  const handleLogout = async () => {
     await logout();
     navigate('/login');
+  };
+
+  const handleViewShopDetails = (mechanicId) => {
+    console.log("Viewing shop details for mechanic:", mechanicId);
+    try {
+      navigate(`/shopdetails/${mechanicId}`)
+    } catch (error) {
+      toast.error("No mechanic id found");
+    }
   };
 
   return (
@@ -37,9 +46,8 @@ const HamburgerMenu = ({ children }) => {
 
       {/* Menu Content */}
       <div
-        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-2xl transform transition-all duration-300 ease-in-out z-40 ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+        className={`fixed top-0 left-0 h-full w-72 bg-white shadow-2xl transform transition-all duration-300 ease-in-out z-40 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         <div className="p-6 h-full flex flex-col">
           {/* Header with Close Button */}
@@ -87,18 +95,41 @@ const HamburgerMenu = ({ children }) => {
                 </button>
               </li>
               {
-                user.role === 'mechanic' && 
-                <li>
-                <button
-                  onClick={() => navigate('/mechanicfeedback')}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all duration-200"
-                >
-                  <FaRegCommentDots className="text-lg" />
-                  <span>Feedbacks</span>
-                </button>
-              </li>
+                user.role === 'mechanic' &&
+                <>
+                  <li>
+                    <button
+                      onClick={() => navigate('/mechanicfeedback')}
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all duration-200"
+                    >
+                      <FaRegCommentDots className="text-lg" />
+                      <span>Feedbacks</span>
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => handleViewShopDetails(mechanic._id)}
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all duration-200"
+                    >
+                      <FaShopify className="text-lg" />
+                      <span>View Shop Details</span>
+                    </button>
+                  </li>
+                </>
               }
-              
+              {
+                user.role === 'customer' &&
+                <li>
+                  <button
+                    onClick={() => navigate('/user-profile')}
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all duration-200"
+                  >
+                    <FaUser className="text-lg" />
+                    <span>View Profile</span>
+                  </button>
+                </li>
+              }
+
             </ul>
           </nav>
 

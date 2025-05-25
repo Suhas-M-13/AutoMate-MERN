@@ -11,7 +11,7 @@ const Homepage = () => {
   const handleSubscribe = (e) => {
     e.preventDefault();
     // TODO: Implement subscription functionality
-    console.log('Subscribing email:', email);
+    // console.log('Subscribing email:', email);
   };
 
   return (

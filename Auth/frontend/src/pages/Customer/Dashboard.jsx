@@ -68,8 +68,9 @@ const CustomerDashboard = () => {
   useEffect(() => {
     if (shop) {
       const filtered = shop.filter((mechanic) => {
-        if (Array.isArray(mechanic.vehicleType) && mechanic.vehicleType.length > 0)
-          console.log(mechanic.vehicleType[0]);
+        if (Array.isArray(mechanic.vehicleType) && mechanic.vehicleType.length > 0) {
+          // console.log(mechanic.vehicleType[0]);
+        }
 
         const searchLower = searchQuery.toLowerCase();
         return (
@@ -94,7 +95,7 @@ const CustomerDashboard = () => {
   };
 
   const handleViewShopDetails = (mechanicId) => {
-    console.log("Viewing shop details for mechanic:", mechanicId);
+    // console.log("Viewing shop details for mechanic:", mechanicId);
     try {
       navigate(`/shopdetails/${mechanicId}`)
     } catch (error) {
@@ -102,20 +103,20 @@ const CustomerDashboard = () => {
     }
   };
 
-  const handleViewBill = (mechanicId, registerNumber) => {
+  const handleViewBill = (mechanicId, bookslotId) => {
     try {
-      console.log(mechanicId, registerNumber)
-      console.log(import.meta.env.VITE_SECRETKEY)
-      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
+      // console.log(mechanicId, registerNumber)
+      // console.log(import.meta.env.VITE_SECRETKEY)
+      const encryptedVeh = CryptoJS.AES.encrypt(bookslotId, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/invoice/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
     }
   };
 
-  const handlePayBill = async (mechanicId, registerNumber) => {
+  const handlePayBill = async (mechanicId, bookslotId) => {
     try {
-      const encryptedVeh = CryptoJS.AES.encrypt(registerNumber, import.meta.env.VITE_SECRETKEY).toString();
+      const encryptedVeh = CryptoJS.AES.encrypt(bookslotId, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/paymentPage/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
     } catch (error) {
       toast.error("No mechanic id found");
@@ -141,10 +142,14 @@ const CustomerDashboard = () => {
     else if (cardName === "pending") {
       setcardStatus('pending')
       await pendingShopList()
+
+      // console.log("shop list : ",shop);
+      
     }
     else if (cardName === "completed") {
       setcardStatus('completed')
       await completedShopList()
+      console.log("shop list : ",shop)
     }
     else if (cardName === 'serviceHistory') {
       setcardStatus('serviceHistory')
@@ -160,11 +165,11 @@ const CustomerDashboard = () => {
   const handleFetchNearbyShops = async (e) => {
     try {
       e.preventDefault();
-      console.log("Location:", location); // should print lat/lng
+      // console.log("Location:", location); // should print lat/lng
       if (location) {
         toast.success("Location fetched")
         await fetchNearByShops(location.lng, location.lat);
-        console.log(nearShop)
+        // console.log(nearShop)
         setNearbyShops(nearShop);
         setShowMap(true);
       } else {
@@ -343,15 +348,7 @@ const CustomerDashboard = () => {
                         <tr key={index} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center">
-                              {/* <div className="h-5 w-15 rounded-full"> */}
-                              {/* <FaUserCircle className="h-10 w-10 text-gray-400" /> */}
-                              <UserIcon username={mechanic?.ownerName} />
-                              {/* </div> */}
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">
-                                  {/* {mechanic.ownerName} */}
-                                </div>
-                              </div>
+                              <UserIcon username={mechanic?.ownerName} reverse={true} />
                             </div>
                           </td>
                           <td className="px-6 py-4">
@@ -392,14 +389,10 @@ const CustomerDashboard = () => {
                           </td>
                           <td className="px-6 py-4">
                             {
-                              (cardStatus === 'pending' || cardStatus === 'completed') ? (
+                              (cardStatus === 'pending' || cardStatus === 'completed' || cardStatus === 'serviceHistory') ? (
                                 <>
                                   {mechanic?.registerNumber}<br />
                                   Booking Date : {new Date(mechanic?.BookDate).toDateString()}
-                                </>
-                              ) : (cardStatus === 'serviceHistory') ? (
-                                <>
-                                  {new Date(mechanic?.BookDate).toLocaleDateString()}
                                 </>
                               )
                                 :
@@ -448,14 +441,14 @@ const CustomerDashboard = () => {
                             ) : (
                               <div className="flex space-x-2">
                                 <button
-                                  onClick={() => handleViewBill(mechanic?.ownerId, mechanic?.registerNumber)}
+                                  onClick={() => handleViewBill(mechanic?.ownerId, mechanic?.bookslotId)}
                                   className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center"
                                 >
                                   <FaFileInvoiceDollar className="mr-2" />
                                   View Bill
                                 </button>
                                 <button
-                                  onClick={() => handlePayBill(mechanic?.ownerId, mechanic?.registerNumber)}
+                                  onClick={() => handlePayBill(mechanic?.ownerId, mechanic?.bookslotId)}
                                   disabled={mechanic?.isPaid}
                                   className={`px-4 py-2 rounded-md transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center ${mechanic?.isPaid
                                     ? 'bg-gray-400 text-white cursor-not-allowed opacity-75'
@@ -473,7 +466,7 @@ const CustomerDashboard = () => {
                     })}
                   </tbody>
                 </table>
-              </div> 
+              </div>
             )}
           </div>
         </div>

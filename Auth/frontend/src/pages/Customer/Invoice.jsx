@@ -20,19 +20,14 @@ const Invoice = () => {
   const fetchInvoiceInformation = async () => {
     try {
       if (!invoiceId) {
-        console.log("not found")
         toast.error("No invoice ID provided");
         return;
       }
 
       const bytes = CryptoJS.AES.decrypt(encryptedVeh, import.meta.env.VITE_SECRETKEY);
-      const vehicleRegNumber = bytes.toString(CryptoJS.enc.Utf8);
+      const bookslotId = bytes.toString(CryptoJS.enc.Utf8);
 
-      console.log("inside invoice : ",vehicleRegNumber)
-
-      console.log(invoiceId)
-      
-      await invoice(invoiceId,vehicleRegNumber);
+      await invoice(invoiceId,bookslotId);
     } catch (error) {
       toast.error("Error in fetching invoice information");
     }
@@ -47,7 +42,7 @@ const Invoice = () => {
   }
 
   if (error) {
-    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+    return <div className="min-h-screen flex items-center justify-center text-red-500">Error : {error}</div>;
   }
 
   if (!bill || bill.length === 0) {
@@ -56,7 +51,7 @@ const Invoice = () => {
 
   const currentBill = bill[0];
   const currentShop = shop?.[0];
-  const currentBook = book?.[0];
+  const currentBook = book;
 
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 w-full">

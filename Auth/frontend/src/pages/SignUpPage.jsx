@@ -9,6 +9,7 @@ import PasswordStrengthMeter from '../components/PasswordStrengthMeter';
 import Input from '../components/Input';
 
 import { useAuthStore } from '../store/authStore.js';
+import { FaUser } from 'react-icons/fa';
 
 const SignUpPage = () => {
 
@@ -24,12 +25,10 @@ const SignUpPage = () => {
 
   const handleSignUp = async(e) => {
     e.preventDefault();
-    console.log("inside handlesignup : "+isLoading);
     try {
       await signup(email,password,name,role,mobile)
       navigate('/mechanicregestration')
     } catch (error) {
-      // console.log(error);
       toast.error(error.message || "Error in signing up..")
     }
   }
@@ -99,7 +98,9 @@ const SignUpPage = () => {
           /> */}
 
           <div className="relative mb-6">
-            <label htmlFor="role" className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"></label>
+            <label htmlFor="role" className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <FaUser/>
+            </label>
             <select
               id="role"
               name="role"

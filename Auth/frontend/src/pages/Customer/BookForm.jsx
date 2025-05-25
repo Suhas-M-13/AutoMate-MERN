@@ -99,6 +99,9 @@ const BookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("date : ",formData.regdate)
+    console.log("time : ",formData.regtime)
     
     // Run validation first
     if (!validateForm()) {
@@ -107,8 +110,7 @@ const BookingForm = () => {
 
     try {
       // If validation passes, proceed with booking
-      console.log(formData)
-      await addBookFormDetail(mechanicId, user.name, formData);
+      await addBookFormDetail(mechanicId, user.name, formData,shop[0].shopname);
       toast.success("Slot booked successfully!");
       navigate('/dashboardcustomer');
     } catch (error) {

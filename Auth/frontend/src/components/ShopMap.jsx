@@ -10,6 +10,8 @@ function ShopMap({ shopDetail, userLoc }) {
   const [routeCoords, setRouteCoords] = useState([]);
   const [selectedShop, setSelectedShop] = useState([]);
 
+  const {mechanic} = useAuthStore
+
   // console.log(shopDetail)
   // console.log("useloc",userLoc)
 
@@ -33,15 +35,17 @@ function ShopMap({ shopDetail, userLoc }) {
           lon: shopDetail.location.coordinates[0]
         }
       });
-      const coords = res.data.routeCoords.map(([lon, lat]) => [lat, lon]);
+      const routeData = res.data
+      const routes_coords = routeData.routeCoords
+      const coords = routes_coords.map(([lon, lat]) => [lat, lon]);
       setRouteCoords(coords);
       setSelectedShop({
         id: shopDetail._id,
         name: shopDetail.shopname,
         lat: shopDetail.location.coordinates[1],
         lon: shopDetail.location.coordinates[0],
-        distance: res.data.distance ? (res.data.distance / 1000).toFixed(2) : 'N/A',
-        duration: res.data.duration ? (res.data.duration / 60).toFixed(2) : 'N/A'
+        distance: routeData.distance ? (routeData.distance / 1000).toFixed(2) : 'N/A',
+        duration: routeData.duration ? (routeData.duration / 60).toFixed(2) : 'N/A'
       });
 
     } catch (err) {
@@ -59,8 +63,8 @@ function ShopMap({ shopDetail, userLoc }) {
 
   if (!userLoc) {
     return <div>Loading your location...</div>;
-  } 
-    
+  }
+
   return (
     <div style={{ position: "relative" }}>
       <div style={{ height: "400px", width: "800px", transition: "0.3s", position: "relative" }}>

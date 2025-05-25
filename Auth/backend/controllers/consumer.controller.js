@@ -9,6 +9,8 @@ import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js
 import axios from "axios"
 import { bookingSlotConfirm, mechanicRequestNotify } from "../mailtrap/emails.js"
 
+import {bookingSlotConfirm,mechanicRequestNotify} from "../mailtrap/emails.js"
+
 import  Stripe from 'stripe';
 
 const stripe_secret_key = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -28,7 +30,7 @@ export const getAllShopList = async (req, res) => {
             message: "fetched All shop details"
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: "Failed to fetched shop details"
@@ -46,6 +48,7 @@ export const getShopById = async (req, res) => {
         const comments = await comment.find({
             mechanicId: id
         })
+        const mechanicDeatil = await User.findById(id)
 
         if (!reqShop) {
             throw new Error("Error in fetching...")
@@ -57,11 +60,12 @@ export const getShopById = async (req, res) => {
         return res.status(200).json({
             shopList: reqShop,
             reviews: comments,
+            mechanicDeatil : mechanicDeatil,
             success: true,
             message: "fetched required shop details"
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: "Failed to fetched shop details"
@@ -96,7 +100,7 @@ export const getBookFormDetails = async (req, res) => {
             mechanicDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error
@@ -114,11 +118,12 @@ export const addBookSlot = async (req, res) => {
             complaintDescription,
             bookDate,
             bookTime,
+            shopName
         } = req.body
 
         const customerId = req.userId
 
-        if (!mechanicId || !customerName || !vehicleType || !registerNumber || !complaintDescription || !bookDate || !bookTime) {
+        if (!mechanicId || !customerName || !vehicleType || !registerNumber || !complaintDescription || !bookDate || !bookTime || !shopName) {
             throw new Error("All fields are required!!!")
         }
 
@@ -130,8 +135,10 @@ export const addBookSlot = async (req, res) => {
             registerNumber
         })
 
-        if (checkSlot && checkSlot.isAccepted) {
-            throw new Error("For one vehicle only one booking can be done until the current status of the vehicle service is completed")
+        for(let i = 0;i<checkSlot.length;i++){            
+            if (checkSlot[i] && !checkSlot[i].isPaid) {
+                throw new Error("For one vehicle only one booking can be done until the current status of the vehicle service is completed and the bill is paid")
+            }
         }
 
         const newBookSlot = new book({
@@ -150,7 +157,40 @@ export const addBookSlot = async (req, res) => {
 
         await newBookSlot.save()
 
-        const token = generateTokenAndSetCookie(res, customerId, registerNumber)
+        // const token = generateTokenAndSetCookie(res, customerId, registerNumber)
+
+        const customerDetail = await User.findById(customerId).select("-password")
+        const mechanicDetail = await User.findById(mechanicId).select("-password")
+
+
+        // console.log(customerDetail.email,customerName,mechanicDetail.name,bookDate,bookTime,shopName,registerNumber,mechanicDetail.mobileNumber)
+
+        try {
+            await bookingSlotConfirm(
+                customerDetail.email,
+                customerName,
+                mechanicDetail.name,
+                bookDate,
+                bookTime,
+                shopName,
+                registerNumber,
+                mechanicDetail.mobileNumber
+            )
+            await mechanicRequestNotify(
+                mechanicDetail.email, 
+                mechanicDetail.name, 
+                customerName, 
+                bookDate, 
+                bookTime, 
+                shopName, 
+                registerNumber,
+                vehicleType,
+                customerDetail.mobileNumber
+            )
+        } catch (emailError) {
+            console.error("Error sending confirmation email:", emailError);
+            // Continue with the booking even if email fails
+        }
 
         return res.status(201).json({
             success: true,
@@ -158,11 +198,10 @@ export const addBookSlot = async (req, res) => {
             data: {
                 registerNumber,
                 bookingId: newBookSlot._id,
-                token // Send the new token in response
             }
         })
     } catch (error) {
-        console.log('Error in book' + error);
+        // console.log('Error in book' + error);
         return res.status(400).json({
             success: false,
             message: error.message || "Failed to add booking slot"
@@ -204,7 +243,8 @@ export const getShopListPendingById = async (req, res) => {
                 isAccepted: bookSlot[i].isAccepted,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType,
-                BookDate : bookSlot[i].bookDate
+                BookDate : bookSlot[i].bookDate,
+                bookslotId : bookSlot[i]._id
             }
 
             shopDetail.push(shopWithBooking)
@@ -221,7 +261,7 @@ export const getShopListPendingById = async (req, res) => {
             shopDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error.message
@@ -264,7 +304,8 @@ export const getShopListCompletedById = async (req, res) => {
                 isPaid: bookSlot[i].isPaid,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType,
-                BookDate : bookSlot[i].bookDate
+                BookDate : bookSlot[i].bookDate,
+                bookslotId : bookSlot[i]._id
             }
 
             shopDetail.push(shopWithBooking)
@@ -281,7 +322,7 @@ export const getShopListCompletedById = async (req, res) => {
             shopDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error
@@ -325,7 +366,7 @@ export const getServiceHistoryForCustomer = async (req, res) => {
             shopDetail
         })
     } catch (error) {
-        console.log('Error in fetching details...' + error);
+        // console.log('Error in fetching details...' + error);
         return res.status(400).json({
             success: false,
             message: error.message // Send error message instead of error object
@@ -336,23 +377,25 @@ export const getServiceHistoryForCustomer = async (req, res) => {
 export const getGeneratedBill = async (req, res) => {
     try {
         const customerId = req.userId
-        const { mechanicId, registerNumber } = req.body
+        // const { mechanicId, registerNumber } = req.body
+        const { bookslotId,mechanicId } = req.body
 
-        if (!customerId || !mechanicId || !registerNumber) {
+        if (!customerId || !mechanicId || !bookslotId) {
             throw new Error("no mechanic id or customer id")
         }
 
-        console.log("mechanic ; ", mechanicId);
-        console.log("customer ; ", customerId);
+        // console.log("mechanic ; ", mechanicId);
+        // console.log("customer ; ", customerId);
 
         // Convert string IDs to ObjectId using new syntax
         const billDetail = await bill.find({
-            mechanicId: new mongoose.Types.ObjectId(mechanicId),
-            customerId: new mongoose.Types.ObjectId(customerId),
-            registerNumber: registerNumber
+            // mechanicId: new mongoose.Types.ObjectId(mechanicId),
+            // customerId: new mongoose.Types.ObjectId(customerId),
+            // registerNumber: registerNumber
+            bookslotId : new mongoose.Types.ObjectId(bookslotId) 
         })
 
-        console.log("bill found", billDetail)
+        // console.log("bill found", billDetail)
 
         if (!billDetail || billDetail.length === 0) {
             throw new Error("No bill found")
@@ -361,11 +404,12 @@ export const getGeneratedBill = async (req, res) => {
         const shopDetail = await Shop.find({
             ownerId: mechanicId
         })
-        const bookSlot = await book.find({
-            mechanicId,
-            customerId,
-            registerNumber
-        })
+        const bookSlot = await book.findById(bookslotId)
+        // const bookSlot = await book.find({
+        //     mechanicId,
+        //     customerId,
+        //     registerNumber
+        // })
         const customerDetail = await User.findById(customerId).select("-password")
         const mechanicDetail = await User.findById(mechanicId).select("-password")
 
@@ -379,7 +423,7 @@ export const getGeneratedBill = async (req, res) => {
             mechanicDetail
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error.message
@@ -390,7 +434,8 @@ export const getGeneratedBill = async (req, res) => {
 export const getDeatilsForFeedBackForm = async (req, res) => {
     try {
         const customerId = req.userId
-        const { mechanicId, registerNumber } = req.body
+        // const { mechanicId, registerNumber } = req.body
+        const { mechanicId, bookslotId } = req.body
 
         if (!customerId || !mechanicId) {
             throw new Error("no mechanic id or customer id")
@@ -403,7 +448,8 @@ export const getDeatilsForFeedBackForm = async (req, res) => {
         const bookFormDetail = await book.find({
             mechanicId: new mongoose.Types.ObjectId(mechanicId),
             customerId: new mongoose.Types.ObjectId(customerId),
-            registerNumber: registerNumber
+            _id: new mongoose.Types.ObjectId(bookslotId)
+            // registerNumber: registerNumber
         })
 
         return res.status(200).json({
@@ -414,7 +460,7 @@ export const getDeatilsForFeedBackForm = async (req, res) => {
             bookFormDetail,
         })
     } catch (error) {
-        console.log('Error in fetching shop details...' + error);
+        // console.log('Error in fetching shop details...' + error);
         return res.status(400).json({
             success: false,
             message: error
@@ -425,18 +471,24 @@ export const getDeatilsForFeedBackForm = async (req, res) => {
 export const updatePayment = async (req, res) => {
     try {
         const customerId = req.userId;
-        const { mechanicId, registerNumber } = req.body;
+        // const { mechanicId, registerNumber } = req.body;
+        const { mechanicId, bookslotId } = req.body;
 
         if (!mechanicId || !customerId) {
             throw new Error("Mechanic ID and Customer ID are required!");
         }
 
+        if(!bookslotId){
+            throw new Error("No booking id was found..")
+        }
+
         const updatedBooking = await book.findOneAndUpdate(
             {
-                mechanicId: new mongoose.Types.ObjectId(mechanicId),
-                customerId: new mongoose.Types.ObjectId(customerId),
-                isCompleted: true,
-                registerNumber: registerNumber
+                // mechanicId: new mongoose.Types.ObjectId(mechanicId),
+                // customerId: new mongoose.Types.ObjectId(customerId),
+                // isCompleted: true,
+                // registerNumber: registerNumber,
+                _id : new mongoose.Types.ObjectId(bookslotId)
             },
             { $set: { isPaid: true } },
             { new: true }
@@ -450,7 +502,7 @@ export const updatePayment = async (req, res) => {
             });
         }
 
-        console.log("Updated Booking:", updatedBooking); // Log the updated booking
+        // console.log("Updated Booking:", updatedBooking); // Log the updated booking
 
         return res.status(200).json({ // Use 200 OK for successful update
             success: true,
@@ -459,7 +511,7 @@ export const updatePayment = async (req, res) => {
         });
 
     } catch (error) {
-        console.log('Error updating payment status: ' + error);
+        // console.log('Error updating payment status: ' + error);
         return res.status(400).json({
             success: false,
             // Send a clearer error message
@@ -476,7 +528,8 @@ export const addComment = async (req, res) => {
             description,
             customerName,
             registerNumber,
-            vehicleType
+            vehicleType,
+            bookslotId
         } = req.body;
 
         const customerId = req.userId;
@@ -507,12 +560,12 @@ export const addComment = async (req, res) => {
                 
                 attempts++;
                 if (attempts < maxAttempts) {
-                    console.log(`Attempt ${attempts} failed, retrying in ${delayBetweenAttempts/1000} seconds...`);
+                    // console.log(`Attempt ${attempts} failed, retrying in ${delayBetweenAttempts/1000} seconds...`);
                     await new Promise(resolve => setTimeout(resolve, delayBetweenAttempts));
                 }
             } catch (error) {
                 attempts++;
-                console.error(`Attempt ${attempts} failed with error:`, error);
+                // console.error(`Attempt ${attempts} failed with error:`, error);
                 if (attempts >= maxAttempts) {
                     throw new Error("Failed to analyze comment after multiple attempts");
                 }
@@ -526,7 +579,7 @@ export const addComment = async (req, res) => {
             ratingResponse.rating === "error" ||
             ratingResponse.rating < 1 || 
             ratingResponse.rating > 5) {
-            console.error("Failed to get valid rating after all attempts, using default rating");
+            // console.error("Failed to get valid rating after all attempts, using default rating");
             ratingResponse = {
                 rating: 3, // Default neutral rating
                 sentiment: "neutral",
@@ -546,7 +599,8 @@ export const addComment = async (req, res) => {
             registerNumber,
             Rating,
             sentiment,
-            vehicleType
+            vehicleType,
+            bookslotId
         });
 
         await newComment.save();
@@ -559,7 +613,7 @@ export const addComment = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error adding comment:', error);
+        // console.error('Error adding comment:', error);
         return res.status(400).json({
             success: false,
             message: error.message || "Failed to add comment"
@@ -584,7 +638,7 @@ export const getMapRoute = async (req, res) => {
 
         res.json({ routeCoords: coords, distance: distance, duration: duration });
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.status(500).json({ message: "Failed to fetch route" });
     }
 }
@@ -603,7 +657,7 @@ export const getNearByShops = async(req,res)=>{
             }
           })
 
-          console.log("shops : ",shopDetail)
+          // console.log("shops : ",shopDetail)
 
           return res.status(200).json({
             message : "successfully fetched",
@@ -611,7 +665,7 @@ export const getNearByShops = async(req,res)=>{
           })    
         
     } catch (error) {
-        console.error(error);
+        // console.error(error);
         res.status(500).json({ message: "Failed to fetch shops" });
     }
 }
@@ -620,7 +674,6 @@ export const createPaymentIntentForBill = async(req,res)=>{
     
     try {
     const { billId } = req.body;
-    // console.log("bill id : ",billId)
     const billDetail = await bill.findById(billId);
     if (!billDetail) return res.status(404).json({ error: 'Bill not found' });
 
@@ -630,7 +683,7 @@ export const createPaymentIntentForBill = async(req,res)=>{
       automatic_payment_methods: { enabled: true },
     });
 
-    console.log('paymentIntent : ',paymentIntent)
+    // console.log('paymentIntent : ',paymentIntent)
 
     res.status(200).json({
       clientSecret: paymentIntent.client_secret,

@@ -39,7 +39,6 @@ const MechanicRegistration = () => {
   const fetchMechanicData = async () => {
     try {
       await shopRegistration()
-      console.log("successfull fetched")
     } catch (error) {
       toast.error("No mechanic id found");
     }
@@ -108,7 +107,6 @@ const MechanicRegistration = () => {
         ...prev,
         addr: address
       }));
-      // console.log("fetched address : ",data.display_name)
     } catch (error) {
       console.error("Error fetching address:", error);
       toast.error("Error fetching address")
