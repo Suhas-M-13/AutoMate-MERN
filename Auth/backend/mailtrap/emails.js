@@ -1,4 +1,4 @@
-import { PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE } from "./emailTemplates.js";
+import { PASSWORD_RESET_REQUEST_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, SLOT_BOOKING_EMAIL_TEMPLATE, MECHANIC_NOTIFICATION_EMAIL_TEMPLATE, DAILY_MECHANIC_NOTIFICATION_TEMPLATE } from "./emailTemplates.js";
 import { transporter, sender } from "./mailtrap.config.js";
 
 export const sendVerificationEmail = async (email, verificationToken) => {
@@ -62,5 +62,24 @@ export const sendResetSuccessfulEmail = async (email) => {
         console.log("Password Reset Success Email sent: ", response.messageId);
     } catch (error) {
         throw new Error(`Error in sending reset email: ${error}`);
+    }
+};
+
+export const sendDailyMechanicNotification = async (mechanicEmail, mechanicName, todayBookings, yesterdayCompleted, pendingRequests) => {
+    try {
+        const response = await transporter.sendMail({
+            from: `"${sender.name}" <${sender.email}>`,
+            to: mechanicEmail,
+            subject: "Daily Service Summary",
+            html: DAILY_MECHANIC_NOTIFICATION_TEMPLATE({
+                mechanicName,
+                todayBookings,
+                yesterdayCompleted,
+                pendingRequests
+            }),
+        });
+        return response;
+    } catch (error) {
+        throw new Error(`Error in sending daily notification email: ${error}`);
     }
 };

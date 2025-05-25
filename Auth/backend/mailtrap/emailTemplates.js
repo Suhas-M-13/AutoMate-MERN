@@ -93,3 +93,84 @@ export const PASSWORD_RESET_REQUEST_TEMPLATE = `
 </body>
 </html>
 `;
+
+export const DAILY_MECHANIC_NOTIFICATION_TEMPLATE = ({ mechanicName, todayBookings, yesterdayCompleted, pendingRequests }) => `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Service Summary</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f3f4f6; padding: 20px; color: #1f2937;">
+  <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+    <div style="background: linear-gradient(to right, #3b82f6, #2563eb); padding: 20px; text-align: center;">
+      <h1 style="color: white; margin: 0;">Daily Service Summary</h1>
+    </div>
+    <div style="padding: 20px;">
+      <p>Hello <strong>${mechanicName}</strong>,</p>
+      <p>Here's your daily service summary:</p>
+
+      ${todayBookings.length > 0 ? `
+      <h2 style="color: #1f2937; margin-top: 20px;">Today's Scheduled Services</h2>
+      <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
+        <tr style="background-color: #f3f4f6;">
+          <th style="padding: 8px; text-align: left;">Time</th>
+          <th style="padding: 8px; text-align: left;">Customer</th>
+          <th style="padding: 8px; text-align: left;">Vehicle</th>
+        </tr>
+        ${todayBookings.map(booking => `
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.time}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.customerName}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.vehicleNumber}</td>
+          </tr>
+        `).join('')}
+      </table>
+      ` : '<p>No services scheduled for today.</p>'}
+
+      ${yesterdayCompleted.length > 0 ? `
+      <h2 style="color: #1f2937; margin-top: 20px;">Yesterday's Completed Services</h2>
+      <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
+        <tr style="background-color: #f3f4f6;">
+          <th style="padding: 8px; text-align: left;">Time</th>
+          <th style="padding: 8px; text-align: left;">Customer</th>
+          <th style="padding: 8px; text-align: left;">Vehicle</th>
+        </tr>
+        ${yesterdayCompleted.map(booking => `
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.time}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.customerName}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.vehicleNumber}</td>
+          </tr>
+        `).join('')}
+      </table>
+      ` : ''}
+
+      ${pendingRequests.length > 0 ? `
+      <h2 style="color: #1f2937; margin-top: 20px;">Pending Requests</h2>
+      <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
+        <tr style="background-color: #f3f4f6;">
+          <th style="padding: 8px; text-align: left;">Date</th>
+          <th style="padding: 8px; text-align: left;">Customer</th>
+          <th style="padding: 8px; text-align: left;">Vehicle</th>
+        </tr>
+        ${pendingRequests.map(booking => `
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.date}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.customerName}</td>
+            <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${booking.vehicleNumber}</td>
+          </tr>
+        `).join('')}
+      </table>
+      ` : ''}
+
+      <p style="margin-top: 20px;">Best regards,<br><strong>AutoMate Team</strong></p>
+    </div>
+    <div style="background-color: #f1f5f9; text-align: center; padding: 10px; font-size: 12px; color: #6b7280;">
+      <p>This is an automated notification. Please do not reply to this email.</p>
+    </div>
+  </div>
+</body>
+</html>
+`;

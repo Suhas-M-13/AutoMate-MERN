@@ -7,6 +7,7 @@ import mongoose from "mongoose"
 import { analyzeReviewWithHuggingFace } from "../services/analyzeReviewWithHuggingFace.js"
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
 import axios from "axios"
+import { bookingSlotConfirm, mechanicRequestNotify } from "../mailtrap/emails.js"
 
 import  Stripe from 'stripe';
 
