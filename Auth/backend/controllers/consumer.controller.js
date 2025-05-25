@@ -8,6 +8,8 @@ import { analyzeReviewWithHuggingFace } from "../services/analyzeReviewWithHuggi
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
 import axios from "axios"
 
+import {bookingSlotConfirm,mechanicRequestNotify} from "../mailtrap/emails.js"
+
 import  Stripe from 'stripe';
 
 const stripe_secret_key = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -115,11 +117,12 @@ export const addBookSlot = async (req, res) => {
             complaintDescription,
             bookDate,
             bookTime,
+            shopName
         } = req.body
 
         const customerId = req.userId
 
-        if (!mechanicId || !customerName || !vehicleType || !registerNumber || !complaintDescription || !bookDate || !bookTime) {
+        if (!mechanicId || !customerName || !vehicleType || !registerNumber || !complaintDescription || !bookDate || !bookTime || !shopName) {
             throw new Error("All fields are required!!!")
         }
 
@@ -153,7 +156,40 @@ export const addBookSlot = async (req, res) => {
 
         await newBookSlot.save()
 
-        const token = generateTokenAndSetCookie(res, customerId, registerNumber)
+        // const token = generateTokenAndSetCookie(res, customerId, registerNumber)
+
+        const customerDetail = await User.findById(customerId).select("-password")
+        const mechanicDetail = await User.findById(mechanicId).select("-password")
+
+
+        // console.log(customerDetail.email,customerName,mechanicDetail.name,bookDate,bookTime,shopName,registerNumber,mechanicDetail.mobileNumber)
+
+        try {
+            await bookingSlotConfirm(
+                customerDetail.email,
+                customerName,
+                mechanicDetail.name,
+                bookDate,
+                bookTime,
+                shopName,
+                registerNumber,
+                mechanicDetail.mobileNumber
+            )
+            await mechanicRequestNotify(
+                mechanicDetail.email, 
+                mechanicDetail.name, 
+                customerName, 
+                bookDate, 
+                bookTime, 
+                shopName, 
+                registerNumber,
+                vehicleType,
+                customerDetail.mobileNumber
+            )
+        } catch (emailError) {
+            console.error("Error sending confirmation email:", emailError);
+            // Continue with the booking even if email fails
+        }
 
         return res.status(201).json({
             success: true,
@@ -161,7 +197,6 @@ export const addBookSlot = async (req, res) => {
             data: {
                 registerNumber,
                 bookingId: newBookSlot._id,
-                token // Send the new token in response
             }
         })
     } catch (error) {

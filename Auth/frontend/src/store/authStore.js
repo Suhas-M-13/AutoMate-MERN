@@ -542,7 +542,7 @@ export const useAuthStore = create((set) => ({
         }
 
     },
-    addBookFormDetail: async (mechanicId, customerName, formData) => {
+    addBookFormDetail: async (mechanicId, customerName, formData,shopName) => {
         set({ isLoading: true, error: null })
 
         try {
@@ -562,7 +562,7 @@ export const useAuthStore = create((set) => ({
                 timeZone: "Asia/Kolkata"
             })
 
-            const response = await axios.post(`${API_URL}/consumer/book-slot`, { mechanicId, customerName, vehicleType, registerNumber, complaintDescription, bookDate, bookTime })
+            const response = await axios.post(`${API_URL}/consumer/book-slot`, { mechanicId, customerName, vehicleType, registerNumber, complaintDescription, bookDate, bookTime,shopName})
 
             set({
                 message: response.data.message,
