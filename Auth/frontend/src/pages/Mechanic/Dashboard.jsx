@@ -376,7 +376,7 @@ const MechanicDashboard = () => {
                             <td className="px-6 py-4">
                               <div className="text-sm text-gray-900 text-center">
                                 {new Date(request.bookDate).toDateString()}<br />
-                                <span className="text-gray-500">{request.bookTime.split("T")[1].split(".")[0]}</span>
+                                <span className="text-gray-500">{request.bookTime}</span>
                               </div>
                             </td>
                             <td className="px-6 py-4">

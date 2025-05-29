@@ -42,7 +42,7 @@ const ServiceFeedback = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await addServiceFeedback(mechanicId, user.name, feedback,book[0].registerNumber,book[0].vehicleType,book._id)
+      await addServiceFeedback(mechanicId, user.name, feedback,book[0].registerNumber,book[0].vehicleType,book[0]._id)
       toast.success("Feedback submitted successfully");
       navigate("/dashboardCustomer")
     } catch (error) {

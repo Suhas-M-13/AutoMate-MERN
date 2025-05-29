@@ -8,16 +8,16 @@ import { analyzeReviewWithHuggingFace } from "../services/analyzeReviewWithHuggi
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js"
 import axios from "axios"
 
-import {bookingSlotConfirm,mechanicRequestNotify} from "../mailtrap/emails.js"
+import { bookingSlotConfirm, feedbackNotification, mechanicRequestNotify, paymentNotification } from "../mailtrap/emails.js"
 
-import  Stripe from 'stripe';
+import Stripe from 'stripe';
 
 const stripe_secret_key = Stripe(process.env.STRIPE_SECRET_KEY);
 
 
 export const getAllShopList = async (req, res) => {
     try {
-        const allShop = await Shop.find({isShopVerified : true})
+        const allShop = await Shop.find({ isShopVerified: true })
 
         if (!allShop) {
             throw new Error("Error in fetching...")
@@ -59,7 +59,7 @@ export const getShopById = async (req, res) => {
         return res.status(200).json({
             shopList: reqShop,
             reviews: comments,
-            mechanicDeatil : mechanicDeatil,
+            mechanicDeatil: mechanicDeatil,
             success: true,
             message: "fetched required shop details"
         })
@@ -134,7 +134,7 @@ export const addBookSlot = async (req, res) => {
             registerNumber
         })
 
-        for(let i = 0;i<checkSlot.length;i++){            
+        for (let i = 0; i < checkSlot.length; i++) {
             if (checkSlot[i] && !checkSlot[i].isPaid) {
                 throw new Error("For one vehicle only one booking can be done until the current status of the vehicle service is completed and the bill is paid")
             }
@@ -176,12 +176,12 @@ export const addBookSlot = async (req, res) => {
                 mechanicDetail.mobileNumber
             )
             await mechanicRequestNotify(
-                mechanicDetail.email, 
-                mechanicDetail.name, 
-                customerName, 
-                bookDate, 
-                bookTime, 
-                shopName, 
+                mechanicDetail.email,
+                mechanicDetail.name,
+                customerName,
+                bookDate,
+                bookTime,
+                shopName,
                 registerNumber,
                 vehicleType,
                 customerDetail.mobileNumber
@@ -242,8 +242,8 @@ export const getShopListPendingById = async (req, res) => {
                 isAccepted: bookSlot[i].isAccepted,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType,
-                BookDate : bookSlot[i].bookDate,
-                bookslotId : bookSlot[i]._id
+                BookDate: bookSlot[i].bookDate,
+                bookslotId: bookSlot[i]._id
             }
 
             shopDetail.push(shopWithBooking)
@@ -303,8 +303,8 @@ export const getShopListCompletedById = async (req, res) => {
                 isPaid: bookSlot[i].isPaid,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType,
-                BookDate : bookSlot[i].bookDate,
-                bookslotId : bookSlot[i]._id
+                BookDate: bookSlot[i].bookDate,
+                bookslotId: bookSlot[i]._id
             }
 
             shopDetail.push(shopWithBooking)
@@ -352,7 +352,7 @@ export const getServiceHistoryForCustomer = async (req, res) => {
                 isPaid: bookSlot[i].isPaid,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType,
-                BookDate : bookSlot[i].bookDate
+                BookDate: bookSlot[i].bookDate
             }
 
             shopDetail.push(shopWithBooking)
@@ -377,7 +377,7 @@ export const getGeneratedBill = async (req, res) => {
     try {
         const customerId = req.userId
         // const { mechanicId, registerNumber } = req.body
-        const { bookslotId,mechanicId } = req.body
+        const { bookslotId, mechanicId } = req.body
 
         if (!customerId || !mechanicId || !bookslotId) {
             throw new Error("no mechanic id or customer id")
@@ -391,7 +391,7 @@ export const getGeneratedBill = async (req, res) => {
             // mechanicId: new mongoose.Types.ObjectId(mechanicId),
             // customerId: new mongoose.Types.ObjectId(customerId),
             // registerNumber: registerNumber
-            bookslotId : new mongoose.Types.ObjectId(bookslotId) 
+            bookslotId: new mongoose.Types.ObjectId(bookslotId)
         })
 
         // console.log("bill found", billDetail)
@@ -477,7 +477,7 @@ export const updatePayment = async (req, res) => {
             throw new Error("Mechanic ID and Customer ID are required!");
         }
 
-        if(!bookslotId){
+        if (!bookslotId) {
             throw new Error("No booking id was found..")
         }
 
@@ -487,7 +487,7 @@ export const updatePayment = async (req, res) => {
                 // customerId: new mongoose.Types.ObjectId(customerId),
                 // isCompleted: true,
                 // registerNumber: registerNumber,
-                _id : new mongoose.Types.ObjectId(bookslotId)
+                _id: new mongoose.Types.ObjectId(bookslotId)
             },
             { $set: { isPaid: true } },
             { new: true }
@@ -502,6 +502,55 @@ export const updatePayment = async (req, res) => {
         }
 
         // console.log("Updated Booking:", updatedBooking); // Log the updated booking
+
+        const customerDetail = await User.findById(customerId).select("-password")
+        const mechanicDeatil = await User.findById(mechanicId).select("-password")
+        const shopDetail = await Shop.find({
+            ownerId: new mongoose.Types.ObjectId(mechanicId)
+        })
+
+        const bookSlot = await book.findById(bookslotId)
+        const billDetail = await bill.find({
+            bookslotId: new mongoose.Types.ObjectId(bookslotId)
+        })
+
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            timeZone: "Asia/Kolkata"
+        });
+
+        const formattedTime = now.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "Asia/Kolkata"
+        });
+
+        // console.log(billDetail[0].totalAmount)
+
+        try {
+            await paymentNotification(
+                mechanicDeatil.email,
+                mechanicDeatil.name,
+                customerDetail.name,
+                bookSlot.bookDate,
+                bookSlot.bookTime,
+                formattedDate,
+                formattedTime,
+                shopDetail[0].shopname,
+                bookSlot.registerNumber,
+                bookSlot.vehicleType,
+                customerDetail.mobileNumber,
+                billDetail[0].totalAmount
+            )
+
+        } catch (emailError) {
+            console.error("Error sending confirmation email:", emailError);
+            // Continue with the booking even if email fails
+        }
 
         return res.status(200).json({ // Use 200 OK for successful update
             success: true,
@@ -547,16 +596,16 @@ export const addComment = async (req, res) => {
         while (attempts < maxAttempts) {
             try {
                 ratingResponse = await analyzeReviewWithHuggingFace(inputText);
-                
+
                 // Check if we got a valid response
-                if (ratingResponse && 
-                    ratingResponse.moderation !== "error" && 
+                if (ratingResponse &&
+                    ratingResponse.moderation !== "error" &&
                     ratingResponse.rating !== "error" &&
-                    ratingResponse.rating >= 1 && 
+                    ratingResponse.rating >= 1 &&
                     ratingResponse.rating <= 5) {
                     break; // Exit the loop if we got a valid response
                 }
-                
+
                 attempts++;
                 if (attempts < maxAttempts) {
                     // console.log(`Attempt ${attempts} failed, retrying in ${delayBetweenAttempts/1000} seconds...`);
@@ -573,10 +622,10 @@ export const addComment = async (req, res) => {
         }
 
         // If we still don't have a valid response after all attempts
-        if (!ratingResponse || 
-            ratingResponse.moderation === "error" || 
+        if (!ratingResponse ||
+            ratingResponse.moderation === "error" ||
             ratingResponse.rating === "error" ||
-            ratingResponse.rating < 1 || 
+            ratingResponse.rating < 1 ||
             ratingResponse.rating > 5) {
             // console.error("Failed to get valid rating after all attempts, using default rating");
             ratingResponse = {
@@ -603,6 +652,53 @@ export const addComment = async (req, res) => {
         });
 
         await newComment.save();
+
+        const customerDetail = await User.findById(customerId).select("-password")
+        const mechanicDeatil = await User.findById(mechanicId).select("-password")
+        const shopDetail = await Shop.find({
+            ownerId: new mongoose.Types.ObjectId(mechanicId)
+        })
+
+        const bookSlot = await book.findById(bookslotId)
+
+        // console.log(bookslotId)
+
+        const now = new Date();
+        const formattedDate = now.toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            timeZone: "Asia/Kolkata"
+        });
+
+        const formattedTime = now.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+            timeZone: "Asia/Kolkata"
+        });
+
+
+        try {
+            await feedbackNotification(
+                mechanicDeatil.email,
+                mechanicDeatil.name,
+                customerDetail.name,
+                bookSlot.bookDate,
+                bookSlot.bookTime,
+                formattedDate,
+                formattedTime,
+                shopDetail[0].shopname,
+                bookSlot.registerNumber,
+                bookSlot.vehicleType,
+                customerDetail.mobileNumber,
+                Rating
+            )
+
+        } catch (emailError) {
+            console.error("Error sending confirmation email:", emailError);
+            // Continue with the booking even if email fails
+        }
 
         return res.status(201).json({
             success: true,
@@ -642,53 +738,53 @@ export const getMapRoute = async (req, res) => {
     }
 }
 
-export const getNearByShops = async(req,res)=>{
+export const getNearByShops = async (req, res) => {
     try {
 
-        const {userLong,userLat} = req.body
+        const { userLong, userLat } = req.body
 
         const shopDetail = await Shop.find({
             location: {
-              $near: {
-                $geometry: { type: "Point", coordinates: [userLong, userLat] },
-                $maxDistance: 1000000 // in meters
-              }
+                $near: {
+                    $geometry: { type: "Point", coordinates: [userLong, userLat] },
+                    $maxDistance: 1000000 // in meters
+                }
             }
-          })
+        })
 
-          // console.log("shops : ",shopDetail)
+        // console.log("shops : ",shopDetail)
 
-          return res.status(200).json({
-            message : "successfully fetched",
-            shopDetail : shopDetail
-          })    
-        
+        return res.status(200).json({
+            message: "successfully fetched",
+            shopDetail: shopDetail
+        })
+
     } catch (error) {
         // console.error(error);
         res.status(500).json({ message: "Failed to fetch shops" });
     }
 }
 
-export const createPaymentIntentForBill = async(req,res)=>{
-    
+export const createPaymentIntentForBill = async (req, res) => {
+
     try {
-    const { billId } = req.body;
-    const billDetail = await bill.findById(billId);
-    if (!billDetail) return res.status(404).json({ error: 'Bill not found' });
+        const { billId } = req.body;
+        const billDetail = await bill.findById(billId);
+        if (!billDetail) return res.status(404).json({ error: 'Bill not found' });
 
-    const paymentIntent = await stripe_secret_key.paymentIntents.create({
-      amount: billDetail.totalAmount * 100, // in paise
-      currency: 'inr',
-      automatic_payment_methods: { enabled: true },
-    });
+        const paymentIntent = await stripe_secret_key.paymentIntents.create({
+            amount: billDetail.totalAmount * 100, // in paise
+            currency: 'inr',
+            automatic_payment_methods: { enabled: true },
+        });
 
-    // console.log('paymentIntent : ',paymentIntent)
+        // console.log('paymentIntent : ',paymentIntent)
 
-    res.status(200).json({
-      clientSecret: paymentIntent.client_secret,
-      amount: billDetail.totalAmount,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+        res.status(200).json({
+            clientSecret: paymentIntent.client_secret,
+            amount: billDetail.totalAmount,
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 }
