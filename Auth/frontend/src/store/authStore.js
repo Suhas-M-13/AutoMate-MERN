@@ -29,6 +29,14 @@ export const useAuthStore = create((set) => ({
     comments: [],
     customerDetail: [],
     nearShop: [],
+
+    totalUsers : null,
+    customersCount : null,
+    mechanicsCount : null,
+    totalBookings : null,
+    completedBookings : null,
+    totalBills : null,
+    paidBills : null,
     // mapDetail : {},
 
 
@@ -640,18 +648,29 @@ export const useAuthStore = create((set) => ({
 
         try {
             const response = await axios.post(`${API_URL}/auth/login`, { email, password })
-
-
-            set({
-                user: response.data.user,
-                mechanic: response.data.user,
-                isLoading: false,
-                isAuthenticated: true,
-                error: null
-            })
+            
+            // Set user data based on role
+            if (response.data.user.role.toLowerCase() === 'mechanic') {
+                set({
+                    user: response.data.user,
+                    mechanic: response.data.user,
+                    isLoading: false,
+                    isAuthenticated: true,
+                    error: null
+                })
+            } else {
+                set({
+                    user: response.data.user,
+                    isLoading: false,
+                    isAuthenticated: true,
+                    error: null
+                })
+            }
+            
+            return response.data.user; // Return user data for navigation
         } catch (error) {
             set({
-                error: error.response.data.message || "Error in logging in",
+                error: error.response?.data?.message || "Error in logging in",
                 isLoading: false
             })
             throw error
@@ -760,7 +779,114 @@ export const useAuthStore = create((set) => ({
             })
             throw error
         }
-    }
+    },
+
+    //admin endpoints...
+
+    getAllUsers: async () => {
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/admin/users`)
+
+            set({
+                message: response.data.message,
+                customerDetail : response.data.users,
+                isLoading: false
+            })
+        } catch (error) {
+            set({
+                error: error.response.data.message || "Error in sending reset password mail",
+                isLoading: false
+            })
+            throw error
+        }
+    },
+
+    getAllUsersStats: async () => {
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/admin/stats/users`)
+
+            set({
+                totalUsers : response.data.totalUsers,
+                customersCount : response.data.customers,
+                mechanicsCount : response.data.mechanics,
+                isLoading: false
+            })
+        } catch (error) {
+            set({
+                error: error.response.data.message || "Error in sending reset password mail",
+                isLoading: false
+            })
+            throw error
+        }
+    },
+
+    getAllShopsDeatils: async () => {
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/admin/shops`)
+
+            set({
+                shop : response.data.shopDetails,
+                isLoading: false
+            })
+        } catch (error) {
+            set({
+                error: error.response.data.message || "Error in sending reset password mail",
+                isLoading: false
+            })
+            throw error
+        }
+    },
+
+    getAllActivityStats: async () => {
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.get(`${API_URL}/admin/stats/activity`)
+
+            set({
+                totalBookings : response.data.totalBookings,
+                completedBookings : response.data.completedBookings,
+                totalBills : response.data.totalBills,
+                paidBills : response.data.paidBills,
+                isLoading: false
+            })
+        } catch (error) {
+            set({
+                error: error.response.data.message || "Error in sending reset password mail",
+                isLoading: false
+            })
+            throw error
+        }
+    },
+
+    verfiyShopLocation: async (id) => {
+        set({ isLoading: true, error: null })
+
+        try {
+            const response = await axios.patch(`${API_URL}/admin/shops/verify/${id}`)
+
+            set({
+                message : response.data.message,
+                // shop : response.data.updatedShop,
+                isLoading: false
+            })
+        } catch (error) {
+            set({
+                error: error.response.data.message || "Error in sending reset password mail",
+                isLoading: false
+            })
+            throw error
+        }
+    },
+
+
+
 
 
 }))

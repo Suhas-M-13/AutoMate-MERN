@@ -7,7 +7,7 @@ import path from "path"
 import authRoutes from "./routes/auth.route.js"
 import consumerRoutes from "./routes/consumer.route.js"
 import mechanicRoutes from "./routes/mechanic.route.js"
-
+import adminRoutes from './routes/admin.routes.js'
 
 import {connectDB} from "./db/connection.js"
 
@@ -44,6 +44,7 @@ app.get("/",(req,res)=>{
 app.use("/api/auth",authRoutes)
 app.use("/api/consumer",consumerRoutes)
 app.use("/api/mechanic",mechanicRoutes)
+app.use("/api/admin", adminRoutes)
 
 
 

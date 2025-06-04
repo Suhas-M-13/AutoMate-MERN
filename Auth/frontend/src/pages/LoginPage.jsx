@@ -27,19 +27,24 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      // console.log("inside login");
+      const userData = await login(email, password);
       
-      await login(email, password)
-
-      // console.log("after login",user.role)
-      
-      if(user.role.toLowerCase() === "customer")
-        navigate('/dashboardcustomer')
-      else if(user.role.toLowerCase() === "mechanic")
-        navigate('/dashboardmechanic')
-      
+      // Navigate based on role
+      switch(userData.role.toLowerCase()) {
+        case 'customer':
+          navigate('/dashboardcustomer');
+          break;
+        case 'mechanic':
+          navigate('/dashboardmechanic');
+          break;
+        case 'admin':
+          navigate('/admin/dashboard');
+          break;
+        default:
+          navigate('/');
+      }
     } catch (error) {
-      // toast.error("Error in logging in...")
+      toast.error(error.message || "Error in logging in");
     }
   }
 

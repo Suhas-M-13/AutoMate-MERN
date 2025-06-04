@@ -9,6 +9,7 @@ import EmailVerificationPage from "./pages/EmailVerificationPage"
 import DashBoardPage from "./pages/DashBoardPage"
 import ForgetPasswordPage from "./pages/ForgetPasswordPage"
 import ResetPasswordPage from "./pages/ResetPasswordPage.jsx"
+import AdminDashboard from "./pages/AdminDashboard"
 
 import { useAuthStore } from "./store/authStore.js"
 import Homepage from "./pages/Homepage.jsx"
@@ -37,25 +38,25 @@ const ProtectedRoute = ({ children }) => {
   return children
 }
 
-
 //redirecting the authenticated user to home page
 const RedirectAuthenticatedUser = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore()
 
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/login" replace />
-  // }
-  // else
-   if (isAuthenticated && user && user.isverified && user.role.toLowerCase() === "customer") {
-    return <Navigate to="/dashboardcustomer" replace />
-  }
-  else if (isAuthenticated && user && user.isverified && user.role.toLowerCase() === "mechanic") {
-    return <Navigate to="/dashboardmechanic" replace />
+  if (isAuthenticated && user && user.isverified) {
+    switch (user.role.toLowerCase()) {
+      case "customer":
+        return <Navigate to="/dashboardcustomer" replace />
+      case "mechanic":
+        return <Navigate to="/dashboardmechanic" replace />
+      case "admin":
+        return <Navigate to="/admin/dashboard" replace />
+      default:
+        return children
+    }
   }
 
   return children
 }
-
 
 function App() {
   const { checkAuth } = useAuthStore()
@@ -103,13 +104,11 @@ function App() {
               <ServiceFeedback />
             </ProtectedRoute>
           } />
-
           <Route path="/paymentPage/:mechanicId" element={
             <ProtectedRoute>
               <PaymentPage/>
             </ProtectedRoute>
           } />
-
           <Route path="/billmechanic/:customerId" element={
             <ProtectedRoute>
               <Bill />
@@ -126,6 +125,11 @@ function App() {
           <Route path="/mechanicfeedback" element={
             <ProtectedRoute>
               <MechanicFeedback />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin/dashboard" element={
+            <ProtectedRoute>
+              <AdminDashboard />
             </ProtectedRoute>
           } />
           <Route path="/signup" element={
