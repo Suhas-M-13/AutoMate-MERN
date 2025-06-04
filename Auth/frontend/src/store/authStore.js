@@ -9,8 +9,7 @@ global state management solution
 import { create } from "zustand"
 import axios from "axios"
 
-// const API_URL = import.meta.env.MODE === "development" ? "https://automate-9buv.onrender.com/api" : "/api"
-const API_URL = "https://automate-9buv.onrender.com/api"
+const API_URL = import.meta.env.MODE === "development" ? "http://localhost:1972/api" : "/api"
 const Customer_URL = "http://localhost:1972/api/consumer"
 
 axios.defaults.withCredentials = true
@@ -620,7 +619,7 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axios.post(`${API_URL}/auth/signup`, { email, password, name, role, mobileNumber })
 
-            if (role === mechanic) {
+            if (role.toLowerCase() === 'mechanic') {
                 set({
                     mechanic: response.data.user,
                     isAuthenticated: true,
@@ -634,10 +633,11 @@ export const useAuthStore = create((set) => ({
                     isLoading: false
                 })
             }
+            return response.data.user;
 
         } catch (error) {
             set({
-                error: error.response.data.message || "Error in signing up",
+                error: error.response?.data?.message || "Error in signing up",
                 isLoading: false
             })
             throw error

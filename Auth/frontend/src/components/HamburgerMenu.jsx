@@ -95,7 +95,7 @@ const HamburgerMenu = ({ children }) => {
                 </button>
               </li>
               {
-                user.role === 'mechanic' &&
+                user?.role === 'mechanic' &&
                 <>
                   <li>
                     <button
@@ -118,7 +118,7 @@ const HamburgerMenu = ({ children }) => {
                 </>
               }
               {
-                user.role === 'customer' &&
+                user?.role === 'customer' &&
                 <li>
                   <button
                     onClick={() => navigate('/user-profile')}

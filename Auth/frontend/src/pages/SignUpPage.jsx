@@ -1,6 +1,6 @@
 import { React, useState } from 'react'
 import { motion } from "framer-motion"
-import { User, Mail, Lock, Loader,CircleUserRound,TabletSmartphone } from "lucide-react"
+import { User, Mail, Lock, Loader, CircleUserRound, TabletSmartphone } from "lucide-react"
 import { Link, useNavigate } from 'react-router-dom';
 import toast from "react-hot-toast"
 
@@ -21,13 +21,29 @@ const SignUpPage = () => {
 
   const navigate = useNavigate()
 
-  const {signup,error,isLoading} = useAuthStore()
+  const { signup, error, isLoading, user } = useAuthStore()
 
-  const handleSignUp = async(e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      await signup(email,password,name,role,mobile)
-      navigate('/mechanicregestration')
+      const userData = await signup(email, password, name, role, mobile)
+
+
+      if (userData) {
+        switch (userData.role.toLowerCase()) {
+          case 'customer':
+            navigate('/dashboardcustomer');
+            break;
+          case 'mechanic':
+            navigate('/mechanicregestration')
+            break;
+          default:
+            navigate('/');
+        }
+      }
+      else{
+        navigate('/')
+      }
     } catch (error) {
       toast.error(error.message || "Error in signing up..")
     }
@@ -57,7 +73,7 @@ const SignUpPage = () => {
                 setname(e.target.value)
               }
             }
-            textTypeVal = "true"
+            textTypeVal="true"
           />
           <Input
             icon={Mail}
@@ -69,7 +85,7 @@ const SignUpPage = () => {
                 setemail(e.target.value)
               }
             }
-            textTypeVal = "true"
+            textTypeVal="true"
           />
           <Input
             icon={Lock}
@@ -81,10 +97,10 @@ const SignUpPage = () => {
                 setpassword(e.target.value)
               }
             }
-            textTypeVal = "false"
+            textTypeVal="false"
           />
 
-{/* <Input
+          {/* <Input
             icon={CircleUserRound}
             type='text'
             placeholder='Enter Role'
@@ -99,7 +115,7 @@ const SignUpPage = () => {
 
           <div className="relative mb-6">
             <label htmlFor="role" className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-            <FaUser/>
+              <FaUser />
             </label>
             <select
               id="role"
@@ -114,7 +130,7 @@ const SignUpPage = () => {
             </select>
           </div>
 
-<Input
+          <Input
             icon={TabletSmartphone}
             type='text'
             placeholder='Enter Mobile Number'
@@ -124,7 +140,7 @@ const SignUpPage = () => {
                 setmobile(e.target.value)
               }
             }
-            textTypeVal = "true"
+            textTypeVal="true"
           />
 
           {error && <p className='text-red-500 font-semibold mt-2'>{error}</p>}
@@ -139,9 +155,9 @@ const SignUpPage = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             type='submit'
-            disabled = {isLoading}    
+            disabled={isLoading}
           >
-            {isLoading ? <Loader className='animate-spin mx-auto'/> : "Sign Up"}
+            {isLoading ? <Loader className='animate-spin mx-auto' /> : "Sign Up"}
 
           </motion.button>
 

@@ -11,6 +11,9 @@ import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js
 export const signup = async (req,res)=>{
     const {email,password,name,role,mobileNumber} = req.body
 
+    console.log("inside signup");
+    
+
     try {
         if(!email || !password || !name || !role || !mobileNumber){
             throw new Error("All Fields are required")
@@ -31,6 +34,9 @@ export const signup = async (req,res)=>{
 
         const verificationToken = generateVerificationCode()
 
+        console.log("verificstion code : ",verificationToken);
+        
+
         const user = new User({
             email,
             password : hashedPassword,
@@ -45,7 +51,13 @@ export const signup = async (req,res)=>{
 
         generateTokenAndSetCookie(res,user._id)
 
+        console.log("token setted");
+        
+
         await sendVerificationEmail(user.email,verificationToken)
+
+        console.log("mail sent");
+        
 
         res.status(201).json({
             success : true,
