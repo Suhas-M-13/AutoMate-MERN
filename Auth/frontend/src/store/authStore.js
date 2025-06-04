@@ -9,7 +9,8 @@ global state management solution
 import { create } from "zustand"
 import axios from "axios"
 
-const API_URL = import.meta.env.MODE === "development" ? "http://localhost:1972/api" : "/api"
+// const API_URL = import.meta.env.MODE === "development" ? "https://automate-9buv.onrender.com/api" : "/api"
+const API_URL = "https://automate-9buv.onrender.com/api"
 const Customer_URL = "http://localhost:1972/api/consumer"
 
 axios.defaults.withCredentials = true
