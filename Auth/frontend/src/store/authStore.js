@@ -46,7 +46,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/mechanic/request`)
+            const response = await axios.get(`${API_URL}/mechanic/request`, { withCredentials: true })
 
             set({
                 book: response.data.customerRequest,
@@ -69,7 +69,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/consumer/nearbyShop`, { userLong, userLat })
+            const response = await axios.post(`${API_URL}/consumer/nearbyShop`, { userLong, userLat }, { withCredentials: true })
 
             set({
                 nearShop: response.data.shopDetail,
@@ -121,7 +121,7 @@ export const useAuthStore = create((set) => ({
 
         try {
             // const response = await axios.get(`http://localhost:1972/api/consumer/view-bill/${id}`)
-            const response = await axios.get(`${API_URL}/consumer/shoplist`)
+            const response = await axios.get(`${API_URL}/consumer/shoplist`, { withCredentials: true })
 
             set({
                 shop: response.data.shopList,
@@ -144,7 +144,7 @@ export const useAuthStore = create((set) => ({
 
         try {
             // const response = await axios.get(`http://localhost:1972/api/consumer/view-bill/${id}`)
-            const response = await axios.get(`${API_URL}/mechanic/getMechanicDeatil`)
+            const response = await axios.get(`${API_URL}/mechanic/getMechanicDeatil`, { withCredentials: true })
 
             set({
                 mechanic: response.data.mechanic,
@@ -164,7 +164,7 @@ export const useAuthStore = create((set) => ({
     updateAcceptButton: async (id) => {
         set({ isLoading: true, error: null })
         try {
-            const response = await axios.patch(`${API_URL}/mechanic/accept/${id}`)
+            const response = await axios.patch(`${API_URL}/mechanic/accept/${id}`, {}, { withCredentials: true })
             if (response.data && response.data.message) {
                 set({
                     message: response.data.message,
@@ -187,7 +187,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/mechanic/pending`)
+            const response = await axios.get(`${API_URL}/mechanic/pending`, { withCredentials: true })
 
             set({
                 book: response.data.bookSlot,
@@ -209,7 +209,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/mechanic/completed `)
+            const response = await axios.get(`${API_URL}/mechanic/completed `, { withCredentials: true })
 
             set({
                 book: response.data.bookSlot,
@@ -231,7 +231,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/mechanic/bill/${id}`, { bookslotId })
+            const response = await axios.post(`${API_URL}/mechanic/bill/${id}`, { bookslotId }, { withCredentials: true })
 
             set({
                 shop: response.data.shopDetail,
@@ -259,7 +259,7 @@ export const useAuthStore = create((set) => ({
         try {
             const Decription = formData.description
             const totalAmount = formData.totalDue
-            const response = await axios.post(`${API_URL}/mechanic/bill `, { customerId, Decription, totalAmount, registerNumber, bookslotId })
+            const response = await axios.post(`${API_URL}/mechanic/bill `, { customerId, Decription, totalAmount, registerNumber, bookslotId }, { withCredentials: true })
 
             set({
                 message: response.data.message || "Bill created successfully",
@@ -279,7 +279,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.patch(`${API_URL}/mechanic/completed/${id}`)
+            const response = await axios.patch(`${API_URL}/mechanic/completed/${id}`, {}, { withCredentials: true })
 
             set({
                 message: response.data.message,
@@ -313,7 +313,7 @@ export const useAuthStore = create((set) => ({
             const address = formData.addr
             const timings = formData.workingHours
             const location = formData.location
-            const response = await axios.post(`${API_URL}/mechanic/addShop`, { shopname, ownerName, mobileNumber, description, serviceAvailable, address, timings, location })
+            const response = await axios.post(`${API_URL}/mechanic/addShop`, { shopname, ownerName, mobileNumber, description, serviceAvailable, address, timings, location }, { withCredentials: true })
 
             set({
                 message: response.data.message,
@@ -334,7 +334,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/consumer/shoplist/${id}`)
+            const response = await axios.get(`${API_URL}/consumer/shoplist/${id}`, { withCredentials: true })
 
             set({
                 shop: response.data.shopList,
@@ -357,7 +357,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/consumer/pending`)
+            const response = await axios.get(`${API_URL}/consumer/pending`, { withCredentials: true })
             set({
                 shop: response.data.shopDetail,
                 book: response.data.bookSlot,
@@ -377,7 +377,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/consumer/completed`)
+            const response = await axios.get(`${API_URL}/consumer/completed`, { withCredentials: true })
             set({
                 shop: response.data.shopDetail,
                 book: response.data.bookSlot,
@@ -398,7 +398,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/consumer/service-history`)
+            const response = await axios.get(`${API_URL}/consumer/service-history`, { withCredentials: true })
             set({
                 shop: response.data.shopDetail,
                 book: response.data.bookSlot,
@@ -419,7 +419,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/mechanic/service-history`)
+            const response = await axios.get(`${API_URL}/mechanic/service-history`, { withCredentials: true })
             set({
                 book: response.data.bookSlot,
                 customerDetail: response.data.customerDetail,
@@ -440,7 +440,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/consumer/book-slot/${id}`)
+            const response = await axios.get(`${API_URL}/consumer/book-slot/${id}`, { withCredentials: true })
 
             set({
                 shop: response.data.shopDetail,
@@ -463,7 +463,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/consumer/getfeedback`, { mechanicId, bookslotId })
+            const response = await axios.post(`${API_URL}/consumer/getfeedback`, { mechanicId, bookslotId }, { withCredentials: true })
 
             set({
                 shop: response.data.shopDetail,
@@ -487,7 +487,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.patch(`${API_URL}/consumer/updatePay`, { mechanicId, bookslotId })
+            const response = await axios.patch(`${API_URL}/consumer/updatePay`, { mechanicId, bookslotId }, { withCredentials: true })
 
             set({
                 message: response.data.message,
@@ -509,7 +509,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/mechanic/comments`)
+            const response = await axios.get(`${API_URL}/mechanic/comments`, { withCredentials: true })
 
             set({
                 comments: response.data.comments,
@@ -534,7 +534,7 @@ export const useAuthStore = create((set) => ({
         try {
             const title = feedback.title
             const description = feedback.description
-            const response = await axios.post(`${API_URL}/consumer/feedback`, { mechanicId, customerName, title, description, registerNumber, vehicleType, bookslotId })
+            const response = await axios.post(`${API_URL}/consumer/feedback`, { mechanicId, customerName, title, description, registerNumber, vehicleType, bookslotId }, { withCredentials: true })
 
             set({
                 message: response.data.message,
@@ -571,7 +571,7 @@ export const useAuthStore = create((set) => ({
                 timeZone: "Asia/Kolkata"
             })
 
-            const response = await axios.post(`${API_URL}/consumer/book-slot`, { mechanicId, customerName, vehicleType, registerNumber, complaintDescription, bookDate, bookTime,shopName})
+            const response = await axios.post(`${API_URL}/consumer/book-slot`, { mechanicId, customerName, vehicleType, registerNumber, complaintDescription, bookDate, bookTime,shopName}, { withCredentials: true })
 
             set({
                 message: response.data.message,
@@ -593,7 +593,7 @@ export const useAuthStore = create((set) => ({
 
         try {
             // const response = await axios.get(`http://localhost:1972/api/consumer/view-bill/${id}`)
-            const response = await axios.post(`${API_URL}/consumer/view-bill`, { mechanicId, bookslotId })
+            const response = await axios.post(`${API_URL}/consumer/view-bill`, { mechanicId, bookslotId }, { withCredentials: true })
 
             set({
                 user: response.data.customerDetail,
@@ -618,7 +618,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/auth/signup`, { email, password, name, role, mobileNumber })
+            const response = await axios.post(`${API_URL}/auth/signup`, { email, password, name, role, mobileNumber }, { withCredentials: true })
 
             if (role.toLowerCase() === 'mechanic') {
                 set({
@@ -649,7 +649,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/auth/login`, { email, password })
+            const response = await axios.post(`${API_URL}/auth/login`, { email, password }, { withCredentials: true })
             
             // Set user data based on role
             if (response.data.user.role.toLowerCase() === 'mechanic') {
@@ -683,7 +683,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/auth/logout`)
+            const response = await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true })
             set({
                 user: null,
                 isAuthenticated: false,
@@ -704,7 +704,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/auth/verify-email`, { code })
+            const response = await axios.post(`${API_URL}/auth/verify-email`, { code }, { withCredentials: true })
 
             set({
                 user: response.data.user,
@@ -727,7 +727,7 @@ export const useAuthStore = create((set) => ({
         set({ isCheckingAuth: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/auth/check-auth`)
+            const response = await axios.get(`${API_URL}/auth/check-auth`, { withCredentials: true })
 
             set({
                 user: response.data.user,
@@ -750,7 +750,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/auth/forgot-password`, { email })
+            const response = await axios.post(`${API_URL}/auth/forgot-password`, { email }, { withCredentials: true })
 
             set({
                 message: response.data.message,
@@ -768,7 +768,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.post(`${API_URL}/auth/reset-password/${token}`, { password })
+            const response = await axios.post(`${API_URL}/auth/reset-password/${token}`, { password }, { withCredentials: true })
 
             set({
                 message: response.data.message,
@@ -789,7 +789,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/admin/users`)
+            const response = await axios.get(`${API_URL}/admin/users`, { withCredentials: true })
 
             set({
                 message: response.data.message,
@@ -809,7 +809,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/admin/stats/users`)
+            const response = await axios.get(`${API_URL}/admin/stats/users`, { withCredentials: true })
 
             set({
                 totalUsers : response.data.totalUsers,
@@ -830,7 +830,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/admin/shops`)
+            const response = await axios.get(`${API_URL}/admin/shops`, { withCredentials: true })
 
             set({
                 shop : response.data.shopDetails,
@@ -849,7 +849,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.get(`${API_URL}/admin/stats/activity`)
+            const response = await axios.get(`${API_URL}/admin/stats/activity`, { withCredentials: true })
 
             set({
                 totalBookings : response.data.totalBookings,
@@ -871,7 +871,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null })
 
         try {
-            const response = await axios.patch(`${API_URL}/admin/shops/verify/${id}`)
+            const response = await axios.patch(`${API_URL}/admin/shops/verify/${id}`, {}, { withCredentials: true })
 
             set({
                 message : response.data.message,
