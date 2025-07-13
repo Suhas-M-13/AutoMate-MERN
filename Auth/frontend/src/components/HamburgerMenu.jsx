@@ -11,7 +11,7 @@ import BannerImage from "../images/Banner.png"
 const HamburgerMenu = ({ children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout, user,mechanic } = useAuthStore();
+  const { logout, user, mechanic } = useAuthStore();
 
   // console.log(user);
 
@@ -76,7 +76,7 @@ const HamburgerMenu = ({ children }) => {
                   <span>Dashboard</span>
                 </button>
               </li>
-              <li>
+              {/* <li>
                 <button
                   onClick={() => navigate('/profile')}
                   className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all duration-200"
@@ -84,7 +84,7 @@ const HamburgerMenu = ({ children }) => {
                   <FaUser className="text-lg" />
                   <span>Profile</span>
                 </button>
-              </li>
+              </li> */}
               <li>
                 <button
                   onClick={() => navigate('/settings')}
@@ -97,6 +97,15 @@ const HamburgerMenu = ({ children }) => {
               {
                 user?.role === 'mechanic' &&
                 <>
+                  <li>
+                    <button
+                      onClick={() => navigate('/user-profile')}
+                      className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-black hover:bg-gray-100 transition-all duration-200"
+                    >
+                      <FaUser className="text-lg" />
+                      <span>View Profile</span>
+                    </button>
+                  </li>
                   <li>
                     <button
                       onClick={() => navigate('/mechanicfeedback')}

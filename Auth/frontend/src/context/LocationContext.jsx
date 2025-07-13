@@ -12,10 +12,16 @@ export const LocationProvider = ({ children }) => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
+          // if(position.coords.latitude !== 12.3133 && position.coords.longitude !== 76.6134){
+            setLocation({
+            lat: 12.3133,
+            lng: 76.6134,
           });
+          // }
+          // setLocation({
+          //   lat: position.coords.latitude,
+          //   lng: position.coords.longitude,
+          // });
           // toast.success('Location fetched successfully');
           setIsLocating(false);
         },

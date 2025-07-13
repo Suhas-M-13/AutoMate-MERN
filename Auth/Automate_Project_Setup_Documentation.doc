@@ -1,0 +1,86 @@
+Auth Project Documentation
+MERN Stack Authentication System
+
+Project Structure Overview
+
+1. Backend (Node.js/Express.js)
+Main Components:
+- index.js - Main server file
+Organized Folders:
+- controllers/ - Request handlers
+- routes/ - API routes
+- models/ - Database schemas
+- middleware/ - Custom middleware
+- services/ - Business logic
+- utils/ - Helper functions
+- db/ - Database configuration
+- mailtrap/ - Email service integration
+
+2. Frontend (React.js with Vite)
+Modern React Setup with:
+- Vite as build tool
+- Tailwind CSS for styling
+- ESLint for code quality
+- PostCSS for CSS processing
+
+Steps for Execution
+
+1. Backend Setup
+cd backend
+npm install
+- Ensure MongoDB is installed and running on your system
+- Configure environment variables (if any)
+- Start the backend server:
+npm start
+
+2. Frontend Setup
+cd frontend
+npm install
+- Install dependencies
+- Start the development server:
+npm run dev
+
+3. Environment Configuration
+- Check for .env file in the backend directory
+- Configure necessary environment variables:
+  - MongoDB connection string
+  - JWT secret
+  - Port numbers
+  - Email service credentials
+
+4. Database Setup
+- Ensure MongoDB is running
+- The application will create necessary collections automatically
+
+5. Testing the Application
+- Backend API endpoints should be accessible (typically on port 5000 or similar)
+- Frontend should be running (typically on port 3000 or 5173 for Vite)
+- Test the authentication flow:
+  - Registration
+  - Login
+  - Password reset (if implemented)
+  - Email verification (if implemented)
+
+Additional Notes
+
+1. Project Tooling
+- Vite for frontend build
+- Tailwind CSS for styling
+- ESLint for code quality
+- Mailtrap for email testing
+
+2. Security Features
+- JWT authentication
+- Password hashing
+- Email verification
+- Password reset functionality
+
+Technical Requirements
+- Node.js
+- MongoDB
+- npm or yarn package manager
+- Modern web browser
+- Code editor (VS Code recommended)
+
+Support
+For any issues or questions, please refer to the project documentation or contact the development team. 

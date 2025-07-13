@@ -230,12 +230,17 @@ export const getShopListPendingById = async (req, res) => {
             })
         }
 
+        // console.log("bookslot : ",bookSlot);
+
         const shopDetail = []
 
         for (let i = 0; i < bookSlot.length; i++) {
+            // console.log("mech[i] : ",bookSlot[i].mechanicId);
             const fetchData = await Shop.find({
                 ownerId: bookSlot[i].mechanicId
             })
+
+            // console.log("shop : ",fetchData)
 
             const shopWithBooking = {
                 ...fetchData[0].toObject(),
@@ -352,7 +357,8 @@ export const getServiceHistoryForCustomer = async (req, res) => {
                 isPaid: bookSlot[i].isPaid,
                 registerNumber: bookSlot[i].registerNumber,
                 vehicleType: bookSlot[i].vehicleType,
-                BookDate: bookSlot[i].bookDate
+                BookDate: bookSlot[i].bookDate,
+                bookslotId : bookSlot[i]._id
             }
 
             shopDetail.push(shopWithBooking)
@@ -747,7 +753,7 @@ export const getNearByShops = async (req, res) => {
             location: {
                 $near: {
                     $geometry: { type: "Point", coordinates: [userLong, userLat] },
-                    $maxDistance: 1000000 // in meters
+                    $maxDistance: 5000 // in meters
                 }
             }
         })

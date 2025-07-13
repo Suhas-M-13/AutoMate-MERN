@@ -11,7 +11,7 @@ import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js
 export const signup = async (req,res)=>{
     const {email,password,name,role,mobileNumber} = req.body
 
-    console.log("inside signup");
+    // console.log("inside signup");
     
 
     try {
@@ -34,7 +34,7 @@ export const signup = async (req,res)=>{
 
         const verificationToken = generateVerificationCode()
 
-        console.log("verificstion code : ",verificationToken);
+        // console.log("verificstion code : ",verificationToken);
         
 
         const user = new User({
@@ -51,12 +51,12 @@ export const signup = async (req,res)=>{
 
         generateTokenAndSetCookie(res,user._id)
 
-        console.log("token setted");
+        // console.log("token setted");
         
 
         await sendVerificationEmail(user.email,verificationToken)
 
-        console.log("mail sent");
+        // console.log("mail sent");
         
 
         res.status(201).json({

@@ -105,7 +105,7 @@ const CustomerDashboard = () => {
 
   const handleViewBill = (mechanicId, bookslotId) => {
     try {
-      // console.log(mechanicId, registerNumber)
+      // console.log(mechanicId, bookslotId)
       // console.log(import.meta.env.VITE_SECRETKEY)
       const encryptedVeh = CryptoJS.AES.encrypt(bookslotId, import.meta.env.VITE_SECRETKEY).toString();
       navigate(`/invoice/${mechanicId}?veh=${encodeURIComponent(encryptedVeh)}`)
