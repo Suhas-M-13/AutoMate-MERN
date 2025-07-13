@@ -30,7 +30,7 @@ if(process.env.NODE_ENV === "production"){
     // })
     // app.use(cors())
     app.use(cors({
-        origin : process.env.Hosted_UI_URL,
+        origin : "*",
         credentials : true,
     }))
 }
@@ -49,6 +49,12 @@ app.use("/api/auth",authRoutes)
 app.use("/api/consumer",consumerRoutes)
 app.use("/api/mechanic",mechanicRoutes)
 app.use("/api/admin", adminRoutes)
+
+app.use((req, res, next) => {
+    console.log(req.cookies);  // This will log all cookies sent by the client
+    next();
+});
+
 
 
 
