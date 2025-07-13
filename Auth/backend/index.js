@@ -30,7 +30,7 @@ if(process.env.NODE_ENV === "production"){
     // })
     // app.use(cors())
     app.use(cors({
-        origin : "*",
+        origin : "https://automate-final-frontend.onrender.com",
         credentials : true,
     }))
 }
